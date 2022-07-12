@@ -1,3 +1,6 @@
 [submodule "ranger/plugins/ranger_devicons"]
 	path = ranger/plugins/ranger_devicons
 	url = https://github.com/alexanderjeurissen/ranger_devicons
+[submodule "ranger/plugins/ranger-gpg"]
+	path = ranger/plugins/ranger-gpg
+	url = https://gitlab.com/Ragnyll/ranger-gpg.git
