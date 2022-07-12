@@ -1,0 +1,8 @@
+# python
+*.pyc
+*.pyo
+.mypy_cache/
+__pycache__
+
+# ranger
+ranger/plugins/__init__.py
