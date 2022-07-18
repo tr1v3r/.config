@@ -64,6 +64,11 @@ class my_edit(Command):
         # content of the current directory.
         return self._tab_directory_content()
 
+class toggleVCS(Command):
+    def execute(self):
+        self.fm.execute_console("set vcs_aware!")
+        self.fm.execute_console("reload_cwd")
+
 class mkcd(Command):
     """
     :mkcd <dirname>
@@ -232,10 +237,12 @@ class YankContent(Command):
 
     def execute(self):
         import subprocess
+        import platform
         from ranger.container.file import File
         from ranger.ext.get_executables import get_executables
 
-        if 'xclip' not in get_executables():
+        system = platform.system()
+        if system != 'Darwin' and 'xclip' not in get_executables():
             self.fm.notify('xclip is not found.', bad=True)
             return
 
@@ -253,6 +260,8 @@ class YankContent(Command):
 
         relative_path = file.relative_path
         cmd = ['xclip', '-selection', 'clipboard']
+        if system == 'Darwin':
+            cmd = ['pbcopy']
         if not file.is_binary():
             with open(file.path, 'rb') as fd:
                 subprocess.check_call(cmd, stdin=fd)
