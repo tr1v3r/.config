@@ -4,6 +4,7 @@ from gnupg import GPG
 from ranger.api.commands import Command
 
 # https://gitlab.com/Ragnyll/ranger-gpg.git
+# export DEFAULT_RECIPIENT="email@email.com"
 
 class decrypt(Command):
     """:decrypts

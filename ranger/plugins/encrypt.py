@@ -5,6 +5,7 @@ from ranger.api.commands import Command
 from subprocess import run
 
 # https://gitlab.com/Ragnyll/ranger-gpg.git
+# export DEFAULT_RECIPIENT="email@email.com"
 
 class encrypt(Command):
     """:encrypt
