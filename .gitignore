@@ -6,3 +6,6 @@ __pycache__
 
 # ranger
 ranger/plugins/__init__.py
+
+# log
+*.log
