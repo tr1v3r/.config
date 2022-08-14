@@ -9,3 +9,6 @@ __pycache__
 
 # log
 *.log
+
+# lazygit
+lazygit/state.yml
