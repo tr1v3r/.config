@@ -15,17 +15,36 @@ gui:
   scrollpastbottom: true
   theme:
     lightTheme: false
+    # raw
+    # activeBorderColor:
+    #   - cyan
+    #   - bold
+    # inactiveBorderColor:
+    #   - white
+    # optionsTextColor:
+    #   - blue
+    # selectedLineBgColor:
+    #   - default
+    # selectedRangeBgColor:
+    #   - blue
+    # theme: catppuccin mocha
     activeBorderColor:
-      - cyan
+      - "#a6e3a1" # Green
       - bold
     inactiveBorderColor:
-      - white
+      - "#cdd6f4" # Text
     optionsTextColor:
-      - blue
+      - "#89b4fa" # Blue
     selectedLineBgColor:
-      - default
+      - "#313244" # Surface0
     selectedRangeBgColor:
-      - blue
+      - "#313244" # Surface0
+    cherryPickedCommitBgColor:
+      - "#94e2d5" # Teal
+    cherryPickedCommitFgColor:
+      - "#89b4fa" # Blue
+    unstagedChangesColor:
+      - red # Red
 reporting: "off"
 splashupdatesindex: 0
 startuppopupversion: 1
