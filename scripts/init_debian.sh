@@ -77,7 +77,7 @@ packages=(
 )
 apt install "${packages[@]}" -y || abort "Failed to install some apt packages"
 
-sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" && chsh -s /bin/zsh || abort "Failed to init oh-my-zsh"
+echo "n" | sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" && chsh -s /bin/zsh || abort "Failed to init oh-my-zsh"
 
 # 创建本地.config目录
 echo "Downloading neovim config..."
