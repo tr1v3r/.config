@@ -19,7 +19,7 @@ execute() {
 }
 
 # 备份原有的 sources.list 文件
-execute "cp /etc/apt/sources.list /etc/apt/sources.list.bak"
+execute "[ -f /etc/apt/sources.list ] && cp /etc/apt/sources.list /etc/apt/sources.list.bak || touch /etc/apt/sources.list"
 
 # 注释掉原有的所有行
 execute "sed -i 's/^/# /' /etc/apt/sources.list"
