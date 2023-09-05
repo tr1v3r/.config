@@ -18,6 +18,24 @@ execute() {
     eval $1 || abort "执行失败: $1"
 }
 
+install_rust=false
+install_go=false
+
+# 遍历所有参数
+for arg in "$@"; do
+    case $arg in
+        --with-rust)
+            install_rust=true
+            ;;
+        --with-go)
+            install_go=true
+            ;;
+        *)
+            echo "未知参数: $arg"
+            ;;
+    esac
+done
+
 # 备份原有的 sources.list 文件
 execute "[ -f /etc/apt/sources.list ] && cp /etc/apt/sources.list /etc/apt/sources.list.bak || touch /etc/apt/sources.list"
 
@@ -66,39 +84,43 @@ echo "Downloading neovim config..."
 mkdir ~/.config
 git clone https://github.com/tr1v3r/nvim.git ~/.config/nvim
 
-echo "Installing Golang..."
-# version=("1.16.15" "1.17.13" "1.18.10" "1.19.12" "1.20.7" "1.21.0") until 2023.07.24
-function InstallGO() {
-    origin=$(pwd)
-    cd /tmp
-    for v in "${version[@]}"; do
-        if [ -d "/usr/local/go$v" ]; then
-            continue
-        fi
-        tar_file="go$v.$(uname | tr '[:upper:]' '[:lower:]')-$(uname -m | sed 's/aarch/arm/g').tar.gz"
+if [ "$install_go" = true ]; then
+    echo "Installing Golang..."
+    # version=("1.16.15" "1.17.13" "1.18.10" "1.19.12" "1.20.7" "1.21.0") until 2023.07.24
+    function InstallGO() {
+        origin=$(pwd)
+        cd /tmp
+        for v in "${version[@]}"; do
+            if [ -d "/usr/local/go$v" ]; then
+                continue
+            fi
+            tar_file="go$v.$(uname | tr '[:upper:]' '[:lower:]')-$(uname -m | sed 's/aarch/arm/g').tar.gz"
 
-        echo "deploying go$v" && wget https://go.dev/dl/$tar_file && tar xzf $tar_file && sudo mv go /usr/local/go$v && rm $tar_file
+            echo "deploying go$v" && wget https://go.dev/dl/$tar_file && tar xzf $tar_file && mv go /usr/local/go$v && rm $tar_file
+        done
+        cd $origin
+    }
+    version=("1.19.12" "1.20.7" "1.21.0")
+    InstallGO || abort "Failed to install golang"
+
+    rm -rf /usr/local/go && ln -s "/usr/local/go1.21.0" /usr/local/go || abort "Failed to link go1.21.0 to /usr/local/go"
+
+    echo "Installing Golang tools..."
+    go_tools=("github.com/jesseduffield/lazygit@latest" "github.com/rhysd/vim-startuptime@latest")
+    for tool in "${go_tools[@]}"; do
+        go install "$tool" || abort "Failed to install $tool"
     done
-    cd $origin
-}
-version=("1.17.13" "1.18.10" "1.19.12" "1.20.7" "1.21.0")
-InstallGO || abort "Failed to install golang"
+fi
 
-rm -rf /usr/local/go && ln -s "/usr/local/go1.21.0" /usr/local/go || abort "Failed to link go1.21.0 to /usr/local/go"
+if [ "$install_rust" = true ]; then
+    # Install Rust
+    echo "Installing Rust..."
+    curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh || abort "Failed to install Rust"
 
-echo "Installing Golang tools..."
-go_tools=("github.com/jesseduffield/lazygit@latest" "github.com/rhysd/vim-startuptime@latest")
-for tool in "${go_tools[@]}"; do
-    go install "$tool" || abort "Failed to install $tool"
-done
-
-# Install Rust
-echo "Installing Rust..."
-curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh || abort "Failed to install Rust"
-
-# Install Rust tools
-echo "Installing Rust tools..."
-cargo install ripgrep || abort "Failed to install ripgrep"
+    # Install Rust tools
+    echo "Installing Rust tools..."
+    cargo install ripgrep || abort "Failed to install ripgrep"
+fi
 
 # Install Python tools
 echo "Installing Python tools..."
