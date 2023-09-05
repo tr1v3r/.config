@@ -38,13 +38,24 @@ sources=(
 
 echo "# 默认注释了源码镜像以提高 apt update 速度，如有需要可自行取消注释" >>/etc/apt/sources.list
 for source in "${sources[@]}"; do
-    echo $source >>/etc/apt/sources.list || abort "添加源失败"
+    echo $source >>/etc/apt/sources.list || abort "replace apt source fail"
 done
 
 # 更新 APT 包数据库和系统
 execute "apt update && apt upgrade -y && apt full-upgrade -y"
 
-packages=("neovim" "python3" "python3-pip" "python3-neovim" "highlight" "atool")
-apt install "${packages[@]}" || abort "Failed to install some apt packages"
+packages=(
+    "curl" "wget" "dnsutils" "zsh" "git" "gcc" "cmake"
+    # net-tools -- ifconfig
+    # iputils-ping -- ping
+    "net-tools" "iputils-ping"
+    "nftables"
+    "neovim"
+    "python3" "python3-pip" "python3-neovim"
+    "highlight" "atool"
+    "apt-transport-https" "ca-certificates"
+    "openssl" "gpg"
+)
+apt install "${packages[@]}" -y || abort "Failed to install some apt packages"
 
 echo "Debian init done."
