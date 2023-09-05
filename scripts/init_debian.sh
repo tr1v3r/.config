@@ -77,7 +77,9 @@ packages=(
 )
 apt install "${packages[@]}" -y || abort "Failed to install some apt packages"
 
-sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" && chsh -s /bin/zsh || abort "Failed to init oh-my-zsh"
+if [ ! -d ~/.oh-my-zsh ]; then
+	sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" && chsh -s /bin/zsh || abort "Failed to init oh-my-zsh"
+fi
 
 # 创建本地.config目录
 echo "Downloading neovim config..."
@@ -102,6 +104,7 @@ if [ "$install_go" = true ]; then
 	}
 	version=("1.19.12" "1.20.7" "1.21.0")
 	InstallGO || abort "Failed to install golang"
+	export PATH="/usr/local/go/bin:$PATH"
 
 	rm -rf /usr/local/go && ln -s "/usr/local/go1.21.0" /usr/local/go || abort "Failed to link go1.21.0 to /usr/local/go"
 
