@@ -4,6 +4,7 @@
 # do not ignore .gitignore
 !.gitignore
 !.gitmodules
+!README.md
 
 # do not ignore all directories
 !**/
