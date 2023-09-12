@@ -10,3 +10,6 @@
 [submodule "iterm2"]
 	path = iterm2
 	url = git@github.com:tr1v3r/.iterm2.git
+[submodule "karabiner"]
+	path = karabiner
+	url = git@github.com:tr1v3r/.karabiner.git
