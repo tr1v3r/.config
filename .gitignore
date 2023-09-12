@@ -3,6 +3,7 @@
 
 # do not ignore .gitignore
 !.gitignore
+!.gitmodules
 
 # do not ignore all directories
 !**/
@@ -22,6 +23,7 @@
 # git submodules directories
 !iterm/**
 !karabiner/**
+!nvim/**
 !zsh/**
 
 # do not ignore picom.conf
