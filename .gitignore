@@ -44,3 +44,6 @@ __pycache__
 
 # lazygit
 lazygit/state.yml
+
+yarn/
+coc/
