@@ -7,3 +7,6 @@
 [submodule "zsh"]
 	path = zsh
 	url = git@github.com:tr1v3r/.zsh.git
+[submodule "iterm2"]
+	path = iterm2
+	url = git@github.com:tr1v3r/.iterm2.git
