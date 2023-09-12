@@ -1,3 +1,32 @@
+# ignore all files and folders
+*
+
+# do not ignore .gitignore
+!.gitignore
+
+# do not ignore all directories
+!**/
+
+# do not ignore specified directories
+!bashtop/**
+!cargo/**
+!conda/**
+!gpg/**
+!lazygit/**
+!neofetch/**
+!ranger/**
+!scripts/**
+!snipaste/**
+!tmux/**
+
+# git submodules directories
+!iterm/**
+!karabiner/**
+!zsh/**
+
+# do not ignore picom.conf
+!picom.conf
+
 # python
 *.pyc
 *.pyo
