@@ -4,3 +4,6 @@
 [submodule "ranger/plugins/ranger-gpg"]
 	path = ranger/plugins/ranger-gpg
 	url = https://gitlab.com/Ragnyll/ranger-gpg.git
+[submodule "zsh"]
+	path = zsh
+	url = git@github.com:tr1v3r/.zsh.git
