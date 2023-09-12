@@ -7,9 +7,9 @@
 [submodule "zsh"]
 	path = zsh
 	url = git@github.com:tr1v3r/.zsh.git
-[submodule "iterm2"]
-	path = iterm2
-	url = git@github.com:tr1v3r/.iterm2.git
 [submodule "karabiner"]
 	path = karabiner
 	url = git@github.com:tr1v3r/.karabiner.git
+[submodule "iterm"]
+	path = iterm
+	url = git@github.com:tr1v3r/.iterm.git
