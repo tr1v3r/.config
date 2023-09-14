@@ -54,7 +54,7 @@ curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh || abort "Failed 
 
 # Install Rust tools
 echo "Installing Rust tools..."
-cargo install ripgrep || abort "Failed to install ripgrep"
+cargo install ripgrep zoxide || abort "Failed to install ripgrep"
 
 # Install Python tools
 echo "Installing Python tools..."

@@ -140,7 +140,7 @@ if [ "$install_all" = true ] && [ "$install_rust" = true ]; then
 
     # Install Rust tools
     echo "Installing Rust tools..."
-    cargo install ripgrep || abort "Failed to install ripgrep"
+    cargo install ripgrep zoxide || abort "Failed to install ripgrep"
 fi
 
 if [ "$install_all" = true ] && [ "$install_python_tool" = true ]; then
