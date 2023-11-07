@@ -62,4 +62,9 @@ cargo install ripgrep zoxide || abort "Failed to install ripgrep"
 echo "Installing Python tools..."
 pip3 install ranger-fm || abort "Failed to install ranger-fm"
 
+echo "Cloning conifg..."
+git clone --recursive git@github.com:tr1v3r/.config.git || abort "Failed to clone .config"
+ln -s ../.config/ranger ~/.local/ || abort "Failed to soft link .local/ranger"
+ln -s .config/zsh/work.mac.zsh ~/.zshrc.local || abort "Failed to soft link .zshrc.local"
+
 echo "MacOS init done."
