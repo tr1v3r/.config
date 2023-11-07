@@ -2,8 +2,8 @@
 
 # Function to display a message and exit when something fails
 abort() {
-    echo "$1"
-    exit 1
+	echo "$1"
+	exit 1
 }
 
 # Initialize macOS
@@ -18,11 +18,13 @@ echo "Installing Homebrew..."
 echo "Updating and upgrading Homebrew..."
 brew update && brew upgrade || abort "Failed to update and upgrade Homebrew"
 
+# python3-pip
 echo "Installing packages via Homebrew..."
-brew_packages=("python3" "python3-pip" "neovim" "gpg" "paperkey" "zoxide" "tldr" "mpv" "autojump" "tmux" "wget" "lua" "tree" "git-delta" "fzf" "neofetch" "cmake" "highlight" "graphviz" "ffmpeg" "openssl" "figlet")
+brew_packages=("python3" "python-psutil" "neovim" "gpg" "paperkey" "zoxide" "tldr" "mpv" "autojump" "tmux" "wget" "lua" "tree" "git-delta" "fzf" "neofetch" "cmake" "highlight" "graphviz" "ffmpeg" "openssl" "figlet")
 brew install "${brew_packages[@]}" || abort "Failed to install some Homebrew packages"
 
 echo "Installing casks via Homebrew..."
+brew tap homebrew/cask-fonts
 brew_casks=("font-hack-nerd-font" "skim")
 brew install --cask "${brew_casks[@]}" || abort "Failed to install some Homebrew casks"
 
@@ -34,18 +36,18 @@ sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/too
 echo "Installing Golang versions..."
 go_versions=("1.16.15" "1.17.13" "1.18.10" "1.19.12" "1.20.7" "1.21.0")
 for v in "${go_versions[@]}"; do
-    echo "Deploying go$v"
-    wget https://go.dev/dl/go"$v".darwin-arm64.tar.gz &&
-    tar xzf go"$v".darwin-arm64.tar.gz &&
-    sudo mv go /usr/local/go"$v" &&
-    rm go"$v".darwin-arm64.tar.gz || abort "Failed to install go $v"
+	echo "Deploying go$v"
+	wget https://go.dev/dl/go"$v".darwin-arm64.tar.gz &&
+		tar xzf go"$v".darwin-arm64.tar.gz &&
+		sudo mv go /usr/local/go"$v" &&
+		rm go"$v".darwin-arm64.tar.gz || abort "Failed to install go $v"
 done
 
 # Install Go tools
 echo "Installing Go tools..."
 go_tools=("github.com/jesseduffield/lazygit@latest" "github.com/rhysd/vim-startuptime@latest")
 for tool in "${go_tools[@]}"; do
-    go install "$tool" || abort "Failed to install $tool"
+	go install "$tool" || abort "Failed to install $tool"
 done
 
 # Install Rust
