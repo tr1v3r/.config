@@ -43,6 +43,13 @@ for v in "${go_versions[@]}"; do
 		rm go"$v".darwin-arm64.tar.gz || abort "Failed to install go $v"
 done
 
+echo ${GOVersions[-1]}
+
+sudo rm -rf /usr/local/go
+sudo ln -s "/usr/local/go${go_versions[-1]}" /usr/local/go
+echo Now /usr/local/go link to "/usr/local/go${go_versions[-1]}"
+export PATH=/usr/local/go/bin:$PATH
+
 # Install Go tools
 echo "Installing Go tools..."
 go_tools=("github.com/jesseduffield/lazygit@latest" "github.com/rhysd/vim-startuptime@latest")
@@ -53,6 +60,7 @@ done
 # Install Rust
 echo "Installing Rust..."
 curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh || abort "Failed to install Rust"
+source "$HOME/.cargo/env"
 
 # Install Rust tools
 echo "Installing Rust tools..."
