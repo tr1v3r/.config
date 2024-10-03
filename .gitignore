@@ -20,6 +20,7 @@
 !scripts/**
 !snipaste/**
 !tmux/**
+!raycast/scripts/**
 
 # git submodules directories
 !iterm/**
