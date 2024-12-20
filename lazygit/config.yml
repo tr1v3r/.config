@@ -6,7 +6,8 @@ git:
   skiphookprefix: WIP
   paging:
     colorArg: always
-    pager: delta --dark --paging=never --24-bit-color=never --syntax-theme="OneHalfDark"
+    # for lazygit-edit: in many cases lazygit will be able to guess the right preset from your $(git config core.editor), or an environment variable such as $VISUAL or $EDITOR.
+    pager: delta --dark --paging=never --24-bit-color=never --syntax-theme="OneHalfDark" --line-numbers --hyperlinks --hyperlinks-file-link-format="lazygit-edit://{path}:{line}"
 gui:
   commitlength:
     show: true
@@ -15,7 +16,7 @@ gui:
   scrollpastbottom: true
   theme:
     lightTheme: false
-    # raw
+    # raw colorscheme
     # activeBorderColor:
     #   - cyan
     #   - bold
@@ -27,7 +28,7 @@ gui:
     #   - default
     # selectedRangeBgColor:
     #   - blue
-    # theme: catppuccin mocha
+    # colorscheme theme: catppuccin mocha
     activeBorderColor:
       - "#a6e3a1" # Green
       - bold
@@ -50,29 +51,30 @@ splashupdatesindex: 0
 startuppopupversion: 1
 keybinding:
   universal:
-    quit-alt1: '<esc>'
-    prevItem-alt: 'u'
-    nextItem-alt: 'e'
-    prevBlock-alt: 'n'
-    nextBlock-alt: 'i'
-    nextMatch: '='
-    prevMatch: '-'
-    new: 'k'
-    edit: 'o'
-    openFile: 'O'
-    scrollUpMain-alt1: 'U'
-    scrollDownMain-alt1: 'E'
-    scrollUpMain-alt2: '<c-u>'
-    scrollDownMain-alt2: '<c-e>'
-    undo: 'l'
-    redo: '<c-r>'
-    diffingMenu: 'M'
-    filteringMenu: '<c-f>'
+    quit-alt1: "<esc>"
+    prevItem-alt: "u"
+    nextItem-alt: "e"
+    prevBlock-alt: "n"
+    nextBlock-alt: "i"
+    nextMatch: "="
+    prevMatch: "-"
+    startSearch: /
+    new: "k"
+    edit: "o"
+    openFile: "O"
+    scrollUpMain-alt1: "U"
+    scrollDownMain-alt1: "E"
+    scrollUpMain-alt2: "<c-u>"
+    scrollDownMain-alt2: "<c-e>"
+    undo: "l"
+    redo: "<c-r>"
+    diffingMenu: "M"
+    filteringMenu: "<c-f>"
   files:
-    ignoreFile: 'I'
+    ignoreFile: "I"
   commits:
-    moveDownCommit: '<c-e>'
-    moveUpCommit: '<c-u>'
+    moveDownCommit: "<c-e>"
+    moveUpCommit: "<c-u>"
   branches:
-    viewGitFlowOptions: 'I'
-    setUpstream: 'U'
+    viewGitFlowOptions: "I"
+    setUpstream: "U"
