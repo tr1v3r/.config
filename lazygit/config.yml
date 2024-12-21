@@ -79,6 +79,7 @@ keybinding:
   branches:
     viewGitFlowOptions: "I"
     setUpstream: "U"
+    forceCheckoutBranch: <disabled>
 customCommands: # docs: https://github.com/jesseduffield/lazygit/blob/master/docs/Custom_Command_Keybindings.md
   - key: "F"
     context: "global"
@@ -86,8 +87,6 @@ customCommands: # docs: https://github.com/jesseduffield/lazygit/blob/master/doc
     command: "git fetch -p"
     loadingText: "Fetching and pruning remote branches..."
     stream: true
-    showOutput: true
-    outputTitle: "Fetch and Prune"
   - key: "n"
     context: "localBranches"
     prompts:
