@@ -22,6 +22,7 @@
 !tmux/**
 !raycast/scripts/**
 !raycast/diy_plugins/**
+!yazi/**
 
 # git submodules directories
 !iterm/**
