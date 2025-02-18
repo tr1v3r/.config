@@ -51,6 +51,13 @@
             "subtitle": "DIY",
             "description": "",
             "mode": "view"
+        },
+        {
+            "name": "meego",
+            "title": "Bytedance Meego",
+            "subtitle": "Open Meego",
+            "description": "",
+            "mode": "no-view"
         }
     ],
     "dependencies": {
