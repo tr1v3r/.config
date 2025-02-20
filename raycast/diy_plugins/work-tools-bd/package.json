@@ -58,6 +58,18 @@
             "subtitle": "Open Meego",
             "description": "",
             "mode": "no-view"
+        },
+        {
+            "name": "ppe",
+            "title": "Bytedance PPE",
+            "description": "",
+            "mode": "no-view"
+        },
+        {
+            "name": "devops",
+            "title": "devops",
+            "description": "",
+            "mode": "no-view"
         }
     ],
     "dependencies": {
