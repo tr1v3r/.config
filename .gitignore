@@ -20,6 +20,7 @@
 !scripts/**
 !snipaste/**
 !tmux/**
+!tmux-powerline/**
 !raycast/scripts/**
 !raycast/diy_plugins/**
 !yazi/**
