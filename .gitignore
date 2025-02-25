@@ -23,6 +23,7 @@
 !raycast/scripts/**
 !raycast/diy_plugins/**
 !yazi/**
+!starship.toml
 
 # git submodules directories
 !iterm/**

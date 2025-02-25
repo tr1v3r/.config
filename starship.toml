@@ -1,0 +1,54 @@
+# my starship configuration
+add_newline = false
+command_timeout = 3000
+
+format = """
+$os\
+$username\
+$hostname\
+$directory\
+$git_branch\
+$git_commit\
+$git_state\
+$git_metrics\
+$git_status\
+$character\
+"""
+
+right_format = """
+$cmd_duration\
+$golang\
+$time\
+"""
+
+[os]
+disabled = false
+
+[os.symbols]
+Macos = " "
+
+[directory]
+truncation_length = 6
+truncation_symbol = "…/"
+format = "[ $path](#1187B0) "
+
+[git_branch]
+format = "[ $branch](bold #00C957) "
+# format = "[ $branch](bold #f34b7d) "
+# truncation_length = 12
+# ignore_branches = ['master', 'main']
+
+[golang]
+format = '[ $version](bold cyan) '
+
+[character] # The name of the module we are configuring is 'character'
+success_symbol = '[➜](bold green)' # The 'success_symbol' segment is being set to '➜' with the color 'bold green'
+
+[cmd_duration]
+min_time = 2000  # 超过 2 秒才显示
+format = "[ $duration](bold #87875e) "
+
+[time]
+disabled = false
+time_format = "%T" # 24小时制
+format = "[$time](bold #577a7b) "
