@@ -1,4 +1,32 @@
-# my starship configuration
+# ───────────────────────────────────────────────────────────────────────
+# 🌟 Starship Prompt Configuration 🚀
+# 📌 Official Guide: https://starship.rs/guide/
+# 🎨 Theme: A modern, lightweight, and highly customizable shell prompt
+# 💻 Supported Shells: Bash, Zsh, Fish, PowerShell, Nushell, Ion, Xonsh, Elvish
+#
+# 🔧 Description:
+#   - Starship is a fast and customizable shell prompt.
+#   - Run `starship print-config` to see the current configuration.
+#   - Use `starship explain` to analyze your active prompt modules.
+#   - Run `starship module --list` to see all available modules.
+#
+# 🚀 Recommended Setup:
+#   1️⃣ Place this file in `~/.config/starship.toml`
+#   2️⃣ Add the following line to your shell config (`~/.bashrc`, `~/.zshrc`):
+#       eval "$(starship init zsh)"
+#   3️⃣ Reload your shell:
+#       source ~/.zshrc  or  source ~/.bashrc
+#
+# 🛠 Key Customizations:
+#   - `format` defines the overall prompt layout.
+#   - `right_format` positions information on the right.
+#   - `directory` controls how the current directory is displayed.
+#   - `git_branch` and `git_status` show Git repository details.
+#   - `time` displays the current system time.
+#   - `cmd_duration` shows execution time for commands.
+#
+# ───────────────────────────────────────────────────────────────────────
+
 add_newline = false
 command_timeout = 3000
 
