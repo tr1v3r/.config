@@ -13,6 +13,7 @@ function Command() {
   // console.log(data.docs);
 
   const filteredResults = {
+    ...searchObject(data.docs.base, ""),
     ...searchObject(data.docs.folder, ""),
     ...searchObject(data.docs.doc, ""),
     ...searchObject(data.docs.sheets, ""),
@@ -27,7 +28,13 @@ function Command() {
           <List.Item
             key={key}
             icon={
-              value.startsWith("doc") ? docs.doc_icon : value.startsWith("sheets") ? docs.sheet_icon : docs.folder_icon
+              value.startsWith("doc")
+                ? docs.doc_icon
+                : value.startsWith("sheets")
+                  ? docs.sheet_icon
+                  : value.startsWith("base")
+                    ? docs.base_icon
+                    : docs.folder_icon
             }
             title={key}
             // accessories={[{ icon: Icon.Text, text: "Docs" }]}
