@@ -1,5 +1,6 @@
 confirmonquit: false
 git:
+  branchLogCmd: "git log --graph --color=always --abbrev-commit --decorate --date=relative --pretty=medium --oneline {{branchName}} --"
   autofetch: true
   merging:
     manualcommit: false
