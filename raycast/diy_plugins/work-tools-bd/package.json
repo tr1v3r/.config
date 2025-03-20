@@ -20,7 +20,7 @@
         {
             "name": "docs",
             "title": "Bytedance Docs",
-            "subtitle": "DIY",
+            "subtitle": "Collections",
             "description": "",
             "mode": "view"
         },
@@ -68,6 +68,19 @@
         {
             "name": "devops",
             "title": "Bytedance Devops",
+            "description": "",
+            "mode": "no-view"
+        },
+        {
+            "name": "argos",
+            "title": "Argos",
+            "subtitle": "One-stop observable & diagnostic platform",
+            "description": "",
+            "mode": "no-view"
+        },
+        {
+            "name": "people",
+            "title": "People",
             "description": "",
             "mode": "no-view"
         }
