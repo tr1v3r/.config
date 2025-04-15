@@ -17,14 +17,14 @@
 !lazygit/**
 !neofetch/**
 !ranger/**
+!raycast/diy_plugins/**
+!raycast/scripts/**
 !scripts/**
 !snipaste/**
-!tmux/**
-!tmux-powerline/**
-!raycast/scripts/**
-!raycast/diy_plugins/**
-!yazi/**
 !starship.toml
+!tmux-powerline/**
+!tmux/**
+!yazi/**
 
 # git submodules directories
 !iterm/**
