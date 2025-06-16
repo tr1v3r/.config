@@ -83,6 +83,12 @@
             "title": "People",
             "description": "",
             "mode": "no-view"
+        },
+        {
+            "name": "metrics",
+            "title": "Bytedance Metrics-fe",
+            "description": "https://metrics-fe.byted.org/",
+            "mode": "no-view"
         }
     ],
     "dependencies": {
