@@ -87,7 +87,7 @@ customCommands: # docs: https://github.com/jesseduffield/lazygit/blob/master/doc
     description: "Fetch and Prune"
     command: "git fetch -p"
     loadingText: "Fetching and pruning remote branches..."
-    stream: true
+    output: log
   - key: "n"
     context: "localBranches"
     prompts:
