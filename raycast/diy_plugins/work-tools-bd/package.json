@@ -89,6 +89,12 @@
             "title": "Bytedance Metrics-fe",
             "description": "https://metrics-fe.byted.org/",
             "mode": "no-view"
+        },
+        {
+            "name": "bits",
+            "title": "Bits Bytedance",
+            "description": "https://bits.bytedance.net/",
+            "mode": "no-view"
         }
     ],
     "dependencies": {
