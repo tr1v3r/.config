@@ -23,5 +23,10 @@ use = "yazi-rs/plugins:git"
 rev = "d7588f6"
 hash = "63b6c222bf2103b3023389dde5e2ecfe"
 
+[[plugin.deps]]
+use = "yazi-rs/plugins:piper"
+rev = "d7588f6"
+hash = "2143a53182dbbe935a1abd1623424aa5"
+
 [flavor]
 deps = []
