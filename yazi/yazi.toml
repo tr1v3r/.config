@@ -61,6 +61,8 @@ rules = [
 	{ name = "*/", use = ["edit", "open", "reveal"] },
 	# Text
 	{ mime = "text/*", use = ["edit", "reveal"] },
+	# books
+	{ mime = "application/{epub+zip,pdf}", use = ["open", "reveal"] },
 	# Image
 	{ mime = "image/*", use = ["open", "reveal"] },
 	# Media
