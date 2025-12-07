@@ -5,10 +5,10 @@ git:
   merging:
     manualcommit: false
   skiphookprefix: WIP
-  paging:
-    colorArg: always
-    # for lazygit-edit: in many cases lazygit will be able to guess the right preset from your $(git config core.editor), or an environment variable such as $VISUAL or $EDITOR.
-    pager: delta --dark --paging=never --24-bit-color=never --syntax-theme="OneHalfDark" --line-numbers --hyperlinks --hyperlinks-file-link-format="lazygit-edit://{path}:{line}"
+  pagers:
+    - colorArg: always
+      # for lazygit-edit: in many cases lazygit will be able to guess the right preset from your $(git config core.editor), or an environment variable such as $VISUAL or $EDITOR.
+      pager: delta --dark --paging=never --24-bit-color=never --syntax-theme="OneHalfDark" --line-numbers --hyperlinks --hyperlinks-file-link-format="lazygit-edit://{path}:{line}"
 gui:
   commitlength:
     show: true
