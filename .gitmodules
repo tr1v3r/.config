@@ -16,3 +16,6 @@
 [submodule "ranger/plugins/ranger-gpg"]
 	path = ranger/plugins/ranger-gpg
 	url = https://gitlab.com/Ragnyll/ranger-gpg.git
+[submodule "ssh"]
+	path = ssh
+	url = git@gist.github.com:61daec6d250eed65519f32f200196228.git
