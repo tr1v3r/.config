@@ -27,6 +27,7 @@
 !tmux-powerline/**
 !tmux/**
 !yazi/**
+yazi/flavors/
 
 # git submodules directories
 !iterm/**
