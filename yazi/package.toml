@@ -28,5 +28,12 @@ use = "yazi-rs/plugins:piper"
 rev = "9a52857"
 hash = "a20327710c3a8d37ee0972128dcb6a31"
 
-[flavor]
-deps = []
+[[flavor.deps]]
+use = "yazi-rs/flavors:catppuccin-mocha"
+rev = "0f9204b"
+hash = "9f49a591c5a86578da7000b1816329c1"
+
+[[flavor.deps]]
+use = "BennyOe/tokyo-night"
+rev = "8e6296f"
+hash = "f9adc0d1e58cbcfc5f39046383a25d9f"
