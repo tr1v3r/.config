@@ -35,6 +35,8 @@ yazi/flavors/
 !nvim/**
 !zsh/**
 !deploy/**
+!ai/
+!ai/**
 
 # do not ignore picom.conf
 !picom.conf
