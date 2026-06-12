@@ -37,6 +37,9 @@ yazi/flavors/
 !deploy/**
 !ai/
 !ai/**
+!aerc/**
+!secrets
+!secrets/**
 
 # do not ignore picom.conf
 !picom.conf
