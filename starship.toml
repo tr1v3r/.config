@@ -56,7 +56,8 @@ disabled = false
 format = "[$symbol](bold #0a84ff) "
 
 [os.symbols]
-Macos = " "
+Macos = ""
+Linux = ""
 
 [directory]
 truncation_length = 6
