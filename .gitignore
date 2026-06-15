@@ -53,6 +53,9 @@ __pycache__
 # ranger
 # ranger/plugins/__init__.py
 
+# codegraph
+.codegraph/
+
 # log
 *.log
 
