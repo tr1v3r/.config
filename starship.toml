@@ -28,7 +28,7 @@
 # ───────────────────────────────────────────────────────────────────────
 
 add_newline = false
-command_timeout = 1000
+command_timeout = 500
 
 format = """
 $os\
@@ -36,16 +36,18 @@ $username\
 $hostname\
 $directory\
 $git_branch\
-$git_commit\
 $git_state\
-$git_metrics\
 $git_status\
+$status\
 $character\
 """
 
 right_format = """
 $cmd_duration\
 $golang\
+$rust\
+$nodejs\
+$python\
 $time\
 """
 
@@ -61,6 +63,25 @@ truncation_length = 6
 truncation_symbol = "…/"
 format = "[ $path](#1187B0) "
 
+# git_state — 当前 Git 操作状态（rebase/merge/cherry-pick 等）
+#   REBASE
+#   REBASE-i
+#   MERGE
+#   CHERRY_PICK
+#   BISECT
+#   REVERT
+# git_status — 工作区文件变更状态符号
+#   +  已暂存修改
+#   !  未暂存修改
+#   ?  未跟踪文件
+#   »  已暂存改名
+#   ✘  已暂存删除
+#   ⇡  领先远程
+#   ⇣  落后远程
+#   ⇕  有分歧
+#   =  未暂存改名
+#   ✚  未暂存删除
+
 [git_branch]
 format = "[ $branch](bold #00C957) "
 # format = "[ $branch](bold #f34b7d) "
@@ -70,9 +91,18 @@ format = "[ $branch](bold #00C957) "
 [golang]
 format = '[ $version](bold cyan) '
 
+[rust]
+format = '[ $version](bold red) '
+
+[nodejs]
+format = '[ $version](bold green) '
+
+[python]
+format = '[ $version](bold yellow) '
+
 [character] # The name of the module we are configuring is 'character' ❯
 success_symbol = '[➜](bold #00C957)' # The 'success_symbol' segment is being set to '➜' with the color 'bold green'
-error_symbol = '[✗](bold red) '
+error_symbol = '[✗](bold #dc2626) '
 vimcmd_symbol = '[V](bold #00C957)'
 vimcmd_replace_one_symbol = '[V](bold purple)'
 vimcmd_replace_symbol = '[V](bold purple)'
@@ -86,3 +116,7 @@ format = "[ $duration](bold #87875e) "
 disabled = false
 time_format = "%T" # 24小时制
 format = "[$time](bold #577a7b) "
+
+[status]
+disabled = false
+format = '[$status](bold #dc2626) '
