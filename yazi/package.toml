@@ -21,7 +21,7 @@ hash = "e17c11b605d989568a1d1741ca17c584"
 [[plugin.deps]]
 use = "yazi-rs/plugins:git"
 rev = "9a52857"
-hash = "63b6c222bf2103b3023389dde5e2ecfe"
+hash = "3cce60031b27cbce80b50f68ca319c0a"
 
 [[plugin.deps]]
 use = "yazi-rs/plugins:piper"
@@ -31,9 +31,9 @@ hash = "a20327710c3a8d37ee0972128dcb6a31"
 [[flavor.deps]]
 use = "yazi-rs/flavors:catppuccin-mocha"
 rev = "0f9204b"
-hash = "9f49a591c5a86578da7000b1816329c1"
+hash = "7dfe41c9c3d9be76da8a844263d0bbed"
 
 [[flavor.deps]]
 use = "BennyOe/tokyo-night"
 rev = "8e6296f"
-hash = "f9adc0d1e58cbcfc5f39046383a25d9f"
+hash = "d9da921c3bd37ba32ee27a8a7a40461f"
