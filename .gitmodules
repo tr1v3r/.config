@@ -4,21 +4,9 @@
 [submodule "nvim"]
 	path = nvim
 	url = git@github.com:tr1v3r/nvim.git
-[submodule "iterm2"]
-	path = iterm2
-	url = git@github.com:tr1v3r/.iterm.git
-[submodule "deploy"]
-	path = deploy
-	url = git@github.com:tr1v3r/deploy.git
 [submodule "ranger/plugins/ranger_devicons"]
 	path = ranger/plugins/ranger_devicons
 	url = https://github.com/alexanderjeurissen/ranger_devicons
 [submodule "ranger/plugins/ranger-gpg"]
 	path = ranger/plugins/ranger-gpg
 	url = https://gitlab.com/Ragnyll/ranger-gpg.git
-[submodule "ssh"]
-	path = ssh
-	url = git@gist.github.com:61daec6d250eed65519f32f200196228.git
-[submodule "ai"]
-	path = ai
-	url = git@github.com:tr1v3r/ai-config.git

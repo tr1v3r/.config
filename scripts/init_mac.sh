@@ -20,7 +20,7 @@ brew update && brew upgrade || abort "Failed to update and upgrade Homebrew"
 
 # python3-pip
 echo "Installing packages via Homebrew..."
-brew_packages=("python3" "python-psutil" "neovim" "gpg" "paperkey" "zoxide" "tldr" "mpv" "autojump" "tmux" "wget" "lua" "tree" "git-delta" "fzf" "neofetch" "cmake" "highlight" "graphviz" "ffmpeg" "openssl" "figlet")
+brew_packages=("python3" "python-psutil" "neovim" "gpg" "paperkey" "zoxide" "tldr" "mpv" "autojump" "tmux" "wget" "lua" "tree" "git-delta" "git-crypt" "fzf" "neofetch" "cmake" "highlight" "graphviz" "ffmpeg" "openssl" "sops" "figlet")
 brew install "${brew_packages[@]}" || abort "Failed to install some Homebrew packages"
 
 echo "Installing casks via Homebrew..."

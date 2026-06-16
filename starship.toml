@@ -28,7 +28,7 @@
 # ───────────────────────────────────────────────────────────────────────
 
 add_newline = false
-command_timeout = 1000
+command_timeout = 500
 
 format = """
 $os\
@@ -36,16 +36,18 @@ $username\
 $hostname\
 $directory\
 $git_branch\
-$git_commit\
 $git_state\
-$git_metrics\
 $git_status\
+$status\
 $character\
 """
 
 right_format = """
 $cmd_duration\
 $golang\
+$rust\
+$nodejs\
+$python\
 $time\
 """
 
@@ -54,12 +56,32 @@ disabled = false
 format = "[$symbol](bold #0a84ff) "
 
 [os.symbols]
-Macos = " "
+Macos = ""
+Linux = ""
 
 [directory]
 truncation_length = 6
 truncation_symbol = "…/"
 format = "[ $path](#1187B0) "
+
+# git_state — 当前 Git 操作状态（rebase/merge/cherry-pick 等）
+#   REBASE
+#   REBASE-i
+#   MERGE
+#   CHERRY_PICK
+#   BISECT
+#   REVERT
+# git_status — 工作区文件变更状态符号
+#   +  已暂存修改
+#   !  未暂存修改
+#   ?  未跟踪文件
+#   »  已暂存改名
+#   ✘  已暂存删除
+#   ⇡  领先远程
+#   ⇣  落后远程
+#   ⇕  有分歧
+#   =  未暂存改名
+#   ✚  未暂存删除
 
 [git_branch]
 format = "[ $branch](bold #00C957) "
@@ -68,15 +90,24 @@ format = "[ $branch](bold #00C957) "
 # ignore_branches = ['master', 'main']
 
 [golang]
-format = '[ $version](bold cyan) '
+format = '[ $version](bold #00d7ff) '
+
+[rust]
+format = '[ $version](bold #ff6b35) '
+
+[nodejs]
+format = '[ $version](bold #3fbf3f) '
+
+[python]
+format = '[ $version](bold #ffd43b) '
 
 [character] # The name of the module we are configuring is 'character' ❯
 success_symbol = '[➜](bold #00C957)' # The 'success_symbol' segment is being set to '➜' with the color 'bold green'
-error_symbol = '[✗](bold red) '
+error_symbol = '[✗](bold #dc2626) '
 vimcmd_symbol = '[V](bold #00C957)'
-vimcmd_replace_one_symbol = '[V](bold purple)'
-vimcmd_replace_symbol = '[V](bold purple)'
-vimcmd_visual_symbol = '[V](bold yellow)'
+vimcmd_replace_one_symbol = '[V](bold #a855f7)'
+vimcmd_replace_symbol = '[V](bold #a855f7)'
+vimcmd_visual_symbol = '[V](bold #eab308)'
 
 [cmd_duration]
 min_time = 2000  # 超过 2 秒才显示
@@ -85,4 +116,8 @@ format = "[ $duration](bold #87875e) "
 [time]
 disabled = false
 time_format = "%T" # 24小时制
-format = "[$time](bold #577a7b) "
+format = "[$time](bold #1187B0) "
+
+[status]
+disabled = false
+format = '[$status](bold #dc2626) '

@@ -4,7 +4,11 @@
 # do not ignore .gitignore
 !.gitignore
 !.gitmodules
+!.gitattributes
 !README.md
+
+# git-crypt: encrypted key material (safe to commit, GPG-wrapped)
+!.git-crypt/**
 
 # do not ignore all directories
 !**/
@@ -30,13 +34,16 @@
 yazi/flavors/
 
 # git submodules directories
-!iterm/**
+!iterm2/**
 # !karabiner/**
 !nvim/**
 !zsh/**
 !deploy/**
 !ai/
 !ai/**
+!aerc/**
+!secrets
+!secrets/**
 
 # do not ignore picom.conf
 !picom.conf
@@ -49,6 +56,9 @@ __pycache__
 
 # ranger
 # ranger/plugins/__init__.py
+
+# codegraph
+.codegraph/
 
 # log
 *.log
