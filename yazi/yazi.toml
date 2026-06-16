@@ -1,7 +1,3 @@
-# A TOML linter such as https://taplo.tamasfe.dev/ can use this schema to validate your config.
-# If you encounter any issues, please make an issue at https://github.com/yazi-rs/schemas.
-"$schema" = "https://yazi-rs.github.io/schemas/yazi.json"
-
 [mgr]
 ratio          = [1, 3, 4]
 sort_by        = "alphabetical"
@@ -58,7 +54,7 @@ play = [
 [open]
 rules = [
 	# Folder
-	{ name = "*/", use = ["edit", "open", "reveal"] },
+	{ mime = "inode/directory", use = ["edit", "open", "reveal"] },
 	# Text
 	{ mime = "text/*", use = ["edit", "reveal"] },
 	# books
@@ -76,7 +72,7 @@ rules = [
 	# Empty file
 	{ mime = "inode/empty", use = ["edit", "reveal"] },
 	# Fallback
-	{ name = "*", use = ["edit", "open", "reveal"] },
+	{ mime = "*", use = ["edit", "open", "reveal"] },
 ]
 
 [tasks]
@@ -89,10 +85,13 @@ suppress_preload = false
 
 [plugin]
 fetchers = [
-	# Mimetype
-	{ id = "mime", name = "*", run = "mime", if = "!mime", prio = "high" },
-	{ id = "git", name = "*", run = "git", prio = "normal" },
-	{ id = "git", name = "*/", run = "git", prio = "normal" },
+	# MIME-type
+	{ url = "*/",         run = "mime.dir",    prio = "high", group = "mime" },
+	{ url = "local://*",  run = "mime.local",  prio = "high", group = "mime" },
+	{ url = "remote://*", run = "mime.remote", prio = "high", group = "mime" },
+	# Git
+	{ url = "*",  run = "git", prio = "normal", group = "git" },
+	{ url = "*/", run = "git", prio = "normal", group = "git" },
 ]
 preloaders = [
 	# Image
@@ -104,15 +103,15 @@ preloaders = [
 	{ mime = "application/pdf", run = "pdf" },
 	# Font
 	{ mime = "font/*", run = "font" },
-	{ mime = "application/vnd.ms-opentype", run = "font" },
+	{ mime = "application/ms-opentype", run = "font" },
 ]
 previewers = [
-	{ name = "*/", run = "folder", sync = true },
+	{ url = "*/", run = "folder" },
 	# Code
 	{ mime = "text/*", run = "code" },
 	{ mime = "*/{xml,javascript,x-wine-extension-ini}", run = "code" },
 	# JSON
-	{ mime = "application/{json,x-ndjson}", run = "json" },
+	{ mime = "application/{json,ndjson}", run = "json" },
 	# Image
 	{ mime = "image/{avif,hei?,jxl,svg+xml}", run = "magick" },
 	{ mime = "image/*", run = "image" },
@@ -125,24 +124,24 @@ previewers = [
 	{ mime = "application/x-{tar,bzip*,7z-compressed,xz,rar,iso9660-image}", run = "archive" },
 	# Font
 	{ mime = "font/*", run = "font" },
-	{ mime = "application/vnd.ms-opentype", run = "font" },
+	{ mime = "application/ms-opentype", run = "font" },
 	# Empty file
-	{ mime = "inode/x-empty", run = "empty" },
+	{ mime = "inode/empty", run = "empty" },
 	# Fallback
-	{ name = "*", run = "file" },
+	{ url = "*", run = "file" },
 ]
 
 [[plugin.prepend_previewers]]
-name = "*.tar*"
+url = "*.tar*"
 run  = 'piper --format=url -- tar tf "$1"'
 [[plugin.prepend_previewers]]
-name = "*.csv"
+url = "*.csv"
 run  = 'piper -- bat -p --color=always "$1"'
 [[plugin.prepend_previewers]]
-name = "*.md"
+url = "*.md"
 run  = 'piper -- CLICOLOR_FORCE=1 glow -w=$w -s=dark "$1"'
 [[plugin.prepend_previewers]]
-name = "*/"
+url = "*/"
 run  = 'piper -- eza -TL=3 --color=always --icons=always --group-directories-first --no-quotes "$1"'
 
 [input]
