@@ -16,9 +16,3 @@
 [submodule "ranger/plugins/ranger-gpg"]
 	path = ranger/plugins/ranger-gpg
 	url = https://gitlab.com/Ragnyll/ranger-gpg.git
-[submodule "ai"]
-	path = ai
-	url = git@github.com:tr1v3r/ai-config.git
-[submodule "secrets"]
-	path = secrets
-	url = git@github.com:tr1v3r/.config-secrets.git
