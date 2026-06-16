@@ -4,7 +4,11 @@
 # do not ignore .gitignore
 !.gitignore
 !.gitmodules
+!.gitattributes
 !README.md
+
+# git-crypt: encrypted key material (safe to commit, GPG-wrapped)
+!.git-crypt/**
 
 # do not ignore all directories
 !**/
