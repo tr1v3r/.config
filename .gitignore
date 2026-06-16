@@ -34,7 +34,7 @@
 yazi/flavors/
 
 # git submodules directories
-!iterm/**
+!iterm2/**
 # !karabiner/**
 !nvim/**
 !zsh/**
