@@ -1,0 +1,86 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: example-pod
+  labels:
+    app: example-app
+    environment: production
+  annotations:
+    description: "An example Pod with Kubernetes features"
+  namespace: my-namespace
+spec:
+  hostNetwork: false
+  hostIPC: false
+  hostPID: false
+  securityContext:
+    runAsUser: 1000
+    runAsGroup: 1000
+  volumes:
+    - name: my-volume
+      emptyDir: {}
+    - name: config-volume
+      configMap:
+        name: my-config-map
+    - name: secret-volume
+      secret:
+        secretName: my-secret
+  containers:
+    - name: main-container
+      image: nginx:latest
+      ports:
+        - containerPort: 80
+      resources:
+        requests:
+          memory: "64Mi"
+          cpu: "250m"
+        limits:
+          memory: "128Mi"
+          cpu: "500m"
+      env:
+        - name: ENV_VAR
+          value: "example"
+      lifecycle:
+        preStop:
+          exec:
+            command: ["echo", "Pod is shutting down..."]
+      livenessProbe:
+        httpGet:
+          path: /
+          port: 80
+        initialDelaySeconds: 15
+        periodSeconds: 10
+      readinessProbe:
+        httpGet:
+          path: /
+          port: 80
+        initialDelaySeconds: 5
+        periodSeconds: 3
+      volumeMounts:
+        - name: my-volume
+          mountPath: /data
+    - name: sidecar-container
+      image: busybox:latest
+      args:
+        - sleep
+        - "3600"
+      volumeMounts:
+        - name: config-volume
+          mountPath: /config
+        - name: secret-volume
+          mountPath: /secrets
+  imagePullSecrets:
+    - name: my-registry-secret
+  affinity:
+    nodeAffinity:
+      requiredDuringSchedulingIgnoredDuringExecution:
+        nodeSelectorTerms:
+          - matchExpressions:
+              - key: example-key
+                operator: In
+                values:
+                  - example-value
+  tolerations:
+    - key: example-taint-key
+      operator: Equal
+      value: example-taint-value
+      effect: NoSchedule

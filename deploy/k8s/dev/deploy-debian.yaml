@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: debian-pod
+spec:
+  containers:
+  - name: debian-dev
+    # image: debian:bullseye # 使用Debian的Bullseye版本
+    image: debian:latest
+    command:
+    - tail
+    - -f
+    - /dev/null
+    # - sleep
+    # - "3600" # 在容器中运行一个休眠命令以保持容器活动
