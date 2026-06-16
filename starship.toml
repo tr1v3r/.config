@@ -116,7 +116,7 @@ format = "[ $duration](bold #87875e) "
 [time]
 disabled = false
 time_format = "%T" # 24小时制
-format = "[$time](bold #577a7b) "
+format = "[$time](bold #1187B0) "
 
 [status]
 disabled = false
