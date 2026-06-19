@@ -1,0 +1,24 @@
+# AdGuard Home — base compose (macOS local default)
+#
+# DNS + Web UI bind to 127.0.0.1 only, so the host Mac is the sole consumer.
+# Multi-arch image (amd64/arm64): identical tag works on Apple Silicon and on a
+# future Raspberry Pi / arm64 home box.
+#
+# For a Linux home host that must serve the whole LAN, layer the override:
+#   docker compose -f docker-compose.yml -f docker-compose.home.yml up -d
+#
+# Config (conf/AdGuardHome.yaml) is git-crypt encrypted in the repo; runtime
+# state lives in work/ (gitignored).
+
+services:
+  adguardhome:
+    image: adguard/adguardhome:v0.107.77
+    container_name: adguardhome
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:8053:53/udp" # DNS
+      - "127.0.0.1:8053:53/tcp" # DNS
+      - "127.0.0.1:8054:8080/tcp" # Web UI
+    volumes:
+      - ./conf:/opt/adguardhome/conf
+      - ./work:/opt/adguardhome/work

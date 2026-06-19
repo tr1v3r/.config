@@ -1,0 +1,15 @@
+# AdGuard Home — override for a Linux home host
+#
+# Exposes DNS (53) and the Web UI (3000) to the LAN by giving the container the
+# host's network stack. AdGuard then listens on the host's LAN IP directly, so
+# set the router's DHCP to hand out this host's IP as the DNS server and the
+# whole house uses it.
+#
+# Under network_mode: host the `ports:` section is ignored, so we don't repeat it.
+#
+# Usage:
+#   docker compose -f docker-compose.yml -f docker-compose.home.yml up -d
+
+services:
+  adguardhome:
+    network_mode: host
