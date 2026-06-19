@@ -43,6 +43,11 @@ yazi/flavors/
 # adguard-home: conf/ is git-crypt encrypted and tracked; work/ is runtime state
 !adguard-home/**
 adguard-home/work/
+
+# pihole: .pihole.env is git-crypt encrypted and tracked; etc-*/ are runtime state
+!pihole/**
+pihole/etc-pihole/
+pihole/etc-dnsmasq.d/
 !ai/
 !ai/**
 !aerc/**

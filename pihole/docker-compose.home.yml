@@ -1,0 +1,14 @@
+# Pi-hole — override for a Linux home host
+#
+# Exposes DNS (53) and the Web UI (80) to the LAN via the host's network stack.
+# Set the router's DHCP DNS to this host's LAN IP and the whole house uses it.
+# Under network_mode: host the `ports:` section is ignored, so we don't repeat it.
+#
+# Usage:
+#   docker compose -f docker-compose.yml -f docker-compose.home.yml up -d
+#
+# Don't run this alongside AdGuard on the same host — both want host :53.
+
+services:
+  pihole:
+    network_mode: host

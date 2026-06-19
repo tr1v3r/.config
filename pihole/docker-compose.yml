@@ -1,0 +1,35 @@
+# Pi-hole v6 — base compose (macOS local default)
+#
+# Coexists with the AdGuard Home setup: different container name + host ports
+# so both can live in the repo without clashing (only one should actually serve
+# system DNS at a time). DNS on host :8063, Web UI on host :8064, both 127.0.0.1.
+#
+# For a Linux home host that must serve the whole LAN, layer the override:
+#   docker compose -f docker-compose.yml -f docker-compose.home.yml up -d
+#
+# Password lives in .pihole.env (git-crypt encrypted). First run needs
+# ./seed-adlists.sh to populate blocklists (v6 stores them in gravity.db).
+
+services:
+  pihole:
+    image: pihole/pihole:2026.06.0
+    container_name: pihole
+    hostname: pihole
+    restart: unless-stopped
+    cap_add:
+      - NET_ADMIN
+    env_file:
+      - .pihole.env            # FTLCONF_webserver_api_password (git-crypt)
+    environment:
+      TZ: Asia/Shanghai
+      FTLCONF_dns_listeningMode: all      # answer queries from outside the container
+      FTLCONF_dns_upstreams: |-           # CN-friendly (matches the AdGuard setup)
+        223.5.5.5
+        119.29.29.29
+    ports:
+      - "127.0.0.1:8063:53/tcp"  # DNS (host 8063 — distinct from AdGuard 8053)
+      - "127.0.0.1:8063:53/udp"
+      - "127.0.0.1:8064:80/tcp"  # Web UI (host 8064 → container 80, distinct from AdGuard 8054)
+    volumes:
+      - ./etc-pihole:/etc/pihole
+      - ./etc-dnsmasq.d:/etc/dnsmasq.d
