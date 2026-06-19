@@ -4,3 +4,4 @@ aerc/accounts.conf filter=git-crypt diff=git-crypt
 deploy/k8s/mysql/deploy-mysql-singleton.yaml filter=git-crypt diff=git-crypt
 deploy/k8s/redis/redis-config.yaml filter=git-crypt diff=git-crypt
 iterm2/com.googlecode.iterm2.plist filter=git-crypt diff=git-crypt
+adguard-home/conf/** filter=git-crypt diff=git-crypt

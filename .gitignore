@@ -39,6 +39,10 @@ yazi/flavors/
 !nvim/**
 !zsh/**
 !deploy/**
+
+# adguard-home: conf/ is git-crypt encrypted and tracked; work/ is runtime state
+!adguard-home/**
+adguard-home/work/
 !ai/
 !ai/**
 !aerc/**
