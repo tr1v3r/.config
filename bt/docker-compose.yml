@@ -1,0 +1,29 @@
+# qBittorrent Enhanced Edition — base compose (macOS local default)
+#
+# qBittorrent-Enhanced-Edition (SuperNG6 image) over the stock client: it
+# auto-updates public trackers and bans Xunlei/Thunder-style anti-leech clients
+# — the standard client for PT sites, while handling plain BT/magnet fine too.
+#
+# Web UI binds to 127.0.0.1:8088 (host port 8088, uncommon — see Zscaler note in
+# README); BT incoming on 6881 (distinct from the native Mac qBittorrent's 28096,
+# so the two coexist on the same machine).
+#
+# For the Linux home host (reach it from the MacBook over Tailscale), layer:
+#   docker compose -f docker-compose.yml -f docker-compose.home.yml up -d
+#
+# Per-machine runtime params (PUID/PGID) live in .qbittorrent.env (gitignored).
+
+services:
+  qbittorrentee:
+    image: superng6/qbittorrentee:5.2.1.10   # pin a tag your PT site whitelists; see README → PT tuning
+    container_name: qbittorrentee
+    restart: unless-stopped
+    env_file:
+      - .qbittorrent.env            # PUID / PGID / TZ / WEBUIPORT (gitignored, per-machine)
+    ports:
+      - "127.0.0.1:8088:8088/tcp"   # Web UI (host 8088 → container 8088, 127.0.0.1 only)
+      - "6881:6881/tcp"             # BT incoming — bound on all interfaces (must be connectable)
+      - "6881:6881/udp"             # uTP + UDP trackers
+    volumes:
+      - ./config:/config            # qBittorrent.conf etc. (gitignored runtime state)
+      - ./downloads:/downloads      # downloads (symlink to /Volumes/Gamma/Videos etc. if you like)

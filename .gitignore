@@ -48,6 +48,12 @@ adguard-home/work/
 !pihole/**
 pihole/etc-pihole/
 pihole/etc-dnsmasq.d/
+
+# bt: .qbittorrent.env is per-machine (gitignored); config/ + downloads/ are runtime state
+!bt/**
+bt/.qbittorrent.env
+bt/config/
+bt/downloads/
 !ai/
 !ai/**
 !aerc/**

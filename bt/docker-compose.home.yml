@@ -1,0 +1,16 @@
+# qBittorrent Enhanced — override for a Linux home host
+#
+# Gives the container the host network stack so the Web UI (8088) and the BT port
+# (6881) listen on the host's interfaces directly — including tailscale0, so the
+# MacBook reaches the Web UI at http://<server-tailscale-name>:8088.
+# Under network_mode: host the `ports:` section is ignored, so we don't repeat it.
+#
+# Usage:
+#   docker compose -f docker-compose.yml -f docker-compose.home.yml up -d
+#
+# Forward TCP/UDP 6881 on the home router to this host for a connectable (green)
+# BT port. Do NOT forward 8088 — keep the Web UI off the public WAN.
+
+services:
+  qbittorrentee:
+    network_mode: host
