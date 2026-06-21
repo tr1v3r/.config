@@ -16,6 +16,8 @@ services:
     container_name: adguardhome
     restart: unless-stopped
     ports:
+      - "127.0.0.1:53:53/udp" # DNS
+      - "127.0.0.1:53:53/tcp" # DNS
       - "127.0.0.1:8053:53/udp" # DNS
       - "127.0.0.1:8053:53/tcp" # DNS
       - "127.0.0.1:8054:8080/tcp" # Web UI
