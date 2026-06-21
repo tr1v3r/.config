@@ -6,7 +6,9 @@
 # Premiere subscription.) Sibling to bt/: mounts bt/'s downloads read-only as
 # /media, so whatever qBittorrent finishes shows up here automatically.
 #
-# Web UI on 127.0.0.1:8096. For the Linux home host (reach it from the MacBook
+# Web UI on 8096, bound to all interfaces — reachable from other devices on the
+# LAN at http://<mac>.local:8096 (Bonjour; stable across DHCP IP changes) or
+# http://<mac-lan-ip>:8096. For the Linux home host (reach it from the MacBook
 # over Tailscale), layer:
 #   docker compose -f docker-compose.yml -f docker-compose.home.yml up -d
 
@@ -18,7 +20,9 @@ services:
     environment:
       TZ: Asia/Shanghai
     ports:
-      - "127.0.0.1:8096:8096/tcp"   # Web UI (host 8096 → container 8096, 127.0.0.1 only)
+      - "8096:8096/tcp" # Web UI (0.0.0.0:8096 → container 8096; reachable from the LAN)
     volumes:
-      - ./config:/config            # Emby config + metadata DB + transcodes (gitignored)
-      - ../bt/downloads:/media:ro   # qBittorrent's downloads, read-only
+      - ./config:/config # Emby config + metadata DB + transcodes (gitignored)
+      - ${FILMS_DIR}:/media/films:ro # films directory
+      - ${SERIES_DIR}:/media/series:ro # series directory
+      # - ../bt/downloads:/media:ro # qBittorrent's downloads, read-only
