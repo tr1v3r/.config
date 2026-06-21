@@ -1,0 +1,24 @@
+# Emby — base compose (macOS local default)
+#
+# Polished self-hosted media server: auto-scrapes posters/plot/cast from
+# TheMovieDb/TheTVDB and streams your library to any device. (Closed-core;
+# some advanced features — hardware transcoding, downloads — need an Emby
+# Premiere subscription.) Sibling to bt/: mounts bt/'s downloads read-only as
+# /media, so whatever qBittorrent finishes shows up here automatically.
+#
+# Web UI on 127.0.0.1:8096. For the Linux home host (reach it from the MacBook
+# over Tailscale), layer:
+#   docker compose -f docker-compose.yml -f docker-compose.home.yml up -d
+
+services:
+  emby:
+    image: emby/embyserver:4.9.5.0
+    container_name: emby
+    restart: unless-stopped
+    environment:
+      TZ: Asia/Shanghai
+    ports:
+      - "127.0.0.1:8096:8096/tcp"   # Web UI (host 8096 → container 8096, 127.0.0.1 only)
+    volumes:
+      - ./config:/config            # Emby config + metadata DB + transcodes (gitignored)
+      - ../bt/downloads:/media:ro   # qBittorrent's downloads, read-only

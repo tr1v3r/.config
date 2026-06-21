@@ -54,6 +54,10 @@ pihole/etc-dnsmasq.d/
 bt/.qbittorrent.env
 bt/config/
 bt/downloads/
+
+# emby: config/ is runtime state (no per-machine secret needed)
+!emby/**
+emby/config/
 !ai/
 !ai/**
 !aerc/**
