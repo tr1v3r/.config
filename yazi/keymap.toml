@@ -10,6 +10,7 @@ prepend_keymap = [
 	{ on = ["'", "r"], run = "plugin yamb --args=delete_by_key", desc = "Delete bookmark by key" },
 	{ on = ["P"], run = "spot", desc = "Open spotter" },
 	{ on = ["c", "a"], run = "plugin compress", desc = "Archive selected files" },
+	{ on = ["c", "e"], run = "plugin gpg-encrypt", desc = "Encrypt with GPG (replace original)" },
 ]
 
 keymap = [
