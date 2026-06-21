@@ -1,0 +1,14 @@
+# Emby — override for a Linux home host
+#
+# Host network so the Web UI (8096) listens on the host's interfaces, including
+# tailscale0 → reach it from the MacBook at http://<server-tailscale-name>:8096.
+# Under network_mode: host the `ports:` section is ignored, so we don't repeat it.
+#
+# Usage:
+#   docker compose -f docker-compose.yml -f docker-compose.home.yml up -d
+#
+# Don't forward 8096 on the router — keep the Web UI off the public WAN.
+
+services:
+  emby:
+    network_mode: host
