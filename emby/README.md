@@ -9,21 +9,21 @@ read-only as `/media`** — so whatever finishes downloading in `bt/` shows up h
 automatically. Same dual-scenario pattern as `bt/`: run locally on the MacBook,
 or on the home server and watch from the MacBook over Tailscale.
 
-| | Emby (here) | Jellyfin | Plex |
-|---|---|---|---|
-| License | closed-core, Premiere paid | FOSS, fully free | closed-core, Plex Pass paid + account |
-| Self-host | yes | yes | yes (phones home) |
-| Image | `emby/embyserver` | `jellyfin/jellyfin` | `plexinc/pms-docker` |
-| Default port | `8096` | `8096` | `32400` |
+|              | Emby (here)                | Jellyfin            | Plex                                  |
+| ------------ | -------------------------- | ------------------- | ------------------------------------- |
+| License      | closed-core, Premiere paid | FOSS, fully free    | closed-core, Plex Pass paid + account |
+| Self-host    | yes                        | yes                 | yes (phones home)                     |
+| Image        | `emby/embyserver`          | `jellyfin/jellyfin` | `plexinc/pms-docker`                  |
+| Default port | `8096`                     | `8096`              | `32400`                               |
 
 ## Files
 
-| Path | Tracked? | Purpose |
-|------|----------|---------|
-| `docker-compose.yml` | yes | Base: Mac local (`127.0.0.1`, WebUI `8096`). |
-| `docker-compose.home.yml` | yes | Override: home Linux host (`network_mode: host`). |
-| `config/` | gitignored | Emby config, metadata DB, generated posters, transcodes. |
-| `../bt/downloads` (external) | — | qBittorrent's downloads, mounted read-only as `/media`. |
+| Path                         | Tracked?   | Purpose                                                    |
+| ---------------------------- | ---------- | ---------------------------------------------------------- |
+| `docker-compose.yml`         | yes        | Base: Mac, WebUI `8096` on all interfaces (LAN-reachable). |
+| `docker-compose.home.yml`    | yes        | Override: home Linux host (`network_mode: host`).          |
+| `config/`                    | gitignored | Emby config, metadata DB, generated posters, transcodes.   |
+| `../bt/downloads` (external) | —          | qBittorrent's downloads, mounted read-only as `/media`.    |
 
 ## Prerequisites
 
@@ -55,8 +55,10 @@ docker compose up -d
 open http://localhost:8096     # walk the setup wizard, add libraries pointing at /media
 ```
 
-Stream in a browser, or grab the Emby mobile/TV app and point it at
-`http://localhost:8096` (or the Mac's LAN IP).
+Stream in a browser on this Mac at `http://localhost:8096`. From a phone or TV
+on the same Wi-Fi, point the Emby app at `http://<mac>.local:8096` (Bonjour,
+stable across DHCP IP changes) or the Mac's LAN IP `http://<mac-lan-ip>:8096`.
+Find yours with `scutil --get LocalHostName` and `ipconfig getifaddr en0`.
 
 ## Scenario 2 — Home server (watch from the MacBook)
 
@@ -86,6 +88,7 @@ you symlinked `bt/downloads → /Volumes/Gamma/Videos`, that's exactly what
 ## Metadata sources
 
 Built in — no extra setup:
+
 - **TheMovieDb (TMDB)** for movies & show metadata, posters, backdrops.
 - **TheTVDB** for episode/season data.
 - **Emby's own / Others** (MusicBrainz, TheAudioDB, etc.) for music and fill-in.
@@ -101,8 +104,9 @@ server: `tailscale serve --bg --https=443 http://localhost:8096`. Optional.
 
 ## Zscaler / corporate-security Macs
 
-`8096` isn't one of the common web ports a corporate agent intercepts, and it's
-bound to `127.0.0.1` locally — no interference expected.
+`8096` isn't one of the common web ports a corporate agent intercepts — no
+interference expected. It binds to all interfaces (LAN-reachable), so don't
+forward `8096` on your router — keep the Web UI off the public WAN.
 
 ## Troubleshooting
 

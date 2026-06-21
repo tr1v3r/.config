@@ -6,3 +6,4 @@ deploy/k8s/redis/redis-config.yaml filter=git-crypt diff=git-crypt
 iterm2/com.googlecode.iterm2.plist filter=git-crypt diff=git-crypt
 adguard-home/conf/** filter=git-crypt diff=git-crypt
 pihole/.pihole.env filter=git-crypt diff=git-crypt
+emby/.env filter=git-crypt diff=git-crypt
