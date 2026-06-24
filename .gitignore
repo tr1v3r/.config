@@ -59,6 +59,11 @@ bt/downloads/
 # emby: config/ is runtime state (no per-machine secret needed)
 !emby/**
 emby/config/
+
+# karakeep: .env is git-crypt encrypted + tracked; data lives in named docker
+# volumes (outside the repo), so nothing else needs ignoring here.
+!karakeep/**
+
 !ai/
 !ai/**
 !aerc/**
