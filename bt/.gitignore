@@ -1,0 +1,6 @@
+# runtime state
+config/
+downloads/
+
+# per-machine secret (not shared)
+.qbittorrent.env

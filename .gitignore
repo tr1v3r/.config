@@ -1,95 +1,64 @@
-# ignore all files and folders
-*
+# Whitelist via "/*": ignore only top-level entries, then re-include dirs/files.
+# "/*" (unlike "*") does not match nested paths, so once a dir is re-included its
+# contents are automatically trackable — no "!**/" re-include-dirs line is needed.
+# Bonus: any top-level dir NOT re-included below (e.g. dependency caches coc/,
+# yarn/) is pruned at the root, so git never descends into them and never reads
+# their nested .gitignore files (which would un-ignore vendored package contents).
+/*
 
-# do not ignore .gitignore
-!.gitignore
-!.gitmodules
-!.gitattributes
-!README.md
+# repo metadata (root files — no trailing slash)
+!/.gitignore
+!/.gitmodules
+!/.gitattributes
+!/README.md
 
 # git-crypt: encrypted key material (safe to commit, GPG-wrapped)
-!.git-crypt/**
+!/.git-crypt/
 
-# do not ignore all directories
-!**/
+# --- submodules (see .gitmodules; ranger plugins are nested under !/ranger/) ---
+!/firefox/
+!/nvim/
+!/zsh/
 
-# do not ignore specified directories
-!bashtop/**
-!cargo/**
-!conda/**
-!gpg/**
-!kitty/**
-!lazygit/**
-!neofetch/**
-!ranger/**
-!raycast/diy_plugins/**
-!raycast/scripts/**
-!scripts/**
-!snipaste/**
-!ssh/**
-!starship.toml
-!tmux-powerline/**
-!tmux/**
-!yazi/**
-yazi/flavors/
+# --- service stacks: runtime state in per-dir .gitignore; *.env git-crypt encrypted ---
+!/adguard-home/
+!/bt/
+!/emby/
+!/karakeep/
+!/pihole/
 
-# git submodules directories
-!iterm2/**
-# !karabiner/**
-!nvim/**
-!zsh/**
-!deploy/**
-!firefox/**
+# --- other tracked dirs (alphabetical) ---
+!/aerc/
+!/ai/
+!/bashtop/
+!/cargo/
+!/conda/
+!/deploy/
+!/gpg/
+!/iterm2/
+!/kitty/
+!/lazygit/
+!/neofetch/
+!/ranger/
+!/scripts/
+!/secrets/
+!/snipaste/
+!/ssh/
+!/tmux/
+!/tmux-powerline/
+!/yazi/
 
-# adguard-home: conf/ is git-crypt encrypted and tracked; work/ is runtime state
-!adguard-home/**
-adguard-home/work/
+# raycast: only diy_plugins/ and scripts/ tracked (narrowing lives in raycast/.gitignore)
+!/raycast/
 
-# pihole: .pihole.env is git-crypt encrypted and tracked; etc-*/ are runtime state
-!pihole/**
-pihole/etc-pihole/
-pihole/etc-dnsmasq.d/
+# root-level tracked files
+!/picom.conf
+!/starship.toml
 
-# bt: .qbittorrent.env is per-machine (gitignored); config/ + downloads/ are runtime state
-!bt/**
-bt/.qbittorrent.env
-bt/config/
-bt/downloads/
-
-# emby: config/ is runtime state (no per-machine secret needed)
-!emby/**
-emby/config/
-
-# karakeep: .env is git-crypt encrypted + tracked; data lives in named docker
-# volumes (outside the repo), so nothing else needs ignoring here.
-!karakeep/**
-
-!ai/
-!ai/**
-!aerc/**
-!secrets
-!secrets/**
-
-# do not ignore picom.conf
-!picom.conf
-
-# python
+# --- global ignores (filter junk inside the tracked dirs above) ---
+*.log
 *.pyc
 *.pyo
-.mypy_cache/
-__pycache__
-
-# ranger
-# ranger/plugins/__init__.py
-
-# codegraph
 .codegraph/
-
-# log
-*.log
-
-# lazygit
-lazygit/state.yml
-
-yarn/
-coc/
+.mypy_cache/
+__pycache__/
