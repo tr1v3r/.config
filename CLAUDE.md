@@ -32,7 +32,7 @@ See `.gitmodules`. After cloning: `git submodule update --init --recursive`. Kno
 
 ## Directory Map
 
-**Shells / editors / CLI tools** (mostly symlinked from `$HOME`): `zsh/`, `nvim/`, `aerc/` (email), `kitty/`, `iterm2/`, `tmux/`, `ranger/`, `yazi/`, `lazygit/`, `git/`, `gh/`, `gpg/`, `ssh/`, `cargo/`, `conda/`, `karabiner/`, `raycast/` (only `diy_plugins/` + `scripts/` tracked), `op/` (1Password), `opencode/`, `github-copilot/`, `neofetch/`, `snipaste/`, `bashtop/`.
+**Shells / editors / CLI tools** (mostly symlinked from `$HOME`): `zsh/`, `nvim/`, `aerc/` (email), `kitty/`, `iterm2/`, `tmux/`, `tmux-powerline/`, `ranger/`, `yazi/`, `lazygit/`, `gpg/`, `ssh/`, `cargo/`, `conda/`, `raycast/` (only `diy_plugins/` + `scripts/` tracked), `neofetch/`, `snipaste/`, `bashtop/`.
 
 **Self-hosted service stacks** (each has a `README.md`): `adguard-home/`, `pihole/` (DNS), `emby/` (media), `karakeep/` (bookmarks), `bt/` (qBittorrent-Enhanced, PT/BT). See compose pattern below.
 
@@ -43,6 +43,8 @@ See `.gitmodules`. After cloning: `git submodule update --init --recursive`. Kno
 ## Service stack compose pattern
 
 Each service dir ships a **base** `docker-compose.yml` (macOS-local default) plus an optional `docker-compose.home.yml` override for a Linux home host that serves the whole LAN (e.g. `network_mode: host`). Runtime state is gitignored per-dir; `*.env` files are git-crypt encrypted.
+
+Multi-container stacks that resolve siblings by Docker service-name DNS (e.g. `karakeep/`'s web + chrome + meilisearch) deliberately ship **no** home override — `network_mode: host` would break that DNS resolution; their published ports already reach Tailscale. See `karakeep/README.md`.
 
 ```bash
 # macOS local
