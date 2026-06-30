@@ -8,3 +8,5 @@ adguard-home/conf/** filter=git-crypt diff=git-crypt
 pihole/.pihole.env filter=git-crypt diff=git-crypt
 emby/.env filter=git-crypt diff=git-crypt
 karakeep/.env filter=git-crypt diff=git-crypt
+himalaya/config.toml filter=git-crypt diff=git-crypt
+ortie/config.toml filter=git-crypt diff=git-crypt

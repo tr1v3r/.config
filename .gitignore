@@ -19,6 +19,7 @@
 # --- submodules (see .gitmodules; ranger plugins are nested under !/ranger/) ---
 !/firefox/
 !/nvim/
+!/ortie/
 !/zsh/
 
 # --- service stacks: runtime state in per-dir .gitignore; *.env git-crypt encrypted ---
@@ -36,6 +37,7 @@
 !/conda/
 !/deploy/
 !/gpg/
+!/himalaya/
 !/iterm2/
 !/kitty/
 !/lazygit/
