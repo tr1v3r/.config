@@ -10,8 +10,8 @@ prepend_keymap = [
 	{ on = ["'", "r"], run = "plugin yamb --args=delete_by_key", desc = "Delete bookmark by key" },
 	{ on = ["P"], run = "spot", desc = "Open spotter" },
 	{ on = ["c", "a"], run = "plugin compress", desc = "Archive selected files" },
-	{ on = ["c", "e"], run = "plugin gpg-encrypt", desc = "Encrypt with GPG (replace original)" },
-	{ on = ["c", "d"], run = "plugin gpg-decrypt", desc = "Decrypt GPG file (replace original)" },
+	{ on = ["c", "e"], run = "plugin gpg -- encrypt", desc = "Sign and encrypt with GPG (replace originals)" },
+	{ on = ["c", "d"], run = "plugin gpg -- decrypt", desc = "Decrypt and verify GPG signature" },
 ]
 
 keymap = [
