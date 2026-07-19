@@ -37,6 +37,23 @@ gpg_test \
 gpg_test \
 	--passphrase "" \
 	--quick-generate-key \
+	"Yazi GPG Second Signer Test <yazi-gpg-second-signer@example.invalid>" \
+	ed25519 cert 1d
+
+SECOND_SIGNER_FINGERPRINT=$(
+	gpg_test --with-colons --list-secret-keys yazi-gpg-second-signer@example.invalid |
+		awk -F: '$1 == "fpr" { print $10; exit }'
+)
+test "${#SECOND_SIGNER_FINGERPRINT}" -eq 40
+
+gpg_test \
+	--passphrase "" \
+	--quick-add-key "$SECOND_SIGNER_FINGERPRINT" \
+	ed25519 sign 1d
+
+gpg_test \
+	--passphrase "" \
+	--quick-generate-key \
 	"Yazi GPG Recipient Test <yazi-gpg-recipient@example.invalid>" \
 	ed25519 cert 1d
 
@@ -61,23 +78,30 @@ cp "$YAZI_DIR/keymap.toml" "$WORK_DIR/plain.toml"
 gpg_test \
 	--status-fd 1 \
 	--local-user "$SIGNER_FINGERPRINT" \
+	--local-user "$SECOND_SIGNER_FINGERPRINT" \
 	--output "$WORK_DIR/plain.toml.sig" \
 	--detach-sign -- "$WORK_DIR/plain.toml" \
 	>"$WORK_DIR/detached-sign.status"
-grep -Fq "[GNUPG:] SIG_CREATED" "$WORK_DIR/detached-sign.status"
+test "$(grep -Fc "[GNUPG:] SIG_CREATED" "$WORK_DIR/detached-sign.status")" -eq 2
 
 gpg_test \
 	--no-auto-key-retrieve \
+	--proc-all-sigs \
 	--status-fd 1 \
 	--assert-signer "$SIGNER_FINGERPRINT" \
+	--assert-signer "$SECOND_SIGNER_FINGERPRINT" \
 	--verify -- "$WORK_DIR/plain.toml.sig" "$WORK_DIR/plain.toml" \
 	>"$WORK_DIR/detached-verify.status"
-grep -Fq "[GNUPG:] VALIDSIG" "$WORK_DIR/detached-verify.status"
+test "$(grep -Fc "[GNUPG:] VALIDSIG" "$WORK_DIR/detached-verify.status")" -eq 2
+grep -Fq "$SIGNER_FINGERPRINT" "$WORK_DIR/detached-verify.status"
+grep -Fq "$SECOND_SIGNER_FINGERPRINT" "$WORK_DIR/detached-verify.status"
 
 if gpg_test \
 	--no-auto-key-retrieve \
+	--proc-all-sigs \
 	--status-fd 1 \
 	--assert-signer "$SIGNER_FINGERPRINT" \
+	--assert-signer "$SECOND_SIGNER_FINGERPRINT" \
 	--verify -- "$WORK_DIR/plain.toml.sig" "$YAZI_DIR/init.lua" \
 	>"$WORK_DIR/detached-invalid.status" 2>"$WORK_DIR/detached-invalid.err"
 then
@@ -90,34 +114,41 @@ gpg_test \
 	--trust-model always \
 	--status-fd 1 \
 	--local-user "$SIGNER_FINGERPRINT" \
+	--local-user "$SECOND_SIGNER_FINGERPRINT" \
 	--recipient "$RECIPIENT_FINGERPRINT" \
 	--recipient "$SIGNER_FINGERPRINT" \
 	--set-filename plain.toml \
 	--output "$WORK_DIR/plain.toml.gpg" \
 	--sign --encrypt -- "$WORK_DIR/plain.toml" \
 	>"$WORK_DIR/encrypt.status"
-grep -Fq "[GNUPG:] SIG_CREATED" "$WORK_DIR/encrypt.status"
+test "$(grep -Fc "[GNUPG:] SIG_CREATED" "$WORK_DIR/encrypt.status")" -eq 2
 
 gpg_test \
 	--no-auto-key-retrieve \
+	--proc-all-sigs \
 	--status-fd 1 \
 	--assert-signer "$SIGNER_FINGERPRINT" \
+	--assert-signer "$SECOND_SIGNER_FINGERPRINT" \
 	--output "$WORK_DIR/plain.restored.toml" \
 	--decrypt -- "$WORK_DIR/plain.toml.gpg" \
 	>"$WORK_DIR/decrypt.status"
 grep -Fq "[GNUPG:] DECRYPTION_OKAY" "$WORK_DIR/decrypt.status"
-grep -Fq "[GNUPG:] VALIDSIG" "$WORK_DIR/decrypt.status"
+test "$(grep -Fc "[GNUPG:] VALIDSIG" "$WORK_DIR/decrypt.status")" -eq 2
+grep -Fq "$SIGNER_FINGERPRINT" "$WORK_DIR/decrypt.status"
+grep -Fq "$SECOND_SIGNER_FINGERPRINT" "$WORK_DIR/decrypt.status"
 grep -Fq " plain.toml" "$WORK_DIR/decrypt.status"
 cmp "$WORK_DIR/plain.toml" "$WORK_DIR/plain.restored.toml"
 
 gpg_test \
 	--no-auto-key-retrieve \
+	--proc-all-sigs \
 	--status-fd 2 \
 	--assert-signer "$SIGNER_FINGERPRINT" \
+	--assert-signer "$SECOND_SIGNER_FINGERPRINT" \
 	--decrypt -- "$WORK_DIR/plain.toml.gpg" \
 	>/dev/null 2>"$WORK_DIR/verify.status"
 grep -Fq "[GNUPG:] DECRYPTION_OKAY" "$WORK_DIR/verify.status"
-grep -Fq "[GNUPG:] VALIDSIG" "$WORK_DIR/verify.status"
+test "$(grep -Fc "[GNUPG:] VALIDSIG" "$WORK_DIR/verify.status")" -eq 2
 
 mkdir "$WORK_DIR/batch"
 cp "$YAZI_DIR/keymap.toml" "$WORK_DIR/batch/one"
@@ -128,6 +159,7 @@ for name in one two; do
 		--no-auto-key-locate \
 		--trust-model always \
 		--local-user "$SIGNER_FINGERPRINT" \
+		--local-user "$SECOND_SIGNER_FINGERPRINT" \
 		--recipient "$RECIPIENT_FINGERPRINT" \
 		--recipient "$SIGNER_FINGERPRINT" \
 		--set-filename "$name" \
@@ -139,13 +171,15 @@ done
 for name in one two; do
 	gpg_test \
 		--no-auto-key-retrieve \
+		--proc-all-sigs \
 		--status-fd 1 \
 		--assert-signer "$SIGNER_FINGERPRINT" \
+		--assert-signer "$SECOND_SIGNER_FINGERPRINT" \
 		--output "$WORK_DIR/batch/$name" \
 		--decrypt -- "$WORK_DIR/batch/$name.gpg" \
 		>"$WORK_DIR/batch/$name.decrypt.status"
 	grep -Fq "[GNUPG:] DECRYPTION_OKAY" "$WORK_DIR/batch/$name.decrypt.status"
-	grep -Fq "[GNUPG:] VALIDSIG" "$WORK_DIR/batch/$name.decrypt.status"
+	test "$(grep -Fc "[GNUPG:] VALIDSIG" "$WORK_DIR/batch/$name.decrypt.status")" -eq 2
 	cmp "$WORK_DIR/batch/$name.expected" "$WORK_DIR/batch/$name"
 done
 
@@ -154,13 +188,16 @@ gpg_test \
 	--no-auto-key-locate \
 	--trust-model always \
 	--local-user "$SIGNER_FINGERPRINT" \
+	--local-user "$SECOND_SIGNER_FINGERPRINT" \
 	--recipient "$RECIPIENT_FINGERPRINT" \
 	--recipient "$SIGNER_FINGERPRINT" \
 	--output "$WORK_DIR/empty.gpg" \
 	--sign --encrypt -- "$WORK_DIR/empty"
 gpg_test \
 	--no-auto-key-retrieve \
+	--proc-all-sigs \
 	--assert-signer "$SIGNER_FINGERPRINT" \
+	--assert-signer "$SECOND_SIGNER_FINGERPRINT" \
 	--output "$WORK_DIR/empty.restored" \
 	--decrypt -- "$WORK_DIR/empty.gpg"
 test -e "$WORK_DIR/empty.restored"
@@ -176,6 +213,7 @@ gpg_test \
 	--trust-model always \
 	--status-fd 1 \
 	--local-user "$SIGNER_FINGERPRINT" \
+	--local-user "$SECOND_SIGNER_FINGERPRINT" \
 	--recipient "$RECIPIENT_FINGERPRINT" \
 	--recipient "$SIGNER_FINGERPRINT" \
 	--set-filename yazi-gpg-archive-v1.tar.gz \
@@ -185,13 +223,15 @@ gpg_test \
 
 gpg_test \
 	--no-auto-key-retrieve \
+	--proc-all-sigs \
 	--status-fd 1 \
 	--assert-signer "$SIGNER_FINGERPRINT" \
+	--assert-signer "$SECOND_SIGNER_FINGERPRINT" \
 	--output "$WORK_DIR/bundle.restored.tar.gz" \
 	--decrypt -- "$WORK_DIR/bundle.tar.gz.gpg" \
 	>"$WORK_DIR/bundle-decrypt.status"
 grep -Fq "[GNUPG:] DECRYPTION_OKAY" "$WORK_DIR/bundle-decrypt.status"
-grep -Fq "[GNUPG:] VALIDSIG" "$WORK_DIR/bundle-decrypt.status"
+test "$(grep -Fc "[GNUPG:] VALIDSIG" "$WORK_DIR/bundle-decrypt.status")" -eq 2
 grep -Fq " yazi-gpg-archive-v1.tar.gz" "$WORK_DIR/bundle-decrypt.status"
 
 mkdir "$WORK_DIR/extracted"
@@ -209,8 +249,10 @@ gpg_test \
 
 if gpg_test \
 	--no-auto-key-retrieve \
+	--proc-all-sigs \
 	--status-fd 1 \
 	--assert-signer "$SIGNER_FINGERPRINT" \
+	--assert-signer "$SECOND_SIGNER_FINGERPRINT" \
 	--output "$WORK_DIR/legacy.strict.out" \
 	--decrypt -- "$WORK_DIR/legacy.gpg" \
 	>"$WORK_DIR/legacy-strict.status" 2>"$WORK_DIR/legacy-strict.err"
@@ -230,4 +272,4 @@ gpg_test \
 	--decrypt -- "$WORK_DIR/legacy.gpg"
 cmp "$WORK_DIR/plain.toml" "$WORK_DIR/legacy.out"
 
-echo "PASS: detached signatures, batch decrypt, and dual-recipient fallback"
+echo "PASS: multiple recipients/signers, batch decrypt, and recipient fallback"

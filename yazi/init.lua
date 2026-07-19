@@ -14,8 +14,13 @@ require("starship"):setup({
 })
 require("git"):setup({})
 require("gpg"):setup({
-	recipient = "899318F5A4423B72DF6A166FE4AF5FF89222F261",
-	signer = "C633910E8F351365DEAAF300046263C39890F916",
+	recipients = {
+		"899318F5A4423B72DF6A166FE4AF5FF89222F261",
+		"C633910E8F351365DEAAF300046263C39890F916",
+	},
+	signers = {
+		"C633910E8F351365DEAAF300046263C39890F916",
+	},
 })
 
 Status:children_add(function()

@@ -12,8 +12,13 @@
 -- ending in .tar.gz is not mistaken for an archive during decryption.
 
 local ARCHIVE_MARKER = "yazi-gpg-archive-v1.tar.gz"
-local DEFAULT_RECIPIENT = "899318F5A4423B72DF6A166FE4AF5FF89222F261"
-local DEFAULT_SIGNER = "C633910E8F351365DEAAF300046263C39890F916"
+local DEFAULT_RECIPIENTS = {
+	"899318F5A4423B72DF6A166FE4AF5FF89222F261",
+	"C633910E8F351365DEAAF300046263C39890F916",
+}
+local DEFAULT_SIGNERS = {
+	"C633910E8F351365DEAAF300046263C39890F916",
+}
 
 local function notify(content, level, timeout)
 	ya.notify({
@@ -28,10 +33,26 @@ local function normalize_fingerprint(value)
 	return tostring(value or ""):gsub("%s+", ""):upper()
 end
 
+local function normalize_fingerprints(values)
+	if type(values) ~= "table" then
+		values = { values }
+	end
+
+	local normalized, seen = {}, {}
+	for _, value in ipairs(values) do
+		local fingerprint = normalize_fingerprint(value)
+		if not seen[fingerprint] then
+			normalized[#normalized + 1] = fingerprint
+			seen[fingerprint] = true
+		end
+	end
+	return normalized
+end
+
 local get_config = ya.sync(function(state)
 	return {
-		recipient = state.recipient or DEFAULT_RECIPIENT,
-		signer = state.signer or DEFAULT_SIGNER,
+		recipients = state.recipients or state.recipient or DEFAULT_RECIPIENTS,
+		signers = state.signers or state.signer or DEFAULT_SIGNERS,
 	}
 end)
 
@@ -70,11 +91,7 @@ local function compact_error(value)
 end
 
 local function run(command, args)
-	local output, err = Command(command)
-		:arg(args)
-		:stdout(Command.PIPED)
-		:stderr(Command.PIPED)
-		:output()
+	local output, err = Command(command):arg(args):stdout(Command.PIPED):stderr(Command.PIPED):output()
 
 	if not output then
 		return false, "", compact_error(err)
@@ -176,14 +193,25 @@ local function valid_fingerprint(value)
 end
 
 local function validate_config(config)
-	config.recipient = normalize_fingerprint(config.recipient)
-	config.signer = normalize_fingerprint(config.signer)
+	config.recipients = normalize_fingerprints(config.recipients)
+	config.signers = normalize_fingerprints(config.signers)
 
-	if not valid_fingerprint(config.recipient) then
-		return false, "Invalid recipient fingerprint"
+	if #config.recipients == 0 then
+		return false, "At least one recipient fingerprint is required"
 	end
-	if not valid_fingerprint(config.signer) then
-		return false, "Invalid signer fingerprint"
+	for index, fingerprint in ipairs(config.recipients) do
+		if not valid_fingerprint(fingerprint) then
+			return false, string.format("Invalid recipient fingerprint at index %d", index)
+		end
+	end
+
+	if #config.signers == 0 then
+		return false, "At least one signer fingerprint is required"
+	end
+	for index, fingerprint in ipairs(config.signers) do
+		if not valid_fingerprint(fingerprint) then
+			return false, string.format("Invalid signer fingerprint at index %d", index)
+		end
 	end
 
 	return true
@@ -210,15 +238,19 @@ local function has_secret_key(fingerprint)
 end
 
 local function validate_signing_key(config)
-	if not has_secret_key(config.signer) then
-		return false, "Signing private key or smart-card stub is unavailable:\n" .. config.signer
+	for _, signer in ipairs(config.signers) do
+		if not has_secret_key(signer) then
+			return false, "Signing private key or smart-card stub is unavailable:\n" .. signer
+		end
 	end
 	return true
 end
 
 local function validate_encrypt_keys(config)
-	if not has_public_key(config.recipient) then
-		return false, "Encryption public key is unavailable:\n" .. config.recipient
+	for _, recipient in ipairs(config.recipients) do
+		if not has_public_key(recipient) then
+			return false, "Encryption public key is unavailable:\n" .. recipient
+		end
 	end
 	return validate_signing_key(config)
 end
@@ -315,8 +347,26 @@ local function create_archive(output, parent, targets)
 	return true
 end
 
+local function append_key_options(args, option, fingerprints)
+	for _, fingerprint in ipairs(fingerprints) do
+		args[#args + 1] = option
+		args[#args + 1] = fingerprint
+	end
+end
+
+local function status_count(status, token)
+	local expected = "[GNUPG:] " .. token
+	local count = 0
+	for line in status:gmatch("[^\r\n]+") do
+		if line:sub(1, #expected) == expected then
+			count = count + 1
+		end
+	end
+	return count
+end
+
 local function sign_encrypt(input, output, embedded_name, config)
-	local ok, status, err = run("gpg", {
+	local args = {
 		"--batch",
 		"--no-tty",
 		"--no-auto-key-locate",
@@ -324,10 +374,10 @@ local function sign_encrypt(input, output, embedded_name, config)
 		"always",
 		"--status-fd",
 		"1",
-		"--local-user",
-		config.signer,
-		"--recipient",
-		config.recipient,
+	}
+	append_key_options(args, "--local-user", config.signers)
+	append_key_options(args, "--recipient", config.recipients)
+	for _, value in ipairs({
 		"--set-filename",
 		embedded_name,
 		"--output",
@@ -336,13 +386,17 @@ local function sign_encrypt(input, output, embedded_name, config)
 		"--encrypt",
 		"--",
 		input,
-	})
+	}) do
+		args[#args + 1] = value
+	end
+
+	local ok, status, err = run("gpg", args)
 
 	if not ok then
 		return false, "gpg failed: " .. err
 	end
-	if not status:find("[GNUPG:] SIG_CREATED", 1, true) then
-		return false, "gpg did not report a created signature"
+	if status_count(status, "SIG_CREATED") < #config.signers then
+		return false, "gpg did not report every expected signature"
 	end
 	if not nonempty_file(output) then
 		return false, "gpg succeeded without creating non-empty ciphertext"
@@ -366,27 +420,32 @@ local function create_detached_signature(item, config, replace_existing)
 	end
 
 	local temp_signature = join(temp_dir, item.name .. ".sig")
-	local ok, status, err = run("gpg", {
+	local args = {
 		"--batch",
 		"--no-tty",
 		"--status-fd",
 		"1",
-		"--local-user",
-		config.signer,
+	}
+	append_key_options(args, "--local-user", config.signers)
+	for _, value in ipairs({
 		"--output",
 		temp_signature,
 		"--detach-sign",
 		"--",
 		item.path,
-	})
+	}) do
+		args[#args + 1] = value
+	end
+
+	local ok, status, err = run("gpg", args)
 
 	if not ok then
 		cleanup_dir(temp_dir)
 		return false, "gpg failed: " .. compact_error(err)
 	end
-	if not status:find("[GNUPG:] SIG_CREATED", 1, true) then
+	if status_count(status, "SIG_CREATED") < #config.signers then
 		cleanup_dir(temp_dir)
-		return false, "gpg did not report a created signature"
+		return false, "gpg did not report every expected signature"
 	end
 	if not nonempty_file(temp_signature) then
 		cleanup_dir(temp_dir)
@@ -437,7 +496,7 @@ local function sign(config)
 	if replacement_count > 0 then
 		local title = replacement_count == 1
 				and string.format("Signature exists. Type y to replace '%s':", replacement_name)
-				or string.format("%d signatures already exist. Type y to replace them:", replacement_count)
+			or string.format("%d signatures already exist. Type y to replace them:", replacement_count)
 		if not exact_confirmation(title) then
 			return
 		end
@@ -541,12 +600,8 @@ local function perform_encryption(plan, config, keep_sources)
 		end
 
 		local temp_cipher = join(temp_dir, plan.output_name)
-		local encrypted, encrypt_err = sign_encrypt(
-			input,
-			temp_cipher,
-			plan.archive_mode and ARCHIVE_MARKER or plan.targets[1].name,
-			config
-		)
+		local encrypted, encrypt_err =
+			sign_encrypt(input, temp_cipher, plan.archive_mode and ARCHIVE_MARKER or plan.targets[1].name, config)
 		if not encrypted then
 			error(encrypt_err)
 		end
@@ -591,8 +646,7 @@ local function encrypt_each(config, targets, keep_sources)
 
 	if keep_sources then
 		if replacement_count > 0 then
-			local title = replacement_count == 1
-					and "Ciphertext already exists. Type y to replace it:"
+			local title = replacement_count == 1 and "Ciphertext already exists. Type y to replace it:"
 				or string.format("%d ciphertext files already exist. Type y to replace them:", replacement_count)
 			if not exact_confirmation(title) then
 				return
@@ -671,11 +725,7 @@ local function encrypt(config, options)
 		end
 	else
 		local confirmation = #targets > 1
-				and string.format(
-					"Type y to sign, encrypt & replace %d items as '%s':",
-					#targets,
-					plan.output_name
-				)
+				and string.format("Type y to sign, encrypt & replace %d items as '%s':", #targets, plan.output_name)
 			or string.format("Type y to sign, encrypt & replace '%s':", targets[1].name)
 		if not exact_confirmation(confirmation) then
 			return
@@ -701,11 +751,7 @@ local function encrypt(config, options)
 		)
 	else
 		local suffix = options.keep and " (originals kept)" or ""
-		notify(
-			string.format("Signed and encrypted %d item(s) -> %s%s", #targets, plan.final_output, suffix),
-			"info",
-			8
-		)
+		notify(string.format("Signed and encrypted %d item(s) -> %s%s", #targets, plan.final_output, suffix), "info", 8)
 	end
 end
 
@@ -730,6 +776,36 @@ local function status_has_signature(status)
 	return false
 end
 
+local function missing_valid_signers(status, expected_signers)
+	local valid = {}
+	for line in status:gmatch("[^\r\n]+") do
+		if line:find("[GNUPG:] VALIDSIG ", 1, true) == 1 then
+			for token in line:gmatch("%S+") do
+				local fingerprint = normalize_fingerprint(token)
+				if valid_fingerprint(fingerprint) then
+					valid[fingerprint] = true
+				end
+			end
+		end
+	end
+
+	local missing = {}
+	for _, signer in ipairs(expected_signers) do
+		if not valid[signer] then
+			missing[#missing + 1] = signer
+		end
+	end
+	return missing
+end
+
+local function signature_failure(status, config)
+	local missing = missing_valid_signers(status, config.signers)
+	if #missing > 0 then
+		return "missing or invalid signer(s): " .. table.concat(missing, ", ")
+	end
+	return "one or more signatures are invalid"
+end
+
 local function embedded_filename(status)
 	for line in status:gmatch("[^\r\n]+") do
 		local value = line:match("^%[GNUPG:%] PLAINTEXT %S+ %S+ (.+)$")
@@ -740,17 +816,17 @@ local function embedded_filename(status)
 	return nil
 end
 
-local function decrypt_once(input, output, config, assert_signer)
+local function decrypt_once(input, output, config, assert_signers)
 	local args = {
 		"--batch",
 		"--no-tty",
 		"--no-auto-key-retrieve",
+		"--proc-all-sigs",
 		"--status-fd",
 		"1",
 	}
-	if assert_signer then
-		args[#args + 1] = "--assert-signer"
-		args[#args + 1] = config.signer
+	if assert_signers then
+		append_key_options(args, "--assert-signer", config.signers)
 	end
 	args[#args + 1] = "--output"
 	args[#args + 1] = output
@@ -762,22 +838,20 @@ local function decrypt_once(input, output, config, assert_signer)
 end
 
 local function verify_encrypted_once(input, config)
-	local child, spawn_err = Command("gpg")
-		:arg({
-			"--batch",
-			"--no-tty",
-			"--no-auto-key-retrieve",
-			"--status-fd",
-			"2",
-			"--assert-signer",
-			config.signer,
-			"--decrypt",
-			"--",
-			input,
-		})
-		:stdout(Command.NULL)
-		:stderr(Command.PIPED)
-		:spawn()
+	local args = {
+		"--batch",
+		"--no-tty",
+		"--no-auto-key-retrieve",
+		"--proc-all-sigs",
+		"--status-fd",
+		"2",
+	}
+	append_key_options(args, "--assert-signer", config.signers)
+	for _, value in ipairs({ "--decrypt", "--", input }) do
+		args[#args + 1] = value
+	end
+
+	local child, spawn_err = Command("gpg"):arg(args):stdout(Command.NULL):stderr(Command.PIPED):spawn()
 	if not child then
 		return false, "", compact_error(spawn_err)
 	end
@@ -790,19 +864,24 @@ local function verify_encrypted_once(input, config)
 end
 
 local function verify_detached_once(signature, source, config)
-	return run("gpg", {
+	local args = {
 		"--batch",
 		"--no-tty",
 		"--no-auto-key-retrieve",
+		"--proc-all-sigs",
 		"--status-fd",
 		"1",
-		"--assert-signer",
-		config.signer,
+	}
+	append_key_options(args, "--assert-signer", config.signers)
+	for _, value in ipairs({
 		"--verify",
 		"--",
 		signature,
 		source,
-	})
+	}) do
+		args[#args + 1] = value
+	end
+	return run("gpg", args)
 end
 
 local function verify(config)
@@ -818,12 +897,13 @@ local function verify(config)
 			failures[#failures + 1] = item.name .. ": directories cannot be verified directly"
 		elseif item.path:lower():match("%.gpg$") then
 			local ok, status, err = verify_encrypted_once(item.path, config)
-			if ok and status_has(status, "DECRYPTION_OKAY") and status_has(status, "VALIDSIG") then
+			local missing = missing_valid_signers(status, config.signers)
+			if ok and status_has(status, "DECRYPTION_OKAY") and #missing == 0 then
 				verified = verified + 1
 			elseif status_has(status, "DECRYPTION_OKAY") and not status_has_signature(status) then
 				failures[#failures + 1] = item.name .. ": unsigned"
 			elseif status_has(status, "DECRYPTION_OKAY") then
-				failures[#failures + 1] = item.name .. ": invalid signature or unexpected signer"
+				failures[#failures + 1] = item.name .. ": " .. signature_failure(status, config)
 			else
 				failures[#failures + 1] = item.name .. ": decryption failed (" .. compact_error(err) .. ")"
 			end
@@ -836,10 +916,11 @@ local function verify(config)
 				failures[#failures + 1] = item.name .. ": inferred source is a directory"
 			else
 				local ok, status, err = verify_detached_once(item.path, source, config)
-				if ok and status_has(status, "VALIDSIG") then
+				local missing = missing_valid_signers(status, config.signers)
+				if ok and #missing == 0 then
 					verified = verified + 1
 				elseif status_has_signature(status) then
-					failures[#failures + 1] = item.name .. ": invalid signature or unexpected signer"
+					failures[#failures + 1] = item.name .. ": " .. signature_failure(status, config)
 				else
 					failures[#failures + 1] = item.name .. ": verification failed (" .. compact_error(err) .. ")"
 				end
@@ -850,10 +931,10 @@ local function verify(config)
 	end
 
 	local summary = string.format(
-		"Signature verification: %d valid, %d failed\nExpected signer: %s",
+		"Signature verification: %d valid, %d failed\nExpected signers: %s",
 		verified,
 		#failures,
-		config.signer
+		table.concat(config.signers, ", ")
 	)
 	if #failures > 0 then
 		summary = summary .. "\n" .. table.concat(failures, "\n")
@@ -864,12 +945,8 @@ end
 
 local function decrypt_payload(input, output, config)
 	local ok, status, err = decrypt_once(input, output, config, true)
-	if
-		ok
-		and status_has(status, "DECRYPTION_OKAY")
-		and status_has(status, "VALIDSIG")
-		and path_exists(output)
-	then
+	local missing = missing_valid_signers(status, config.signers)
+	if ok and status_has(status, "DECRYPTION_OKAY") and #missing == 0 and path_exists(output) then
 		return true, status, false
 	end
 
@@ -878,9 +955,10 @@ local function decrypt_payload(input, output, config)
 		if path_exists(output) then
 			fs.remove("file", Url(output))
 		end
-		local message = status_has(status, "DECRYPTION_OKAY") and "Signature verification failed: "
-			or "Decryption failed: "
-		return false, nil, false, message .. err
+		local message = status_has(status, "DECRYPTION_OKAY")
+				and ("Signature verification failed: " .. signature_failure(status, config))
+			or ("Decryption failed: " .. err)
+		return false, nil, false, message
 	end
 
 	if path_exists(output) then
@@ -1067,8 +1145,7 @@ local function decrypt(config)
 		return
 	end
 
-	local confirmation = #candidates == 1
-			and "Type y to decrypt, verify & replace '" .. candidates[1].name .. "':"
+	local confirmation = #candidates == 1 and "Type y to decrypt, verify & replace '" .. candidates[1].name .. "':"
 		or string.format("Type y to decrypt, verify & replace %d files:", #candidates)
 	if not exact_confirmation(confirmation) then
 		return
@@ -1095,8 +1172,7 @@ local function decrypt(config)
 	if #warnings > 0 then
 		summary = summary .. "\nWarnings:\n" .. table.concat(warnings, "\n")
 	end
-	local level = #failures > 0 and (succeeded > 0 and "warn" or "error")
-		or (#warnings > 0 and "warn" or "info")
+	local level = #failures > 0 and (succeeded > 0 and "warn" or "error") or (#warnings > 0 and "warn" or "info")
 	notify(compact_error(summary), level, 10)
 end
 
@@ -1134,8 +1210,8 @@ end
 
 local function setup(state, options)
 	options = options or {}
-	state.recipient = normalize_fingerprint(options.recipient or DEFAULT_RECIPIENT)
-	state.signer = normalize_fingerprint(options.signer or DEFAULT_SIGNER)
+	state.recipients = normalize_fingerprints(options.recipients or options.recipient or DEFAULT_RECIPIENTS)
+	state.signers = normalize_fingerprints(options.signers or options.signer or DEFAULT_SIGNERS)
 end
 
 return {
