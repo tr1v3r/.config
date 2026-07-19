@@ -13,14 +13,21 @@ require("starship"):setup({
 	config_file = "~/.config/yazi/starship.toml",
 })
 require("git"):setup({})
+
+local function fingerprints_from_env(name)
+	local value = os.getenv(name)
+	assert(value and value:match("%S"), name .. " must be set")
+
+	local fingerprints = {}
+	for fingerprint in value:gmatch("[^,%s]+") do
+		fingerprints[#fingerprints + 1] = fingerprint
+	end
+	return fingerprints
+end
+
 require("gpg"):setup({
-	recipients = {
-		"899318F5A4423B72DF6A166FE4AF5FF89222F261",
-		"C633910E8F351365DEAAF300046263C39890F916",
-	},
-	signers = {
-		"C633910E8F351365DEAAF300046263C39890F916",
-	},
+	recipients = fingerprints_from_env("YAZI_GPG_RECIPIENTS"),
+	signers = fingerprints_from_env("YAZI_GPG_SIGNERS"),
 })
 
 Status:children_add(function()
