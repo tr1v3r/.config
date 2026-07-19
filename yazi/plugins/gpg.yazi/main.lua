@@ -268,13 +268,16 @@ local function valid_archive_name(value)
 	return value ~= "" and value ~= "." and value ~= ".." and not value:find("/", 1, true) and not value:find("%z")
 end
 
-local function archive_output_name(parent)
+local function default_archive_output_name(parent)
 	local parent_name = tostring(Url(parent).name or "selection")
 	if parent_name == "" or parent_name == "/" then
 		parent_name = "selection"
 	end
-	local default_name = parent_name .. ".tar.gz.gpg"
+	return parent_name .. ".tar.gz.gpg"
+end
 
+local function archive_output_name(parent)
+	local default_name = default_archive_output_name(parent)
 	local value, event = ya.input({
 		title = "Encrypted bundle name (default: " .. default_name .. "):",
 		pos = { "top-center", y = 3, w = 72 },
@@ -470,7 +473,7 @@ local function finish_source_removal(targets)
 	return failed
 end
 
-local function build_encryption_plan(targets)
+local function build_encryption_plan(targets, allow_existing)
 	local parent, output_name, archive_mode
 	if #targets > 1 then
 		parent = targets[1].parent
@@ -480,10 +483,14 @@ local function build_encryption_plan(targets)
 			end
 		end
 
-		local target_err
-		output_name, target_err = archive_output_name(parent)
-		if not output_name then
-			return nil, target_err, target_err == nil
+		if allow_existing then
+			output_name = default_archive_output_name(parent)
+		else
+			local target_err
+			output_name, target_err = archive_output_name(parent)
+			if not output_name then
+				return nil, target_err, target_err == nil
+			end
 		end
 		archive_mode = true
 	else
@@ -494,8 +501,12 @@ local function build_encryption_plan(targets)
 	end
 
 	local final_output = join(parent, output_name)
-	if path_exists(final_output) then
+	local output_cha = inspect_path(final_output)
+	if output_cha and not allow_existing then
 		return nil, "Target already exists: " .. final_output
+	end
+	if output_cha and output_cha.is_dir then
+		return nil, "Target is a directory and cannot be replaced: " .. final_output
 	end
 	for _, item in ipairs(targets) do
 		if item.path == final_output then
@@ -509,6 +520,7 @@ local function build_encryption_plan(targets)
 		output_name = output_name,
 		final_output = final_output,
 		archive_mode = archive_mode,
+		replace_existing = output_cha ~= nil,
 	}
 end
 
@@ -539,7 +551,12 @@ local function perform_encryption(plan, config, keep_sources)
 			error(encrypt_err)
 		end
 
-		local moved, move_err = move_noreplace(temp_cipher, plan.final_output)
+		local moved, move_err
+		if plan.replace_existing then
+			moved, move_err = move_replace(temp_cipher, plan.final_output)
+		else
+			moved, move_err = move_noreplace(temp_cipher, plan.final_output)
+		end
 		if not moved then
 			error(move_err)
 		end
@@ -558,29 +575,46 @@ local function perform_encryption(plan, config, keep_sources)
 end
 
 local function encrypt_each(config, targets, keep_sources)
-	local mode = keep_sources and "keep originals" or "replace originals"
-	if
+	local jobs, failures = {}, {}
+	local replacement_count = 0
+	for _, item in ipairs(targets) do
+		local plan, plan_err = build_encryption_plan({ item }, keep_sources)
+		if not plan then
+			failures[#failures + 1] = item.name .. ": " .. compact_error(plan_err)
+		else
+			jobs[#jobs + 1] = { item = item, plan = plan }
+			if plan.replace_existing then
+				replacement_count = replacement_count + 1
+			end
+		end
+	end
+
+	if keep_sources then
+		if replacement_count > 0 then
+			local title = replacement_count == 1
+					and "Ciphertext already exists. Type y to replace it:"
+				or string.format("%d ciphertext files already exist. Type y to replace them:", replacement_count)
+			if not exact_confirmation(title) then
+				return
+			end
+		end
+	elseif
 		not exact_confirmation(
-			string.format("Type y to sign & encrypt %d item(s) separately (%s):", #targets, mode)
+			string.format("Type y to sign & encrypt %d item(s) separately (replace originals):", #targets)
 		)
 	then
 		return
 	end
 
-	local succeeded, failures, removal_failures = 0, {}, {}
-	for _, item in ipairs(targets) do
-		local plan, plan_err = build_encryption_plan({ item })
-		if not plan then
-			failures[#failures + 1] = item.name .. ": " .. compact_error(plan_err)
+	local succeeded, removal_failures = 0, {}
+	for _, job in ipairs(jobs) do
+		local encrypted, encrypt_err, remove_errs = perform_encryption(job.plan, config, keep_sources)
+		if not encrypted then
+			failures[#failures + 1] = job.item.name .. ": " .. compact_error(encrypt_err)
 		else
-			local encrypted, encrypt_err, remove_errs = perform_encryption(plan, config, keep_sources)
-			if not encrypted then
-				failures[#failures + 1] = item.name .. ": " .. compact_error(encrypt_err)
-			else
-				succeeded = succeeded + 1
-				for _, remove_err in ipairs(remove_errs) do
-					removal_failures[#removal_failures + 1] = remove_err
-				end
+			succeeded = succeeded + 1
+			for _, remove_err in ipairs(remove_errs) do
+				removal_failures[#removal_failures + 1] = remove_err
 			end
 		end
 	end
@@ -620,7 +654,7 @@ local function encrypt(config, options)
 		return
 	end
 
-	local plan, plan_err, cancelled = build_encryption_plan(targets)
+	local plan, plan_err, cancelled = build_encryption_plan(targets, options.keep)
 	if not plan then
 		if not cancelled then
 			notify(plan_err, "warn")
@@ -628,12 +662,24 @@ local function encrypt(config, options)
 		return
 	end
 
-	local operation = options.keep and "sign & encrypt (keep originals)" or "sign, encrypt & replace"
-	local confirmation = #targets > 1
-			and string.format("Type y to %s %d items as '%s':", operation, #targets, plan.output_name)
-		or string.format("Type y to %s '%s':", operation, targets[1].name)
-	if not exact_confirmation(confirmation) then
-		return
+	if options.keep then
+		if
+			plan.replace_existing
+			and not exact_confirmation("Ciphertext exists. Type y to replace '" .. plan.output_name .. "':")
+		then
+			return
+		end
+	else
+		local confirmation = #targets > 1
+				and string.format(
+					"Type y to sign, encrypt & replace %d items as '%s':",
+					#targets,
+					plan.output_name
+				)
+			or string.format("Type y to sign, encrypt & replace '%s':", targets[1].name)
+		if not exact_confirmation(confirmation) then
+			return
+		end
 	end
 
 	local encrypted, encrypt_err, removal_failures = perform_encryption(plan, config, options.keep)
@@ -944,10 +990,10 @@ local function restore_archive(payload, encrypted_path, parent)
 end
 
 local function restore_file(payload, encrypted_path)
-	local output = encrypted_path:gsub("%.gpg$", "")
-	if output == encrypted_path then
+	if not encrypted_path:lower():match("%.gpg$") then
 		return false, "Encrypted file must end in .gpg"
 	end
+	local output = encrypted_path:sub(1, -5)
 	if path_exists(output) then
 		return false, "Restore target already exists: " .. output
 	end
@@ -964,39 +1010,17 @@ local function restore_file(payload, encrypted_path)
 	return true
 end
 
-local function decrypt(config)
-	local targets, target_err = prepare_targets(selected_or_hovered())
-	if not targets then
-		notify(target_err, "error")
-		return
-	end
-	if #targets ~= 1 then
-		notify("Decrypt one encrypted file at a time", "warn")
-		return
-	end
-
-	local item = targets[1]
-	if item.is_dir or not item.path:lower():match("%.gpg$") then
-		notify("Select a .gpg file to decrypt", "warn")
-		return
-	end
-
-	if not exact_confirmation("Type y to decrypt, verify & replace '" .. item.name .. "':") then
-		return
-	end
-
+local function decrypt_item(item, config)
 	local temp_dir, temp_err = make_temp_dir(item.parent)
 	if not temp_dir then
-		notify("Failed to create private temp directory: " .. temp_err, "error")
-		return
+		return false, "Failed to create private temp directory: " .. compact_error(temp_err)
 	end
 	local payload = join(temp_dir, "payload")
 
 	local decrypted, status, legacy, decrypt_err = decrypt_payload(item.path, payload, config)
 	if not decrypted then
 		cleanup_dir(temp_dir)
-		notify(decrypt_err, legacy and "warn" or "error", 9)
-		return
+		return false, compact_error(decrypt_err)
 	end
 
 	local marker = embedded_filename(status)
@@ -1009,15 +1033,71 @@ local function decrypt(config)
 	end
 
 	cleanup_dir(temp_dir)
-	ya.emit("escape", { select = true })
 
 	if not restored then
-		notify("Decryption stopped; ciphertext was kept.\n" .. compact_error(restore_err), "error", 9)
-	elseif restore_err then
-		notify(restore_err, "warn", 9)
-	else
-		notify(legacy and "Legacy file decrypted (unsigned)" or "Decrypted with a valid signature", "info", 8)
+		return false, "ciphertext kept: " .. compact_error(restore_err)
 	end
+	if restore_err then
+		return true, compact_error(restore_err)
+	end
+	if legacy then
+		return true, "decrypted unsigned legacy file"
+	end
+	return true
+end
+
+local function decrypt(config)
+	local targets, target_err = prepare_targets(selected_or_hovered())
+	if not targets then
+		notify(target_err, "error")
+		return
+	end
+
+	local candidates, failures = {}, {}
+	for _, item in ipairs(targets) do
+		if item.is_dir or not item.path:lower():match("%.gpg$") then
+			failures[#failures + 1] = item.name .. ": not a .gpg file"
+		else
+			candidates[#candidates + 1] = item
+		end
+	end
+
+	if #candidates == 0 then
+		notify("No .gpg files selected\n" .. table.concat(failures, "\n"), "warn", 9)
+		return
+	end
+
+	local confirmation = #candidates == 1
+			and "Type y to decrypt, verify & replace '" .. candidates[1].name .. "':"
+		or string.format("Type y to decrypt, verify & replace %d files:", #candidates)
+	if not exact_confirmation(confirmation) then
+		return
+	end
+
+	local succeeded, warnings = 0, {}
+	for _, item in ipairs(candidates) do
+		local restored, detail = decrypt_item(item, config)
+		if restored then
+			succeeded = succeeded + 1
+			if detail then
+				warnings[#warnings + 1] = item.name .. ": " .. compact_error(detail)
+			end
+		else
+			failures[#failures + 1] = item.name .. ": " .. compact_error(detail)
+		end
+	end
+	ya.emit("escape", { select = true })
+
+	local summary = string.format("Decryption: %d succeeded, %d failed", succeeded, #failures)
+	if #failures > 0 then
+		summary = summary .. "\n" .. table.concat(failures, "\n")
+	end
+	if #warnings > 0 then
+		summary = summary .. "\nWarnings:\n" .. table.concat(warnings, "\n")
+	end
+	local level = #failures > 0 and (succeeded > 0 and "warn" or "error")
+		or (#warnings > 0 and "warn" or "info")
+	notify(compact_error(summary), level, 10)
 end
 
 local function entry(_, job)

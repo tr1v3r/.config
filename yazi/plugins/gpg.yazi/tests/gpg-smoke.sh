@@ -119,6 +119,36 @@ gpg_test \
 grep -Fq "[GNUPG:] DECRYPTION_OKAY" "$WORK_DIR/verify.status"
 grep -Fq "[GNUPG:] VALIDSIG" "$WORK_DIR/verify.status"
 
+mkdir "$WORK_DIR/batch"
+cp "$YAZI_DIR/keymap.toml" "$WORK_DIR/batch/one"
+cp "$YAZI_DIR/init.lua" "$WORK_DIR/batch/two"
+for name in one two; do
+	cp "$WORK_DIR/batch/$name" "$WORK_DIR/batch/$name.expected"
+	gpg_test \
+		--no-auto-key-locate \
+		--trust-model always \
+		--local-user "$SIGNER_FINGERPRINT" \
+		--recipient "$RECIPIENT_FINGERPRINT" \
+		--recipient "$SIGNER_FINGERPRINT" \
+		--set-filename "$name" \
+		--output "$WORK_DIR/batch/$name.gpg" \
+		--sign --encrypt -- "$WORK_DIR/batch/$name"
+	rm "$WORK_DIR/batch/$name"
+done
+
+for name in one two; do
+	gpg_test \
+		--no-auto-key-retrieve \
+		--status-fd 1 \
+		--assert-signer "$SIGNER_FINGERPRINT" \
+		--output "$WORK_DIR/batch/$name" \
+		--decrypt -- "$WORK_DIR/batch/$name.gpg" \
+		>"$WORK_DIR/batch/$name.decrypt.status"
+	grep -Fq "[GNUPG:] DECRYPTION_OKAY" "$WORK_DIR/batch/$name.decrypt.status"
+	grep -Fq "[GNUPG:] VALIDSIG" "$WORK_DIR/batch/$name.decrypt.status"
+	cmp "$WORK_DIR/batch/$name.expected" "$WORK_DIR/batch/$name"
+done
+
 : >"$WORK_DIR/empty"
 gpg_test \
 	--no-auto-key-locate \
@@ -200,4 +230,4 @@ gpg_test \
 	--decrypt -- "$WORK_DIR/legacy.gpg"
 cmp "$WORK_DIR/plain.toml" "$WORK_DIR/legacy.out"
 
-echo "PASS: detached signatures and dual-recipient decrypt without configured recipient secret key"
+echo "PASS: detached signatures, batch decrypt, and dual-recipient fallback"
