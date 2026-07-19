@@ -13,6 +13,15 @@ require("starship"):setup({
 	config_file = "~/.config/yazi/starship.toml",
 })
 require("git"):setup({})
+require("gpg"):setup({
+	recipients = {
+		"899318F5A4423B72DF6A166FE4AF5FF89222F261",
+		"C633910E8F351365DEAAF300046263C39890F916",
+	},
+	signers = {
+		"C633910E8F351365DEAAF300046263C39890F916",
+	},
+})
 
 Status:children_add(function()
 	local h = cx.active.current.hovered
