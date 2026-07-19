@@ -32,7 +32,7 @@ See `.gitmodules`. After cloning: `git submodule update --init --recursive`. Kno
 
 ## Directory Map
 
-**Shells / editors / CLI tools** (mostly symlinked from `$HOME`): `zsh/`, `nvim/`, `aerc/` (email), `kitty/`, `iterm2/`, `tmux/`, `tmux-powerline/`, `ranger/`, `yazi/`, `lazygit/`, `gpg/`, `ssh/`, `cargo/`, `conda/`, `raycast/` (only `diy_plugins/` + `scripts/` tracked), `neofetch/`, `snipaste/`, `bashtop/`.
+**Shells / editors / CLI tools** (mostly symlinked from `$HOME`): `zsh/`, `nvim/`, `aerc/` (email), `kitty/`, `iterm2/`, `tmux/`, `tmux-powerline/`, `ranger/`, `yazi/`, `lazygit/`, `gnupg/`, `ssh/`, `cargo/`, `conda/`, `raycast/` (only `diy_plugins/` + `scripts/` tracked), `neofetch/`, `snipaste/`, `bashtop/`.
 
 **Self-hosted service stacks** (each has a `README.md`): `adguard-home/`, `pihole/` (DNS), `emby/` (media), `karakeep/` (bookmarks), `bt/` (qBittorrent-Enhanced, PT/BT). See compose pattern below.
 

@@ -36,7 +36,7 @@
 !/cargo/
 !/conda/
 !/deploy/
-!/gpg/
+!/gnupg/
 !/himalaya/
 !/iterm2/
 !/kitty/

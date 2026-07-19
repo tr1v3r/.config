@@ -33,7 +33,7 @@ Personal dotfiles + self-hosting monorepo. macOS-first with Linux home-server su
 
 **Infra & scripts** — `scripts/` (bootstrap), `deploy/` (k8s manifests), `secrets/` (git-crypt), `ai/`
 
-**App configs** — `git/`, `gpg/`, `ssh/`, `cargo/`, `conda/`, `karabiner/`, `raycast/`, `starship.toml`, `picom.conf`, and more
+**App configs** — `git/`, `gnupg/`, `ssh/`, `cargo/`, `conda/`, `karabiner/`, `raycast/`, `starship.toml`, `picom.conf`, and more
 
 ## Bootstrap
 
