@@ -71,15 +71,15 @@ deploy_common() {
 	echo "linking GnuPG shared config"
 	mkdir -p "$HOME/.gnupg" || abort "create $HOME/.gnupg fail."
 	chmod 700 "$HOME/.gnupg" || abort "chmod $HOME/.gnupg fail."
-	link_config "$HOME/.config/gpg/gpg.conf" "$HOME/.gnupg/gpg.conf"
-	link_config "$HOME/.config/gpg/common.conf" "$HOME/.gnupg/common.conf"
+	link_config "$HOME/.config/gnupg/gpg.conf" "$HOME/.gnupg/gpg.conf"
+	link_config "$HOME/.config/gnupg/common.conf" "$HOME/.gnupg/common.conf"
 	echo "linking condarc"
 	link_config "$HOME/.config/conda/condarc" "$HOME/.condarc"
 }
 
 deploy_macos() {
 	echo "linking macOS GPG agent config"
-	link_config "$HOME/.config/gpg/gpg-agent.macos.conf" "$HOME/.gnupg/gpg-agent.conf"
+	link_config "$HOME/.config/gnupg/gpg-agent.macos.conf" "$HOME/.gnupg/gpg-agent.conf"
 	echo "linking /etc/iterm2"
 	link_system_config "$HOME/.config/iterm2" "/etc/iterm2"
 }
