@@ -59,6 +59,33 @@ fi
 
 cp "$YAZI_DIR/keymap.toml" "$WORK_DIR/plain.toml"
 gpg_test \
+	--status-fd 1 \
+	--local-user "$SIGNER_FINGERPRINT" \
+	--output "$WORK_DIR/plain.toml.sig" \
+	--detach-sign -- "$WORK_DIR/plain.toml" \
+	>"$WORK_DIR/detached-sign.status"
+grep -Fq "[GNUPG:] SIG_CREATED" "$WORK_DIR/detached-sign.status"
+
+gpg_test \
+	--no-auto-key-retrieve \
+	--status-fd 1 \
+	--assert-signer "$SIGNER_FINGERPRINT" \
+	--verify -- "$WORK_DIR/plain.toml.sig" "$WORK_DIR/plain.toml" \
+	>"$WORK_DIR/detached-verify.status"
+grep -Fq "[GNUPG:] VALIDSIG" "$WORK_DIR/detached-verify.status"
+
+if gpg_test \
+	--no-auto-key-retrieve \
+	--status-fd 1 \
+	--assert-signer "$SIGNER_FINGERPRINT" \
+	--verify -- "$WORK_DIR/plain.toml.sig" "$YAZI_DIR/init.lua" \
+	>"$WORK_DIR/detached-invalid.status" 2>"$WORK_DIR/detached-invalid.err"
+then
+	echo "detached signature unexpectedly verified against another file" >&2
+	exit 1
+fi
+
+gpg_test \
 	--no-auto-key-locate \
 	--trust-model always \
 	--status-fd 1 \
@@ -82,6 +109,15 @@ grep -Fq "[GNUPG:] DECRYPTION_OKAY" "$WORK_DIR/decrypt.status"
 grep -Fq "[GNUPG:] VALIDSIG" "$WORK_DIR/decrypt.status"
 grep -Fq " plain.toml" "$WORK_DIR/decrypt.status"
 cmp "$WORK_DIR/plain.toml" "$WORK_DIR/plain.restored.toml"
+
+gpg_test \
+	--no-auto-key-retrieve \
+	--status-fd 2 \
+	--assert-signer "$SIGNER_FINGERPRINT" \
+	--decrypt -- "$WORK_DIR/plain.toml.gpg" \
+	>/dev/null 2>"$WORK_DIR/verify.status"
+grep -Fq "[GNUPG:] DECRYPTION_OKAY" "$WORK_DIR/verify.status"
+grep -Fq "[GNUPG:] VALIDSIG" "$WORK_DIR/verify.status"
 
 : >"$WORK_DIR/empty"
 gpg_test \
@@ -164,4 +200,4 @@ gpg_test \
 	--decrypt -- "$WORK_DIR/legacy.gpg"
 cmp "$WORK_DIR/plain.toml" "$WORK_DIR/legacy.out"
 
-echo "PASS: dual-recipient decrypt without configured recipient secret key"
+echo "PASS: detached signatures and dual-recipient decrypt without configured recipient secret key"

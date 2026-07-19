@@ -3,6 +3,7 @@
 -- Single selection:
 --   file      -> <name>.gpg
 --   directory -> <name>.tar.gz.gpg
+--   sign file -> <name>.sig
 --
 -- Multiple selections from one directory:
 --   items -> <chosen-name>.tar.gz.gpg
@@ -150,6 +151,26 @@ local function move_noreplace(source, target)
 	return true
 end
 
+local function move_replace(source, target)
+	local target_cha = inspect_path(target)
+	if target_cha and target_cha.is_dir then
+		return false, "replacement target is a directory: " .. target
+	end
+
+	local ok, err = fs.rename(Url(source), Url(target))
+	if not ok then
+		return false, compact_error(err)
+	end
+	if path_exists(source) then
+		return false, "replacement completed but temporary file still exists: " .. source
+	end
+	if not path_exists(target) then
+		return false, "replacement completed without creating target: " .. target
+	end
+
+	return true
+end
+
 local function valid_fingerprint(value)
 	return value:match("^[0-9A-F]+$") ~= nil and #value == 40
 end
@@ -188,14 +209,18 @@ local function has_secret_key(fingerprint)
 	return ok and (stdout:find("sec:", 1, true) ~= nil or stdout:find("ssb:", 1, true) ~= nil)
 end
 
-local function validate_encrypt_keys(config)
-	if not has_public_key(config.recipient) then
-		return false, "Encryption public key is unavailable:\n" .. config.recipient
-	end
+local function validate_signing_key(config)
 	if not has_secret_key(config.signer) then
 		return false, "Signing private key or smart-card stub is unavailable:\n" .. config.signer
 	end
 	return true
+end
+
+local function validate_encrypt_keys(config)
+	if not has_public_key(config.recipient) then
+		return false, "Encryption public key is unavailable:\n" .. config.recipient
+	end
+	return validate_signing_key(config)
 end
 
 local function prepare_targets(raw_targets)
@@ -322,6 +347,118 @@ local function sign_encrypt(input, output, embedded_name, config)
 	return true
 end
 
+local function create_detached_signature(item, config, replace_existing)
+	if item.is_dir then
+		return false, "directory signing is not supported"
+	end
+
+	local final_output = item.path .. ".sig"
+	if path_exists(final_output) and not replace_existing then
+		return false, "target already exists: " .. final_output
+	end
+
+	local temp_dir, temp_err = make_temp_dir(item.parent)
+	if not temp_dir then
+		return false, "failed to create private temp directory: " .. compact_error(temp_err)
+	end
+
+	local temp_signature = join(temp_dir, item.name .. ".sig")
+	local ok, status, err = run("gpg", {
+		"--batch",
+		"--no-tty",
+		"--status-fd",
+		"1",
+		"--local-user",
+		config.signer,
+		"--output",
+		temp_signature,
+		"--detach-sign",
+		"--",
+		item.path,
+	})
+
+	if not ok then
+		cleanup_dir(temp_dir)
+		return false, "gpg failed: " .. compact_error(err)
+	end
+	if not status:find("[GNUPG:] SIG_CREATED", 1, true) then
+		cleanup_dir(temp_dir)
+		return false, "gpg did not report a created signature"
+	end
+	if not nonempty_file(temp_signature) then
+		cleanup_dir(temp_dir)
+		return false, "gpg succeeded without creating a non-empty signature"
+	end
+
+	local moved, move_err
+	if replace_existing then
+		moved, move_err = move_replace(temp_signature, final_output)
+	else
+		moved, move_err = move_noreplace(temp_signature, final_output)
+	end
+	cleanup_dir(temp_dir)
+	if not moved then
+		return false, compact_error(move_err)
+	end
+	return true
+end
+
+local function sign(config)
+	local targets, target_err = prepare_targets(selected_or_hovered())
+	if not targets then
+		notify(target_err, "error")
+		return
+	end
+
+	local ok, key_err = validate_signing_key(config)
+	if not ok then
+		notify(key_err, "error", 8)
+		return
+	end
+
+	local replacements = {}
+	local replacement_count = 0
+	local replacement_name
+	for _, item in ipairs(targets) do
+		if not item.is_dir then
+			local output = item.path .. ".sig"
+			local output_cha = inspect_path(output)
+			if output_cha and not output_cha.is_dir then
+				replacements[output] = true
+				replacement_count = replacement_count + 1
+				replacement_name = item.name .. ".sig"
+			end
+		end
+	end
+
+	if replacement_count > 0 then
+		local title = replacement_count == 1
+				and string.format("Signature exists. Type y to replace '%s':", replacement_name)
+				or string.format("%d signatures already exist. Type y to replace them:", replacement_count)
+		if not exact_confirmation(title) then
+			return
+		end
+	end
+
+	local succeeded, failures = 0, {}
+	for _, item in ipairs(targets) do
+		local signed, sign_err = create_detached_signature(item, config, replacements[item.path .. ".sig"] == true)
+		if signed then
+			succeeded = succeeded + 1
+		else
+			failures[#failures + 1] = item.name .. ": " .. compact_error(sign_err)
+		end
+	end
+	ya.emit("escape", { select = true })
+
+	local summary = string.format("Detached signatures: %d created, %d failed", succeeded, #failures)
+	if #failures > 0 then
+		summary = summary .. "\n" .. table.concat(failures, "\n")
+	end
+	local level = #failures == 0 and "info" or (succeeded > 0 and "warn" or "error")
+	notify(compact_error(summary), level, 10)
+end
+
 local function finish_source_removal(targets)
 	local failed = {}
 	for _, item in ipairs(targets) do
@@ -333,7 +470,138 @@ local function finish_source_removal(targets)
 	return failed
 end
 
-local function encrypt(config)
+local function build_encryption_plan(targets)
+	local parent, output_name, archive_mode
+	if #targets > 1 then
+		parent = targets[1].parent
+		for _, item in ipairs(targets) do
+			if item.parent ~= parent then
+				return nil, "Multiple selections must have the same parent directory"
+			end
+		end
+
+		local target_err
+		output_name, target_err = archive_output_name(parent)
+		if not output_name then
+			return nil, target_err, target_err == nil
+		end
+		archive_mode = true
+	else
+		local item = targets[1]
+		parent = item.parent
+		archive_mode = item.is_dir and not item.is_link
+		output_name = archive_mode and (item.name .. ".tar.gz.gpg") or (item.name .. ".gpg")
+	end
+
+	local final_output = join(parent, output_name)
+	if path_exists(final_output) then
+		return nil, "Target already exists: " .. final_output
+	end
+	for _, item in ipairs(targets) do
+		if item.path == final_output then
+			return nil, "Encrypted output conflicts with a selected source"
+		end
+	end
+
+	return {
+		targets = targets,
+		parent = parent,
+		output_name = output_name,
+		final_output = final_output,
+		archive_mode = archive_mode,
+	}
+end
+
+local function perform_encryption(plan, config, keep_sources)
+	local temp_dir, temp_err = make_temp_dir(plan.parent)
+	if not temp_dir then
+		return false, "Failed to create private temp directory: " .. temp_err
+	end
+
+	local success, operation_err = pcall(function()
+		local input = plan.targets[1].path
+		if plan.archive_mode then
+			input = join(temp_dir, ARCHIVE_MARKER)
+			local archived, archive_err = create_archive(input, plan.parent, plan.targets)
+			if not archived then
+				error(archive_err)
+			end
+		end
+
+		local temp_cipher = join(temp_dir, plan.output_name)
+		local encrypted, encrypt_err = sign_encrypt(
+			input,
+			temp_cipher,
+			plan.archive_mode and ARCHIVE_MARKER or plan.targets[1].name,
+			config
+		)
+		if not encrypted then
+			error(encrypt_err)
+		end
+
+		local moved, move_err = move_noreplace(temp_cipher, plan.final_output)
+		if not moved then
+			error(move_err)
+		end
+	end)
+
+	cleanup_dir(temp_dir)
+	if not success then
+		return false, compact_error(operation_err)
+	end
+
+	local removal_failures = {}
+	if not keep_sources then
+		removal_failures = finish_source_removal(plan.targets)
+	end
+	return true, nil, removal_failures
+end
+
+local function encrypt_each(config, targets, keep_sources)
+	local mode = keep_sources and "keep originals" or "replace originals"
+	if
+		not exact_confirmation(
+			string.format("Type y to sign & encrypt %d item(s) separately (%s):", #targets, mode)
+		)
+	then
+		return
+	end
+
+	local succeeded, failures, removal_failures = 0, {}, {}
+	for _, item in ipairs(targets) do
+		local plan, plan_err = build_encryption_plan({ item })
+		if not plan then
+			failures[#failures + 1] = item.name .. ": " .. compact_error(plan_err)
+		else
+			local encrypted, encrypt_err, remove_errs = perform_encryption(plan, config, keep_sources)
+			if not encrypted then
+				failures[#failures + 1] = item.name .. ": " .. compact_error(encrypt_err)
+			else
+				succeeded = succeeded + 1
+				for _, remove_err in ipairs(remove_errs) do
+					removal_failures[#removal_failures + 1] = remove_err
+				end
+			end
+		end
+	end
+	ya.emit("escape", { select = true })
+
+	local summary = string.format("Encrypted separately: %d succeeded, %d failed", succeeded, #failures)
+	if #failures > 0 then
+		summary = summary .. "\n" .. table.concat(failures, "\n")
+	end
+	if #removal_failures > 0 then
+		summary = summary
+			.. string.format("\n%d original(s) were kept:\n", #removal_failures)
+			.. table.concat(removal_failures, "\n")
+	end
+
+	local level = #failures > 0 and (succeeded > 0 and "warn" or "error")
+		or (#removal_failures > 0 and "warn" or "info")
+	notify(compact_error(summary), level, 10)
+end
+
+local function encrypt(config, options)
 	local targets, target_err = prepare_targets(selected_or_hovered())
 	if not targets then
 		notify(target_err, "error")
@@ -346,91 +614,33 @@ local function encrypt(config)
 		return
 	end
 
-	local parent, output_name, archive_mode
-	if #targets > 1 then
-		parent = targets[1].parent
-		for _, item in ipairs(targets) do
-			if item.parent ~= parent then
-				notify("Multiple selections must have the same parent directory", "warn")
-				return
-			end
-		end
-
-		output_name, target_err = archive_output_name(parent)
-		if not output_name then
-			if target_err then
-				notify(target_err, "warn")
-			end
-			return
-		end
-		archive_mode = true
-	else
-		local item = targets[1]
-		parent = item.parent
-		archive_mode = item.is_dir and not item.is_link
-		output_name = archive_mode and (item.name .. ".tar.gz.gpg") or (item.name .. ".gpg")
-	end
-
-	local final_output = join(parent, output_name)
-	if path_exists(final_output) then
-		notify("Target already exists:\n" .. final_output, "warn")
+	options = options or {}
+	if options.each then
+		encrypt_each(config, targets, options.keep)
 		return
 	end
-	for _, item in ipairs(targets) do
-		if item.path == final_output then
-			notify("Encrypted output conflicts with a selected source", "warn")
-			return
+
+	local plan, plan_err, cancelled = build_encryption_plan(targets)
+	if not plan then
+		if not cancelled then
+			notify(plan_err, "warn")
 		end
+		return
 	end
 
+	local operation = options.keep and "sign & encrypt (keep originals)" or "sign, encrypt & replace"
 	local confirmation = #targets > 1
-		and string.format("Type y to sign, encrypt & replace %d items as '%s':", #targets, output_name)
-		or string.format("Type y to sign, encrypt & replace '%s':", targets[1].name)
+			and string.format("Type y to %s %d items as '%s':", operation, #targets, plan.output_name)
+		or string.format("Type y to %s '%s':", operation, targets[1].name)
 	if not exact_confirmation(confirmation) then
 		return
 	end
 
-	local temp_dir, temp_err = make_temp_dir(parent)
-	if not temp_dir then
-		notify("Failed to create private temp directory: " .. temp_err, "error")
+	local encrypted, encrypt_err, removal_failures = perform_encryption(plan, config, options.keep)
+	if not encrypted then
+		notify("Encryption stopped; originals were kept.\n" .. compact_error(encrypt_err), "error", 9)
 		return
 	end
-
-	local success, operation_err = pcall(function()
-		local input = targets[1].path
-		if archive_mode then
-			input = join(temp_dir, ARCHIVE_MARKER)
-			local archived, archive_err = create_archive(input, parent, targets)
-			if not archived then
-				error(archive_err)
-			end
-		end
-
-		local temp_cipher = join(temp_dir, output_name)
-		local encrypted, encrypt_err = sign_encrypt(
-			input,
-			temp_cipher,
-			archive_mode and ARCHIVE_MARKER or targets[1].name,
-			config
-		)
-		if not encrypted then
-			error(encrypt_err)
-		end
-
-		local moved, move_err = move_noreplace(temp_cipher, final_output)
-		if not moved then
-			error(move_err)
-		end
-	end)
-
-	if not success then
-		cleanup_dir(temp_dir)
-		notify("Encryption stopped; originals were kept.\n" .. compact_error(operation_err), "error", 9)
-		return
-	end
-
-	local removal_failures = finish_source_removal(targets)
-	cleanup_dir(temp_dir)
 	ya.emit("escape", { select = true })
 
 	if #removal_failures > 0 then
@@ -444,7 +654,12 @@ local function encrypt(config)
 			10
 		)
 	else
-		notify(string.format("Signed and encrypted %d item(s) -> %s", #targets, final_output), "info", 8)
+		local suffix = options.keep and " (originals kept)" or ""
+		notify(
+			string.format("Signed and encrypted %d item(s) -> %s%s", #targets, plan.final_output, suffix),
+			"info",
+			8
+		)
 	end
 end
 
@@ -498,6 +713,107 @@ local function decrypt_once(input, output, config, assert_signer)
 	args[#args + 1] = input
 
 	return run("gpg", args)
+end
+
+local function verify_encrypted_once(input, config)
+	local child, spawn_err = Command("gpg")
+		:arg({
+			"--batch",
+			"--no-tty",
+			"--no-auto-key-retrieve",
+			"--status-fd",
+			"2",
+			"--assert-signer",
+			config.signer,
+			"--decrypt",
+			"--",
+			input,
+		})
+		:stdout(Command.NULL)
+		:stderr(Command.PIPED)
+		:spawn()
+	if not child then
+		return false, "", compact_error(spawn_err)
+	end
+
+	local output, wait_err = child:wait_with_output()
+	if not output then
+		return false, "", compact_error(wait_err)
+	end
+	return output.status.success, output.stderr or "", compact_error(output.stderr)
+end
+
+local function verify_detached_once(signature, source, config)
+	return run("gpg", {
+		"--batch",
+		"--no-tty",
+		"--no-auto-key-retrieve",
+		"--status-fd",
+		"1",
+		"--assert-signer",
+		config.signer,
+		"--verify",
+		"--",
+		signature,
+		source,
+	})
+end
+
+local function verify(config)
+	local targets, target_err = prepare_targets(selected_or_hovered())
+	if not targets then
+		notify(target_err, "error")
+		return
+	end
+
+	local verified, failures = 0, {}
+	for _, item in ipairs(targets) do
+		if item.is_dir then
+			failures[#failures + 1] = item.name .. ": directories cannot be verified directly"
+		elseif item.path:lower():match("%.gpg$") then
+			local ok, status, err = verify_encrypted_once(item.path, config)
+			if ok and status_has(status, "DECRYPTION_OKAY") and status_has(status, "VALIDSIG") then
+				verified = verified + 1
+			elseif status_has(status, "DECRYPTION_OKAY") and not status_has_signature(status) then
+				failures[#failures + 1] = item.name .. ": unsigned"
+			elseif status_has(status, "DECRYPTION_OKAY") then
+				failures[#failures + 1] = item.name .. ": invalid signature or unexpected signer"
+			else
+				failures[#failures + 1] = item.name .. ": decryption failed (" .. compact_error(err) .. ")"
+			end
+		elseif item.path:lower():match("%.sig$") then
+			local source = item.path:sub(1, -5)
+			local source_cha = inspect_path(source)
+			if not source_cha then
+				failures[#failures + 1] = item.name .. ": source file is missing: " .. source
+			elseif source_cha.is_dir then
+				failures[#failures + 1] = item.name .. ": inferred source is a directory"
+			else
+				local ok, status, err = verify_detached_once(item.path, source, config)
+				if ok and status_has(status, "VALIDSIG") then
+					verified = verified + 1
+				elseif status_has_signature(status) then
+					failures[#failures + 1] = item.name .. ": invalid signature or unexpected signer"
+				else
+					failures[#failures + 1] = item.name .. ": verification failed (" .. compact_error(err) .. ")"
+				end
+			end
+		else
+			failures[#failures + 1] = item.name .. ": not a .gpg or .sig file"
+		end
+	end
+
+	local summary = string.format(
+		"Signature verification: %d valid, %d failed\nExpected signer: %s",
+		verified,
+		#failures,
+		config.signer
+	)
+	if #failures > 0 then
+		summary = summary .. "\n" .. table.concat(failures, "\n")
+	end
+	local level = #failures == 0 and "info" or (verified > 0 and "warn" or "error")
+	notify(compact_error(summary), level, 10)
 end
 
 local function decrypt_payload(input, output, config)
@@ -712,12 +1028,20 @@ local function entry(_, job)
 		return
 	end
 
-	local action = job.args and job.args[1] or ""
+	local args = job.args or {}
+	local action = args[1] or ""
 	local ok, err
 	if action == "encrypt" then
-		ok, err = pcall(encrypt, config)
+		ok, err = pcall(encrypt, config, {
+			each = args.each == true,
+			keep = args.keep == true,
+		})
+	elseif action == "sign" then
+		ok, err = pcall(sign, config)
 	elseif action == "decrypt" then
 		ok, err = pcall(decrypt, config)
+	elseif action == "verify" then
+		ok, err = pcall(verify, config)
 	else
 		notify("Unknown action: " .. tostring(action), "error")
 		return

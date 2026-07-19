@@ -11,7 +11,11 @@ prepend_keymap = [
 	{ on = ["P"], run = "spot", desc = "Open spotter" },
 	{ on = ["c", "a"], run = "plugin compress", desc = "Archive selected files" },
 	{ on = ["c", "e"], run = "plugin gpg -- encrypt", desc = "Sign and encrypt with GPG (replace originals)" },
+	{ on = ["c", "b"], run = "plugin gpg -- encrypt --each", desc = "Sign and encrypt each selected item separately" },
+	{ on = ["c", "k"], run = "plugin gpg -- encrypt --keep", desc = "Sign and encrypt while keeping originals" },
+	{ on = ["c", "s"], run = "plugin gpg -- sign", desc = "Create detached GPG signatures for selected files" },
 	{ on = ["c", "d"], run = "plugin gpg -- decrypt", desc = "Decrypt and verify GPG signature" },
+	{ on = ["c", "v"], run = "plugin gpg -- verify", desc = "Verify encrypted or detached GPG signatures" },
 ]
 
 keymap = [
