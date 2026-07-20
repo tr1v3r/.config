@@ -9,7 +9,7 @@ prepend_keymap = [
 	{ on = ["'", "'"], run = "plugin yamb --args=jump_by_fzf", desc = "Jump bookmark by fzf" },
 	{ on = ["'", "r"], run = "plugin yamb --args=delete_by_key", desc = "Delete bookmark by key" },
 	{ on = ["P"], run = "spot", desc = "Open spotter" },
-	{ on = ["c", "a"], run = "plugin compress", desc = "Archive selected files" },
+	{ on = ["c", "c"], run = "plugin compress", desc = "Archive selected files" },
 	{ on = ["c", "e"], run = "plugin gpg -- encrypt", desc = "Sign and encrypt with GPG (replace originals)" },
 	{ on = ["c", "b"], run = "plugin gpg -- encrypt --each", desc = "Sign and encrypt each selected item separately" },
 	{ on = ["c", "k"], run = "plugin gpg -- encrypt --keep", desc = "Sign and encrypt while keeping originals" },
