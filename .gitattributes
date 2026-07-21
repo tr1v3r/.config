@@ -1,4 +1,6 @@
 secrets/** filter=git-crypt diff=git-crypt
+age/keys.txt filter=git-crypt diff=git-crypt
+age/keys-pq.txt filter=git-crypt diff=git-crypt
 ssh/config filter=git-crypt diff=git-crypt
 aerc/accounts.conf filter=git-crypt diff=git-crypt
 deploy/k8s/mysql/deploy-mysql-singleton.yaml filter=git-crypt diff=git-crypt
