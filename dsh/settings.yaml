@@ -26,3 +26,9 @@ llm-pi-ai:
         supportsReasoningEffort: false
         maxTokensField: max_tokens
         thinkingFormat: zai
+pet:
+  visible: true
+  size: 160
+  right: 198
+  bottom: 1207
+  petId: whale-girl
