@@ -355,6 +355,14 @@
       "skillFolderHash": "4723197c6dc59abc29819da87863b1ac20b96095",
       "installedAt": "2026-06-12T16:33:20.351Z",
       "updatedAt": "2026-06-12T16:33:20.351Z"
+    },
+    "dot-skill": {
+      "source": "titanwings/colleague-skill",
+      "sourceType": "github",
+      "sourceUrl": "https://github.com/titanwings/colleague-skill",
+      "skillFolderHash": "",
+      "installedAt": "2026-08-21T17:44:34.000Z",
+      "updatedAt": "2026-08-21T17:44:34.000Z"
     }
   },
   "dismissed": {

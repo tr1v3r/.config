@@ -1,6 +1,6 @@
 # AI Configurations — Skill & MCP Inventory
 
-> Auto-generated on 2025-06-12. Last updated: 2026-06-15 18:00 CST — refreshed with skill-lock.json + sync-skills
+> Auto-generated on 2025-06-12. Last updated: 2026-08-22 — added dot-skill (dsh)
 > Repository: `tr1v3r/ai-config` (private)
 
 ---
@@ -12,7 +12,7 @@
 | 飞书/Lark 集成 Skills | 26 |
 | 通用工具 Skills | 15 |
 | Agent 治理 Skills | 5 |
-| 第三方集成 Skills | 1 |
+| 第三方集成 Skills | 2 |
 | **自定义 Skills 合计** | **46** |
 | MCP Servers | 4 |
 | Codex Plugins | 1 |
@@ -111,6 +111,7 @@
 | Skill | 描述 |
 |-------|------|
 | **weread-skills** | 微信读书助手：搜索书籍、管理书架、笔记划线、书评、阅读统计、推荐 |
+| **dot-skill** | 数字生命 meta-skill 引擎：把同事/关系/名人蒸馏成可复用 Skill（装于 `$DSH_HOME/skills/dot-skill`，供 DeepSeek Harness 使用） |
 
 ---
 
