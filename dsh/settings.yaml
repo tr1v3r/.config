@@ -26,6 +26,9 @@ llm-pi-ai:
         supportsReasoningEffort: false
         maxTokensField: max_tokens
         thinkingFormat: zai
+# 底部终端字体：Nerd Font 图标 + 中文兜底（dsh-ssh 插件设置，最高优先级）
+dsh-ssh:
+  terminalFontFamily: "Hack Nerd Font Mono, PingFang SC, monospace"
 pet:
   visible: true
   size: 160
