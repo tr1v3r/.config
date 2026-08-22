@@ -9,6 +9,9 @@ storages/
 memory/
 pet.json
 task-board/
+attachments/
+dsh-builtin-browser-host/
+llm-deepseek/
 
 # external skills cloned from upstream repos — recorded in ~/.config/ai/
 skills/
