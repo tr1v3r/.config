@@ -18,8 +18,12 @@ llm-pi-ai:
         - id: glm-5.2
         - id: glm-5v-turbo
         - id: glm-5.3
-      # 目录外模型 glm-5.3 的路由级默认值，照抄 pi-ai 0.84.2 官方目录条目；
+          contextWindow: 1000000
+          maxTokens: 131072
+          # 目录外模型 glm-5.3 的字段，照抄 pi-ai 0.84.2 官方目录条目；
       # 注意 zaiToolStream 是厂商专属键，写在用户配置里会被拒绝，故省略。
+      # contextWindow/maxTokens 必须显式声明：本机 pi-ai 0.82.1 目录没有此模型，
+      # 不写会落到 defaultContextWindow=262144（256K）兜底，导致压缩提前触发。
       compat:
         supportsStore: false
         supportsDeveloperRole: false
