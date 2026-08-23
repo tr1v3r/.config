@@ -37,3 +37,4 @@ pet:
   right: 198
   bottom: 1207
   petId: whale-girl
+  enabled: false
