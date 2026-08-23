@@ -16,6 +16,9 @@
 # git-crypt: encrypted key material (safe to commit, GPG-wrapped)
 !/.git-crypt/
 
+# CI (GitHub Actions workflows)
+!/.github/
+
 # --- submodules (see .gitmodules; ranger plugins are nested under !/ranger/) ---
 !/firefox/
 !/nvim/
@@ -37,6 +40,8 @@
 !/cargo/
 !/conda/
 !/deploy/
+!/dsh/
+!/git/
 !/gnupg/
 !/himalaya/
 !/iterm2/
