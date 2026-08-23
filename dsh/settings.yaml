@@ -21,15 +21,16 @@ llm-pi-ai:
           contextWindow: 1000000
           maxTokens: 131072
           # 目录外模型 glm-5.3 的字段，照抄 pi-ai 0.84.2 官方目录条目；
-      # 注意 zaiToolStream 是厂商专属键，写在用户配置里会被拒绝，故省略。
-      # contextWindow/maxTokens 必须显式声明：本机 pi-ai 0.82.1 目录没有此模型，
-      # 不写会落到 defaultContextWindow=262144（256K）兜底，导致压缩提前触发。
+          # 注意 zaiToolStream 是厂商专属键，写在用户配置里会被拒绝，故省略。
+          # contextWindow/maxTokens 必须显式声明：本机 pi-ai 0.82.1 目录没有此模型，
+          # 不写会落到 defaultContextWindow=262144（256K）兜底，导致压缩提前触发。
       compat:
         supportsStore: false
         supportsDeveloperRole: false
         supportsReasoningEffort: false
         maxTokensField: max_tokens
         thinkingFormat: zai
+    openai-codex: {}
 # Web 终端字体：Nerd Font 图标 + 中文兜底（better-sidebar 底部终端 / dsh-ssh SSH 终端）
 dsh-better-sidebar:
   terminalFontFamily: "Hack Nerd Font Mono, PingFang SC, monospace"
