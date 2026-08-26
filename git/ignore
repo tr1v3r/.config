@@ -1,2 +1,9 @@
 **/.claude/settings.local.json
 **/.agents/handoff/
+
+# Plan/progress scratch files created by coding agents (planning-with-files
+# workflow). Per-session working state, never meant to be committed, so
+# ignore them globally instead of per-repo.
+**/findings.md
+**/progress.md
+**/task_plan.md
