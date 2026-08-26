@@ -28,7 +28,9 @@
 # ───────────────────────────────────────────────────────────────────────
 
 add_newline = false
-command_timeout = 500
+# Cap worst-case wait per prompt module (git/version commands) at 300ms so a
+# cold cache or slow repo can't stall the first prompt for seconds.
+command_timeout = 300
 
 format = """
 $os\
@@ -88,6 +90,12 @@ format = "[ $branch](bold #00C957) "
 # format = "[ $branch](bold #f34b7d) "
 # truncation_length = 12
 # ignore_branches = ['master', 'main']
+
+[git_status]
+# Skip the untracked-files walk (starship 1.25+ gitoxide native): an empty
+# `untracked` format disables the dirwalk entirely. Trade-off: no "?"
+# untracked marker in the prompt.
+untracked = ""
 
 [golang]
 format = '[ $version](bold #00d7ff) '
