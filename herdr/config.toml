@@ -1,0 +1,76 @@
+# Portable Herdr configuration.
+#
+# Agent integrations are generated into each agent's own config directory, so
+# install them once on every host instead of copying generated hook files:
+#   herdr integration install codex
+#   herdr integration install claude
+#   herdr integration install opencode
+#   herdr integration status
+#
+# Reload this file in a running session with:
+#   herdr server reload-config
+#
+# This installation is managed by Homebrew; update it with:
+#   brew upgrade herdr
+
+onboarding = false
+
+[theme]
+# Follow the outer terminal's ANSI palette across different hosts and terminals.
+name = "terminal"
+
+[terminal]
+# Leave default_shell unset so each host uses its own $SHELL.
+# "auto" starts a login shell on macOS and preserves the platform default
+# elsewhere, keeping Homebrew and other login-only PATH setup available.
+shell_mode = "auto"
+
+# New panes inherit the source pane or workspace directory.
+new_cwd = "follow"
+
+[keys]
+# Ctrl+Space frees all punctuation keys for shells/pagers and avoids tmux's
+# default ctrl+b.
+prefix = "ctrl+space"
+
+# Match the Colemak navigation used by Neovim:
+#
+#     u
+#   n   i
+#     e
+#
+# Keep every Herdr shortcut behind its prefix so Alt-n / Alt-i still reach
+# Neovim's bufferline mappings inside a pane.
+focus_pane_left = "prefix+n"
+focus_pane_down = "prefix+e"
+focus_pane_up = "prefix+u"
+focus_pane_right = "prefix+i"
+
+# Alt changes the navigation scope from panes to workspaces or tabs.
+previous_workspace = "prefix+alt+u"
+next_workspace = "prefix+alt+e"
+previous_tab = "prefix+alt+n"
+next_tab = "prefix+alt+i"
+move_tab_previous = "prefix+alt+shift+n"
+move_tab_next = "prefix+alt+shift+i"
+
+# prefix+e is now pane-down; retain scrollback editing on its shifted form.
+edit_scrollback = "prefix+shift+e"
+
+# Use the same directional keys in Herdr's navigate mode.
+navigate_pane_left = "n"
+navigate_pane_down = "e"
+navigate_pane_up = "u"
+navigate_pane_right = "i"
+
+[ui]
+# Pack split panes tighter: share divider borders instead of keeping a
+# visible gap between adjacent panes (tmux-style internal splitters).
+pane_gaps = false
+
+# Optional macOS/CJK compatibility. Enable only if an agent TUI hides the cursor
+# or a non-ASCII input source makes prefix shortcuts inconvenient.
+# [experimental]
+# reveal_hidden_cursor_for_cjk_ime = true
+# cjk_ime_agents = ["claude", "codex"]
+# switch_ascii_input_source_in_prefix = true

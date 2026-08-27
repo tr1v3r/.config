@@ -1,0 +1,15 @@
+# Herdr stores portable configuration and machine-local runtime state together.
+# Keep this directory allowlisted so sessions, logs, sockets, and plugin state
+# never enter the dotfiles repository accidentally.
+*
+
+!.gitignore
+!config.toml
+
+# Optional user-maintained resources referenced by config.toml.
+!agent-detection/
+!agent-detection/*.toml
+!scripts/
+!scripts/**
+!sounds/
+!sounds/**
