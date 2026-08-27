@@ -43,7 +43,7 @@ See `.gitmodules`. After cloning: `git submodule update --init --recursive`. Kno
 
 Some top-level dirs seen on disk are deliberately **not tracked** — they are host-local app state not re-included by the `.gitignore` whitelist (e.g. `bytesec/`, `gh/`, `homebrew/`, `karabiner/`, `notion/`, `opencode/`, `sara/`, `soc-cli/`, `ssl/`). Never add a `!/dir/` line for them casually.
 
-**Root files**: `starship.toml`, `picom.conf`, `reasonix.toml` (tool config; secrets via `api_key_env`, never inline), `data.yaml`.
+**Root files**: tracked — `starship.toml`, `picom.conf`. Present locally but deliberately untracked — `reasonix.toml` (tool config; secrets via `api_key_env`, never inline) and `data.yaml` (contains internal endpoints); do not whitelist these.
 
 ## Service stack compose pattern
 
