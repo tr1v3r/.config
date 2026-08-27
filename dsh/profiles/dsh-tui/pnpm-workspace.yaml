@@ -3,3 +3,9 @@ packages:
 
 nodeLinker: hoisted
 autoInstallPeers: false
+
+allowBuilds:
+  '@google/genai': false
+  esbuild: false
+  koffi: false
+  protobufjs: false
