@@ -29,8 +29,9 @@ shell_mode = "auto"
 new_cwd = "follow"
 
 [keys]
-# Ctrl+` leaves arrow keys free for shells/pagers and avoids tmux's default.
-prefix = "ctrl+`"
+# Ctrl+Space frees all punctuation keys for shells/pagers and avoids tmux's
+# default ctrl+b.
+prefix = "ctrl+space"
 
 # Match the Colemak navigation used by Neovim:
 #
