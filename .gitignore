@@ -12,6 +12,7 @@
 !/.gitattributes
 !/README.md
 !/CLAUDE.md
+!/AGENTS.md
 
 # git-crypt: encrypted key material (safe to commit, GPG-wrapped)
 !/.git-crypt/
