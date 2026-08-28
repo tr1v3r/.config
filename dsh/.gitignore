@@ -13,6 +13,8 @@ task-board/
 attachments/
 dsh-builtin-browser-host/
 llm-deepseek/
+skins/
+skin-center/
 
 # external skills cloned from upstream repos — recorded in ~/.config/ai/
 skills/

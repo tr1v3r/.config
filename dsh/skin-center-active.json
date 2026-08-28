@@ -1,5 +1,6 @@
 {
-  "active": null,
+  "active": "harbor",
+  "initialized": true,
   "background": {
     "enabled": true,
     "backgroundOpacity": 0,
