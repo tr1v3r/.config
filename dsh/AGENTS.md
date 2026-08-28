@@ -1,0 +1,152 @@
+# dsh/ — DeepSeek Harness 配置
+
+本目录是 **DeepSeek Harness（dsh）** 的机器配置（`DSH_HOME=/Users/bytedance/.config/dsh`），
+属于 dotfiles 仓库（`tr1v3r/.config`，主分支 `master`，活跃分支 `dev`）的一部分。
+根目录 `AGENTS.md` 描述整个仓库；本文件描述 dsh 特有机制、坑与维护约定。
+
+## 这是什么
+
+`dsh` 是 DeepSeek Harness 的 CLI（npm 包 `@deepseek-ai/dsh`，本机 **0.1.1-rc.2**，全局安装在
+fnm 的 node 版本目录下）。它不是单体应用，而是 **profile 启动器**：每个 profile 是
+一组插件组合包（bundle）按顺序 patch 叠加出来的 Cordis 插件树。
+
+```sh
+dsh --profile dsh-tui                  # 交互式 TUI（本机主要入口）
+dsh --profile headless "task"          # 一次性任务，打印答案退出
+dsh --profile web                      # Web 界面（dsh web 别名）
+dsh --profile <name> --dump-config     # 打印组合后的配置树（不启动）
+dsh --profile <name> --dump-default-config
+dsh plugin --profile <name> <pnpm args> # 管理 profile 的插件（pnpm 转发）
+```
+
+## 目录结构
+
+```
+dsh/
+├── settings.yaml          # 全局设置文档（热加载，见下）
+├── cordis.patch.yml       # home 级 patch 层（本机当前为空）
+├── .gitignore             # 秘密/运行时状态忽略规则（见「git 约定」）
+├── profiles/
+│   ├── dsh-tui/           # 交互式 TUI profile（@deepseek-harness-tui/dsh-tui）
+│   ├── headless/          # 一次性任务 profile（官方 @deepseek-ai/dsh-headless）
+│   └── web/               # Web profile（第三方 @linxin666/dsh-web-ui-all 等）
+├── sessions/              # 会话日志（jsonl.zstd，已忽略）
+├── storages/ memory/ task-board/ attachments/ …  # 运行时状态（已忽略）
+├── dsh-auth/              # ⚠️ OAuth 令牌存储（已忽略，见下）
+└── skills/                # 外部 skill（从上游仓库克隆，已忽略）
+```
+
+## Profile 机制
+
+- 每个 profile 目录有 `package.json`（含 `dsh.profile.bundles` 列表）、`cordis.yml`
+  （空根，占位用，**不要编辑**）、`cordis.patch.yml`（用户的 patch 层，**编辑这个**）。
+- 配置树叠加顺序：`bundles` 各组合包的 patch → profile 的 `cordis.patch.yml` →
+  home 级 `$DSH_HOME/cordis.patch.yml` → `--patch` 覆盖层。
+- bundle 解析：先找 dsh 安装目录（`@deepseek-ai/dsh-base`、`@deepseek-ai/dsh-headless` 等），
+  再找 profile 自身 `node_modules`。
+- patch 按 `id` 定位行、**整体替换 `config`**（不做字段级合并）；后写的赢。
+- dsh-tui profile 当前 bundles：`@deepseek-ai/dsh-base` + `@deepseek-harness-tui/dsh-tui`（^0.9.3）。
+- `profiles/*/cordis.yml`、`pnpm-lock.yaml`、`node_modules/` 都被 gitignore（dsh/.gitignore），
+  不要尝试提交。
+
+## settings.yaml — 全局设置文档
+
+由 `@deepseek-ai/dsh-settings-file` 插件读取（默认路径 `$DSH_HOME/settings.yaml`），
+**watcher 热加载**，外部编辑即生效（多数 namespace 为 `applies: live`）。
+文档按 namespace 分节；各消费方插件注册自己的 schema，组合 base（entry config）之上
+叠加用户层。当前分节：
+
+| namespace | 消费方 | 说明 |
+|---|---|---|
+| `agent-default-model` | dsh-agent-default-model | 新会话默认模型 `{provider, model, reasoningEffort}` |
+| `llm-pi-ai` | dsh-llm-pi-ai | 多提供方适配器的 providers 字典（核心！） |
+| `llm-deepseek` | dsh-llm-deepseek | DeepSeek 官方适配器（本机未覆盖，走 entry 默认） |
+| `dsh-tui` / `dsh-better-sidebar` / `dsh-ssh` / `pet` | TUI 相关 | 界面/宠物/终端字体 |
+
+⚠️ 关键语义（踩过坑）：`llm-pi-ai.providers` 是**字典**，`models` 列表**整体替换**
+该路由的 pi-ai 内置 catalog（不是追加）；分节 schema 校验失败时 settings seam 保留
+上一份可用值并告警，不写盘。
+
+## LLM 适配器体系与 ⚠️ 路由注册冲突（重要）
+
+TUI 树里同时存在三个 LLM 适配器：
+
+1. **`llm-deepseek`**（`@deepseek-ai/dsh-llm-deepseek`）— 原生 DeepSeek 适配器，
+   独占路由 `deepseek-official`，key 走 `DEEPSEEK_API_KEY`。TUI bundle 把它设为
+   默认（`thinking: enabled, reasoningEffort: max`）。
+2. **`llm-pi-ai`**（`@deepseek-ai/dsh-llm-pi-ai`）— 多提供方适配器，**dormant 挂载**：
+   零路由直到 settings 的 `llm-pi-ai:` 分节提供 providers。注册是**整批 all-or-nothing**：
+   任一路由与已有注册冲突，整批被拒（记录日志并保留旧注册）。
+3. **`dsh-tui-auth`**（`@deepseek-harness-tui/dsh-auth`，**第三方**，见下）— 启动时
+   逐条单独注册 `openai-codex` / `anthropic` / `xai` 三条 OAuth 订阅路由（刻意单条
+   注册：一条冲突不拖垮其余）。
+
+### ⚠️ 已踩的坑（2026 修复，勿回退）
+
+`settings.yaml` 的 `llm-pi-ai.providers` **绝不能声明 `openai-codex`（以及 anthropic/xai）**：
+dsh-auth 先注册了这些路由，llm-pi-ai 批量注册 `[zai-coding-cn, openai-codex]` 时因
+openai-codex 冲突而**整体失败** → `zai-coding-cn` 连带永不注册 → TUI 模型选择器
+（只列 `ctx.llm.listProviders()` 的已注册路由）查不到 glm。
+`agent-default-model` 仍会显示 zai-coding-cn，但发请求直接 `NO_ADAPTER` 失败。
+
+修复：从 settings.yaml 删除 `openai-codex: {}` 行。验证：TUI 运行时 `zai-coding-cn`
+注册成功，模型含 glm-5.3 / glm-5.3-flash；openai-codex 仍由 dsh-auth 服务（OAuth 订阅）。
+
+### dsh-auth 是谁的插件？
+
+**不是 DeepSeek 官方（deepseek-ai）的**。`@deepseek-harness-tui/dsh-auth` v0.1.0 是
+**dsh-TUI 作者 ccch1mneyyy** 的配套包（仓库 https://github.com/ccch1mneyyy/dsh-auth ），
+随 `@deepseek-harness-tui/dsh-tui` 捆绑安装（profile node_modules 的嵌套依赖），
+由 TUI bundle 的 `dsh-tui-auth` 条目挂载（`@deepseek-harness-tui/dsh-tui/oauth`）。
+功能：ChatGPT/Codex、Claude Pro/Max、SuperGrok 订阅账号 OAuth 登录（`/auth` 命令），
+登录后把订阅额度挂成 LLM 路由。它把 OAuth access/refresh token 存到
+`$DSH_HOME/dsh-auth/credentials.json` —— **敏感文件，已被 gitignore**。
+不用订阅登录可关：`dsh/profiles/dsh-tui/cordis.patch.yml` 里 `- id: dsh-tui-auth, disabled: true`。
+
+## 模型目录（pi-ai）
+
+- pi-ai（`@earendil-works/pi-ai`）**0.82.1**：全局 dsh 安装与 TUI profile 各有一份。
+- 内置 catalog 提供方列表可用 `node -e` 读 `dist/providers/all.js` 的
+  `getBuiltinProviders()` / `getBuiltinModels('<route>')` 查看。
+- `zai-coding-cn` 是 catalog 路由（`https://open.bigmodel.cn/api/coding/paas/v4`，
+  openai-completions，thinkingFormat zai），0.82.1 目录只到 **glm-5v-turbo**；
+  glm-5.3 / glm-5.3-flash 在 settings.yaml 手工声明（1M context、maxTokens 131072
+  必须显式声明否则落兜底 32768、reasoningEfforts low/high/max、
+  `compat.supportsReasoningEffort: true` 覆盖路由级 false）。
+- 模型选择器/`/provider` 向导的数据来自 `ctx.llm` 注册表 + settings seam，不联网。
+
+## 调试技巧
+
+- 组合树：`dsh --profile dsh-tui --dump-config`。
+- **运行时 probe**（settings seam 生效与否只能运行时看）：用 `@deepseek-ai/dsh-app-boot`
+  的 `boot()` 手动 boot profile（patches 用 `loadProfile` + bundle layers 拼），
+  需伪造 `process.stdout.isTTY = true`（TUI 要求 TTY）、provide
+  `DSH_LAUNCH_ENVIRONMENT_KEY` 与 `provideCmdline`。可查
+  `ctx.llm.listProviders()` / `listModels(provider)` / `ctx.agentDefaultModel.currentSelection()`
+  / `ctx.settings.describe()`。
+- 想看是谁注册/拒绝路由：用 `--experimental-loader` 包装 `dsh-llm-pi-ai/lib/index.js`
+  源码，在 `registerAdapter` 处打日志 + 堆栈（dsh-auth 就是这么定位的）。
+- 会话日志在 `sessions/<workspace-hash>/session.jsonl.zstd`（zstd 压缩，
+  用 `/opt/homebrew/bin/zstdcat` 解压），可查实际请求的 provider/model。
+
+## git 约定
+
+- 活跃分支 `dev`；提交遵循 Conventional Commits（`chore(dsh/…)`、`fix(dsh)` 等）。
+- `dsh/.gitignore`：秘密与运行时状态一律忽略（`.credentials.yaml`、`sessions/`、
+  `storages/`、`memory/`、`task-board/`、`attachments/`、`dsh-builtin-browser-host/`、
+  `llm-deepseek/`、`dsh-auth/`、`skills/`、`profiles/*/cordis.yml`、lockfile、node_modules）。
+- ⚠️ gitignore 行内不支持 `#` 尾注释（会导致模式不匹配），要注释就单独一行。
+- 新增的 dsh 运行时目录出现为 `??` 时，先判断是不是状态目录 → 补进 dsh/.gitignore，
+  **不要**随手 `git add`。
+
+## 维护备忘
+
+- 升级 TUI：改 `profiles/dsh-tui/package.json` 的 `@deepseek-harness-tui/dsh-tui` 版本
+  后跑 `dsh plugin --profile dsh-tui install`（pnpm），并检查新版 bundle 是否新增
+  路由/namespace（dsh-auth 这类第三方插件可能再次引入冲突）。
+- pi-ai 升级后：核对 `zai-coding-cn` 目录是否已含 glm-5.3+，若含则 settings.yaml 的
+  models 列表可精简回纯 id 列表（仍是整体替换语义）。
+- settings.yaml 是热加载的，但 TUI 模型选择器建议重启后查看；`/model` 手动切模型。
+- 官方文档在安装包内：`@deepseek-ai/dsh/README.zh.md`、各插件包 `README.zh.md`
+  （`dsh-llm-pi-ai`、`dsh-settings-file`、`dsh-agent-default-model` 等）；
+  上游仓库：https://github.com/deepseek-ai/deepseek-harness 、https://github.com/ccch1mneyyy/dsh-TUI 。

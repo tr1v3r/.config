@@ -1,6 +1,7 @@
 # secrets & machine identity — never commit (key lives in 1Password)
 .credentials.yaml
 .anonymous-user-id
+dsh-auth/
 
 # runtime state
 sessions/
