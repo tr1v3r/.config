@@ -45,6 +45,7 @@ what is tracked:
 
 ```
 ~/.local/share/chezmoi/
+├── .zsh/ .nvim/        # submodules, hidden from chezmoi (dot-prefix), dir-symlinked
 ├── dot_config/          # → ~/.config/ (all XDG configs, service stacks, deploy/)
 ├── dot_zshenv.tmpl      # → ~/.zshenv (renders HOST_PROFILE from chezmoi data)
 ├── dot_condarc          # → ~/.condarc
@@ -71,15 +72,16 @@ when you don't want package installs to fire).
 ## Submodules
 
 See `.gitmodules`. After cloning: `git submodule update --init`. Known
-submodules: `dot_config/zsh`, `dot_config/nvim`, `dot_config/firefox`
+submodules: `.zsh`, `.nvim` (whole-dir-symlinked to `~/.config/zsh`,
+`~/.config/nvim` via `dot_config/symlink_*.tmpl`), `dot_config/firefox`
 (custom branch), `dot_config/ai/llm-wiki`. The old
 `ranger/plugins/{ranger_devicons,ranger-gpg}` submodules are **vendored**
 (pinned commits, plain files now).
 
 ## Directory Map
 
-**Shells / editors / CLI tools** (under `dot_config/`): `zsh/` (submodule, has
-its own CLAUDE.md/AGENTS.md), `nvim/` (submodule), `aerc/`, `himalaya/`,
+**Shells / editors / CLI tools**: `zsh/` (submodule at `.zsh/`, has its own
+CLAUDE.md/AGENTS.md), `nvim/` (submodule at `.nvim/`), `aerc/`, `himalaya/`,
 `kitty/`, `iterm2/`, `tmux/`, `tmux-powerline/`, `ranger/`, `yazi/`,
 `lazygit/`, `gnupg/`→promoted, `ssh/`, `git/`, `raycast/`, `neofetch/`,
 `snipaste/`, `bashtop/`, `herdr/`, `dsh/`, `skills/`, `ai/`, `ortie/` (ortie contains credentials — git-crypt encrypted).
@@ -105,7 +107,6 @@ Do not invent a third mechanism; extend these.
 ## Conventions
 
 - Secrets via git-crypt (or 1Password CLI `op item get`) — never hardcoded.
-- Prefer editing the submodule repos in place (`dot_config/zsh/`,
-  `dot_config/nvim/`) and committing there, then bumping the pointer here.
+- Prefer editing the submodule repos in place (`.zsh/`, `.nvim/`) and committing there, then bumping the pointer here.
 - Rust-modern CLI tools are the default (`bat`, `rg`, `eza`, `fd`, `zoxide`).
 - Dependabot alerts on the stale `master` default branch (default-branch switch pending).

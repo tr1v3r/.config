@@ -1,8 +1,8 @@
 [submodule "zsh"]
-	path = dot_config/zsh
+	path = .zsh
 	url = git@github.com:tr1v3r/.zsh.git
 [submodule "nvim"]
-	path = dot_config/nvim
+	path = .nvim
 	url = git@github.com:tr1v3r/nvim.git
 [submodule "firefox"]
 	path = dot_config/firefox
