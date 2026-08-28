@@ -49,7 +49,6 @@ llm-pi-ai:
         supportsReasoningEffort: false
         maxTokensField: max_tokens
         thinkingFormat: zai
-    openai-codex: {}
 # Web 终端字体：Nerd Font 图标 + 中文兜底（better-sidebar 底部终端 / dsh-ssh SSH 终端）
 dsh-better-sidebar:
   terminalFontFamily: "Hack Nerd Font Mono, PingFang SC, monospace"
