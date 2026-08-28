@@ -61,3 +61,5 @@ pet:
   bottom: 1207
   petId: whale-girl
   enabled: false
+ui-theme:
+  preference: dark
