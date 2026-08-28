@@ -82,8 +82,7 @@ submodules: `dot_config/zsh`, `dot_config/nvim`, `dot_config/firefox`
 its own CLAUDE.md/AGENTS.md), `nvim/` (submodule), `aerc/`, `himalaya/`,
 `kitty/`, `iterm2/`, `tmux/`, `tmux-powerline/`, `ranger/`, `yazi/`,
 `lazygit/`, `gnupg/`→promoted, `ssh/`, `git/`, `raycast/`, `neofetch/`,
-`snipaste/`, `bashtop/`, `herdr/`, `dsh/`, `skills/`, `ai/`, `ortie/`
-(submodule).
+`snipaste/`, `bashtop/`, `herdr/`, `dsh/`, `skills/`, `ai/`, `ortie/` (ortie contains credentials — git-crypt encrypted).
 
 **Self-hosted service stacks** (under `dot_config/`, each with a README):
 `adguard-home/`, `pihole/`, `emby/`, `karakeep/`, `bt/`. Applied **only** on
