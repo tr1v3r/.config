@@ -1,4 +1,13 @@
 # Your patch layer for this dsh profile, applied after every bundle layer:
 # a top-level YAML array of loader patch entries (id-targeted config
 # overrides, disables, and insert lists; `!!js` expressions allowed).
-[]
+#
+# openai-codex lives here (entry config) instead of $DSH_HOME/settings.yaml:
+# the TUI's dsh-auth plugin owns that route at boot, so declaring it in the
+# shared settings section made llm-pi-ai's all-or-nothing registration fail
+# there (zai-coding-cn never registered). This profile has no dsh-auth, so
+# the entry-level route merges with the settings section per provider.
+- id: llm-pi-ai
+  config:
+    providers:
+      openai-codex: {}

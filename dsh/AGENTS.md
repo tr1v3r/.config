@@ -91,6 +91,10 @@ openai-codex 冲突而**整体失败** → `zai-coding-cn` 连带永不注册 �
 
 修复：从 settings.yaml 删除 `openai-codex: {}` 行。验证：TUI 运行时 `zai-coding-cn`
 注册成功，模型含 glm-5.3 / glm-5.3-flash；openai-codex 仍由 dsh-auth 服务（OAuth 订阅）。
+**web profile 没有 dsh-auth**，需要 codex 时把 openai-codex 声明在
+`dsh/profiles/web/cordis.patch.yml` 的 `llm-pi-ai` entry 配置里（settings seam 按
+provider 合并，web 得到 openai-codex + zai-coding-cn 两条路由）——不要加回
+settings.yaml，否则 TUI 冲突复发。
 
 ### dsh-auth 是谁的插件？
 
