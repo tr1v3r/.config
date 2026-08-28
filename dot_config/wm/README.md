@@ -1,37 +1,31 @@
-# macOS window manager profiles
+# macOS window-manager profiles
 
 AeroSpace and yabai are alternatives, not a stack. The `use` helper stops the
-other backend before starting the selected one. Neither backend is enabled by
-the dotfiles alone.
+other backend before starting the selected one and reloads the matching
+SketchyBar profile.
+
+The two bars are intentionally independent:
+
+- `~/.config/sketchybar/profiles/aerospace.sh`
+- `~/.config/sketchybar/profiles/yabai.sh`
+
+The root `sketchybarrc` is only a dispatcher. The runtime selection is stored
+in `~/.config/wm/active` (host-local state, not part of the repository).
 
 ## Install
 
-Common bar:
-
-```sh
-brew install FelixKratz/formulae/sketchybar
-```
-
-AeroSpace (SIP remains enabled):
-
 ```sh
 brew install --cask nikitabobko/tap/aerospace
-~/.config/wm/use aerospace
+brew install asmvik/formulae/yabai asmvik/formulae/skhd jq
+brew install FelixKratz/formulae/sketchybar FelixKratz/formulae/borders
 ```
 
-yabai + skhd (core configuration works with SIP enabled):
+Grant Accessibility permission to AeroSpace, yabai, and skhd when macOS
+prompts. skhd also requires Secure Keyboard Entry to be disabled. The yabai
+configuration deliberately avoids scripting-addition-only features, so SIP can
+remain enabled during the comparison.
 
-```sh
-brew install asmvik/formulae/yabai asmvik/formulae/skhd
-~/.config/wm/use yabai
-```
-
-Grant Accessibility permission when macOS prompts. skhd also requires Secure
-Keyboard Entry to be disabled. The yabai config deliberately avoids features
-that need its scripting addition; do not disable SIP unless those features are
-explicitly needed.
-
-## Commands
+## Switch
 
 ```sh
 ~/.config/wm/use aerospace
@@ -40,6 +34,11 @@ explicitly needed.
 ~/.config/wm/use status
 ```
 
-Both profiles use Colemak navigation: `n/e/u/i` means left/down/up/right.
-`Alt+1..9` changes workspace; `Alt+Shift+1..9` moves the window and follows it.
-SketchyBar detects the running backend when it reloads.
+Both profiles use equivalent Colemak bindings for a fair comparison:
+`n/e/u/i` means left/down/up/right, `Alt+1..9` changes workspace, and
+`Alt+Shift+1..9` moves the window and follows it.
+
+While comparing, AeroSpace keeps `start-at-login = false`. Selecting yabai
+installs/enables its launchd services; selecting AeroSpace or `off` stops and
+uninstalls the yabai/skhd services so they cannot both start at the next login.
+After choosing a winner, its login behavior can be made permanent.

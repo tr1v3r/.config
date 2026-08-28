@@ -1,12 +1,10 @@
 #!/bin/sh
-# yabai BSP profile. Core tiling works with SIP enabled; this template avoids
-# scripting-addition-only features. Select it with ~/.config/wm/use yabai.
+# yabai BSP profile. Core tiling works with SIP enabled; no scripting-addition-only features.
+set -eu
+export PATH="/opt/homebrew/bin:/usr/local/bin:$PATH"
 
-# Reserve SketchyBar's top strip only when it is installed.
 external_bar='off:0:0'
-if command -v sketchybar >/dev/null 2>&1; then
-  external_bar='all:32:0'
-fi
+[ -x /opt/homebrew/bin/sketchybar ] && external_bar='all:32:0'
 
 yabai -m config \
   external_bar "$external_bar" \
@@ -40,35 +38,29 @@ yabai -m config \
   mouse_action2 resize \
   mouse_drop_action swap
 
-# Native utility windows do not tile well.
 yabai -m rule --add app='^System Settings$' manage=off
 yabai -m rule --add app='^Calculator$' manage=off
 yabai -m rule --add app='^Activity Monitor$' manage=off
 
-# Feed workspace lifecycle events into the shared SketchyBar config.
-if command -v sketchybar >/dev/null 2>&1; then
-  for label in \
-    sketchybar_space_changed \
-    sketchybar_space_created \
-    sketchybar_space_destroyed \
-    sketchybar_display_added \
-    sketchybar_display_removed
+if [ -x /opt/homebrew/bin/sketchybar ]; then
+  for label in sketchybar_space_changed sketchybar_space_created \
+    sketchybar_space_destroyed sketchybar_display_added sketchybar_display_removed
   do
     yabai -m signal --remove "$label" >/dev/null 2>&1 || true
   done
 
   yabai -m signal --add label=sketchybar_space_changed \
-    event=space_changed action='sketchybar --trigger yabai_space_change'
+    event=space_changed action='/opt/homebrew/bin/sketchybar --trigger yabai_space_change'
   yabai -m signal --add label=sketchybar_space_created \
-    event=space_created action='sketchybar --reload'
+    event=space_created action='/opt/homebrew/bin/sketchybar --reload'
   yabai -m signal --add label=sketchybar_space_destroyed \
-    event=space_destroyed action='sketchybar --reload'
+    event=space_destroyed action='/opt/homebrew/bin/sketchybar --reload'
   yabai -m signal --add label=sketchybar_display_added \
-    event=display_added action='sketchybar --reload'
+    event=display_added action='/opt/homebrew/bin/sketchybar --reload'
   yabai -m signal --add label=sketchybar_display_removed \
-    event=display_removed action='sketchybar --reload'
+    event=display_removed action='/opt/homebrew/bin/sketchybar --reload'
 
-  sketchybar --reload >/dev/null 2>&1 || true
+  /opt/homebrew/bin/sketchybar --reload >/dev/null 2>&1 || true
 fi
 
 echo 'yabai configuration loaded'

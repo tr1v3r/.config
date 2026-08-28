@@ -8,10 +8,10 @@ start-at-login = false
 auto-reload-config = true
 
 # SketchyBar is optional; this follows AeroSpace's official integration.
-after-startup-command = ['exec-and-forget sketchybar --reload']
+after-startup-command = ['exec-and-forget /opt/homebrew/bin/sketchybar --reload']
 exec-on-workspace-change = [
   '/bin/sh', '-c',
-  'command -v sketchybar >/dev/null && sketchybar --trigger aerospace_workspace_change FOCUSED_WORKSPACE=$AEROSPACE_FOCUSED_WORKSPACE || true',
+  'export PATH=/opt/homebrew/bin:/usr/local/bin:$PATH; /bin/sleep 0.1; sketchybar --trigger aerospace_workspace_change FOCUSED_WORKSPACE=$AEROSPACE_FOCUSED_WORKSPACE',
 ]
 
 # Keep workspace indicators stable in SketchyBar even while empty.

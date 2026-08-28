@@ -1,0 +1,24 @@
+#!/bin/sh
+# Thin dispatcher: AeroSpace and yabai keep independent SketchyBar profiles.
+set -eu
+
+export PATH="/opt/homebrew/bin:/usr/local/bin:$PATH"
+CONFIG_DIR="${CONFIG_DIR:-$HOME/.config/sketchybar}"
+active="$(cat "$HOME/.config/wm/active" 2>/dev/null || true)"
+
+case "$active" in
+  aerospace|yabai|off) ;;
+  *)
+    if pgrep -x AeroSpace >/dev/null 2>&1; then
+      active=aerospace
+    elif command -v yabai >/dev/null 2>&1 && yabai -m query --spaces >/dev/null 2>&1; then
+      active=yabai
+    else
+      active=off
+    fi
+    ;;
+esac
+
+profile="$CONFIG_DIR/profiles/$active.sh"
+[ -x "$profile" ] || profile="$CONFIG_DIR/profiles/off.sh"
+exec "$profile"

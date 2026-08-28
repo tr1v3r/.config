@@ -15,8 +15,8 @@ alt + shift - u : yabai -m window --swap north || yabai -m window --display nort
 alt + shift - i : yabai -m window --swap east  || yabai -m window --display east
 
 # Layout and lifecycle.
-alt - slash       : yabai -m space --layout bsp
-alt - comma       : yabai -m space --layout stack
+alt - 0x2C        : yabai -m space --layout bsp
+alt - 0x2B        : yabai -m space --layout stack
 alt - f           : yabai -m window --toggle zoom-fullscreen
 alt + shift - space : yabai -m window --toggle float
 alt - b           : yabai -m space --balance
