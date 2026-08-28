@@ -1,6 +1,6 @@
-secrets/** filter=git-crypt diff=git-crypt
-age/keys.txt filter=git-crypt diff=git-crypt
-age/keys-pq.txt filter=git-crypt diff=git-crypt
+dot_config/secrets/** filter=git-crypt diff=git-crypt
+dot_config/age/keys.txt filter=git-crypt diff=git-crypt
+dot_config/age/keys-pq.txt filter=git-crypt diff=git-crypt
 dot_config/ssh/config filter=git-crypt diff=git-crypt
 dot_config/aerc/accounts.conf filter=git-crypt diff=git-crypt
 dot_config/deploy/k8s/mysql/deploy-mysql-singleton.yaml filter=git-crypt diff=git-crypt

@@ -2,8 +2,6 @@ README.md
 AGENTS.md
 CLAUDE.md
 scripts
-secrets
-age
 {{ if ne (.machineRole | default "workstation") "home-server" }}
 .config/adguard-home
 .config/bt

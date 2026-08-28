@@ -20,10 +20,9 @@ normal and not part of the repo.
 
 ## Critical: git-crypt encrypted files
 
-This repo uses **git-crypt**. Paths in `.gitattributes` (all now under
-`dot_config/` or `secrets/`, `age/`) are encrypted at rest in git:
+This repo uses **git-crypt**. Paths in `.gitattributes` (all under `dot_config/`) are encrypted at rest in git:
 
-`secrets/**`, `age/keys.txt`, `age/keys-pq.txt`, `dot_config/ssh/config`,
+`dot_config/secrets/**`, `dot_config/age/keys.txt`, `dot_config/age/keys-pq.txt`, `dot_config/ssh/config`,
 `dot_config/aerc/accounts.conf`,
 `dot_config/deploy/k8s/mysql/deploy-mysql-singleton.yaml`,
 `dot_config/deploy/k8s/redis/redis-config.yaml`,
@@ -34,7 +33,7 @@ This repo uses **git-crypt**. Paths in `.gitattributes` (all now under
 
 - After a fresh clone: `git-crypt unlock` (once per clone) before any
   `chezmoi apply`, otherwise chezmoi would deploy ciphertext.
-- Never paste secret values into plaintext. New secrets go under `secrets/**`
+- Never paste secret values into plaintext. New secrets go under `dot_config/secrets/**`
   or become git-crypt-encrypted paths.
 - If a file shows as binary/ciphertext, the clone is locked — unlock it, don't
   overwrite with plaintext.
@@ -52,7 +51,6 @@ what is tracked:
 ├── dot_cargo/           # → ~/.cargo/
 ├── dot_gnupg/           # → ~/.gnupg/ (gpg-agent.conf is a darwin/linux template)
 ├── scripts/             # bootstrap scripts — NOT deployed (see .chezmoiignore)
-├── secrets/  age/       # git-crypt secrets & keys — NOT deployed
 ├── .chezmoi.toml.tmpl   # init questionnaire → hostProfile / machineRole / firefoxProfile
 ├── .chezmoiignore       # per-machine exclusions (template)
 └── .chezmoiscripts/     # run_once_install-packages, run_onchange_after_darwin-links
@@ -91,8 +89,8 @@ its own CLAUDE.md/AGENTS.md), `nvim/` (submodule), `aerc/`, `himalaya/`,
 `adguard-home/`, `pihole/`, `emby/`, `karakeep/`, `bt/`. Applied **only** on
 machines whose `machineRole` is `home-server` (see `.chezmoiignore`).
 
-**Infra / secrets**: `deploy/` (k8s manifests, under `dot_config/`),
-`secrets/`, `age/`, `scripts/` (root-only bootstrap dispatchers).
+**Infra / secrets**: `deploy/`, `secrets/`, `age/` (git-crypt-protected, under `dot_config/`),
+`scripts/` (root-only bootstrap dispatchers, NOT deployed).
 
 ## Multi-machine model
 
