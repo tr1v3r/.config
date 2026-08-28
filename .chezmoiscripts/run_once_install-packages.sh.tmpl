@@ -1,13 +1,14 @@
-{{- if eq .chezmoi.os "darwin" }}
 #!/bin/bash
-# Install system packages via Homebrew (delegates to the repo script).
+# Install system packages (delegates to the repo bootstrap script).
+# NOTE: shebang MUST stay on line 1 — anything above it breaks exec.
+# NOTE: use $CHEZMOI_SOURCE_DIR, NOT `chezmoi source-path` — a nested chezmoi
+# call deadlocks on the persistent state lock while apply is running.
 set -euo pipefail
-cd "$(chezmoi source-path)"
-exec ./scripts/init_mac.sh
-{{- else if eq .chezmoi.os "linux" }}
-#!/bin/bash
-# Install system packages (delegates to the repo dispatcher).
-set -euo pipefail
-cd "$(chezmoi source-path)"
-exec ./scripts/init.sh
-{{- end }}
+SRC="${CHEZMOI_SOURCE_DIR:-}"
+[ -n "$SRC" ] || SRC="$(chezmoi source-path)"
+cd "$SRC"
+if [[ "$(uname -s)" == "Darwin" ]]; then
+	exec ./scripts/init_mac.sh
+else
+	exec ./scripts/init.sh
+fi
