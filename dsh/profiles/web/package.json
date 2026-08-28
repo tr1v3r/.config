@@ -10,6 +10,7 @@
     "dsh-fetch-file": "^0.1.2",
     "dsh-holdem": "^0.2.0",
     "dsh-memory": "^0.1.0",
+    "dshmarket": "1.35.0",
     "electron": "^30.5.1"
   },
   "dsh": {
@@ -24,7 +25,8 @@
         "dsh-at-file",
         "dsh-builtin-browser",
         "dsh-fetch-file",
-        "dsh-holdem"
+        "dsh-holdem",
+        "dshmarket"
       ]
     }
   },
