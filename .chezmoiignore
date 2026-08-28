@@ -1,0 +1,20 @@
+README.md
+AGENTS.md
+CLAUDE.md
+scripts
+secrets
+age
+{{ if ne (.machineRole | default "workstation") "home-server" }}
+.config/adguard-home
+.config/bt
+.config/emby
+.config/karakeep
+.config/pihole
+{{ end }}
+{{ if ne .chezmoi.os "darwin" }}
+.config/iterm2
+.gnupg/gpg-agent.conf
+{{ end }}
+{{ if ne .chezmoi.os "linux" }}
+.config/picom.conf
+{{ end }}

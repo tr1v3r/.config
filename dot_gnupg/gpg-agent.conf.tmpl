@@ -1,3 +1,4 @@
+{{- if eq .chezmoi.os "darwin" }}
 # Expose gpg-agent through the OpenSSH agent protocol.
 enable-ssh-support
 
@@ -7,9 +8,6 @@ default-cache-ttl-ssh 1800
 max-cache-ttl 7200
 max-cache-ttl-ssh 7200
 
-# Uncomment to prevent Pinentry from using an external password cache,
-# such as macOS Keychain.
-# no-allow-external-cache
-
 # Homebrew on Apple Silicon.
 pinentry-program /opt/homebrew/bin/pinentry-mac
+{{- end }}

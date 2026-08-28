@@ -1,21 +1,13 @@
 [submodule "zsh"]
-	path = zsh
+	path = dot_config/zsh
 	url = git@github.com:tr1v3r/.zsh.git
 [submodule "nvim"]
-	path = nvim
+	path = dot_config/nvim
 	url = git@github.com:tr1v3r/nvim.git
-[submodule "ranger/plugins/ranger_devicons"]
-	path = ranger/plugins/ranger_devicons
-	url = https://github.com/alexanderjeurissen/ranger_devicons
-	update = none
-[submodule "ranger/plugins/ranger-gpg"]
-	path = ranger/plugins/ranger-gpg
-	url = https://gitlab.com/Ragnyll/ranger-gpg.git
-	update = none
 [submodule "firefox"]
-	path = firefox
+	path = dot_config/firefox
 	url = git@github.com:tr1v3r/Firefox-UI-Fix.git
 	branch = custom
 [submodule "ai/llm-wiki"]
-	path = ai/llm-wiki
+	path = dot_config/ai/llm-wiki
 	url = https://gist.github.com/396fcb101232c68ff40322efebb56a64.git

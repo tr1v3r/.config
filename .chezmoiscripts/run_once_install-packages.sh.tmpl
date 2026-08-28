@@ -1,0 +1,13 @@
+{{- if eq .chezmoi.os "darwin" }}
+#!/bin/bash
+# Install system packages via Homebrew (delegates to the repo script).
+set -euo pipefail
+cd "$(chezmoi source-path)"
+exec ./scripts/init_mac.sh
+{{- else if eq .chezmoi.os "linux" }}
+#!/bin/bash
+# Install system packages (delegates to the repo dispatcher).
+set -euo pipefail
+cd "$(chezmoi source-path)"
+exec ./scripts/init.sh
+{{- end }}

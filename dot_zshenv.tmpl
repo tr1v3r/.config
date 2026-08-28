@@ -1,0 +1,7 @@
+# Managed by chezmoi — edit with `chezmoi edit ~/.zshenv`.
+# Sourced by zsh before .zshrc: sets up ZDOTDIR and the host profile.
+. "$HOME/.config/zsh/env"
+[[ -f "$HOME/.cargo/env" ]] && . "$HOME/.cargo/env"
+
+# Host profile: work | personal (consumed by $ZDOTDIR/.zshrc)
+export HOST_PROFILE={{ .hostProfile | default "work" }}
