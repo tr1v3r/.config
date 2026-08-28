@@ -62,4 +62,6 @@ pet:
   petId: whale-girl
   enabled: false
 ui-theme:
-  preference: dark
+  preference: system
+skin-custom-theme:
+  applied: false
