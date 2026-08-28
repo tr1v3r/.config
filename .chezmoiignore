@@ -10,7 +10,14 @@ scripts
 .config/pihole
 {{ end }}
 {{ if ne .chezmoi.os "darwin" }}
+.aerospace.toml
+.config/aerospace
 .config/iterm2
+.config/sioyek
+.config/sketchybar
+.config/skhd
+.config/wm
+.config/yabai
 .gnupg/gpg-agent.conf
 {{ end }}
 {{ if ne .chezmoi.os "linux" }}

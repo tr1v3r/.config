@@ -33,7 +33,7 @@ done
 
 # Casks — the homebrew/cask-fonts tap is deprecated; fonts live in homebrew/cask now
 echo "Installing casks via Homebrew..."
-brew_casks=("font-hack-nerd-font" "skim")
+brew_casks=("font-hack-nerd-font" "skim" "sioyek")
 for cask in "${brew_casks[@]}"; do
 	brew install --cask "$cask" || echo "WARN: brew install --cask $cask failed (continuing)"
 done
