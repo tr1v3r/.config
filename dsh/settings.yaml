@@ -1,8 +1,8 @@
 ui-onboarding:
   welcomeNoticeVersion: 2026-08-13.1
 agent-default-model:
-  provider: zai-coding-cn
-  model: glm-5.3-flash
+  provider: deepseek-official
+  model: deepseek-v4-flash
   reasoningEffort: max
 llm-pi-ai:
   providers:
