@@ -51,9 +51,9 @@ llm-pi-ai:
         thinkingFormat: zai
 # Web 终端字体：Nerd Font 图标 + 中文兜底（better-sidebar 底部终端 / dsh-ssh SSH 终端）
 dsh-better-sidebar:
-  terminalFontFamily: "Hack Nerd Font Mono, PingFang SC, monospace"
+  terminalFontFamily: 'Hack Nerd Font Mono, "LXGW WenKai Mono", monospace'
 dsh-ssh:
-  terminalFontFamily: "Hack Nerd Font Mono, PingFang SC, monospace"
+  terminalFontFamily: 'Hack Nerd Font Mono, "LXGW WenKai Mono", monospace'
 pet:
   visible: true
   size: 160
