@@ -77,10 +77,21 @@ containers, then verify the expected commands. On arm64 hosts, the official Arch
 image runs as linux/amd64 under the container engine's emulation:
 
 ```bash
+# Package bootstrap: real install plus sudo/idempotence checks.
 ./scripts/test_linux_containers.sh
-# one image only (useful while iterating):
 BOOTSTRAP_TEST_FILTER=arch ./scripts/test_linux_containers.sh
+
+# Chezmoi: locked local clone, init/apply/verify, profiles, roles, and idempotence.
+# Every tracked file with an effective git-crypt filter must be ciphertext and skipped.
+./scripts/test_chezmoi_containers.sh
+CHEZMOI_TEST_FILTER=debian-12 ./scripts/test_chezmoi_containers.sh
 ```
+
+The chezmoi matrix uses work/workstation on Ubuntu, personal/workstation on
+Debian, and work/home-server on Arch. It pins chezmoi v2.72.0 and resolves all
+submodules from the mounted local repositories, so only package and release
+downloads need network access. The clone intentionally tests committed HEAD and
+refuses to run when deployable source paths have uncommitted changes.
 
 The bootstrap does not replace package mirrors, perform Debian/Ubuntu system
 upgrades, clone configuration into root's home, or change the login shell. On

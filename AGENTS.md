@@ -77,6 +77,14 @@ chezmoi apply                                     # deploy config; never install
 Package installation is deliberately explicit: `chezmoi apply` must remain usable
 without root, a TTY, or package-manager network access.
 
+Linux validation is split by responsibility: `scripts/test_linux_containers.sh`
+tests real package bootstrap, while `scripts/test_chezmoi_containers.sh` clones a
+locked repository and tests init/apply/verify/idempotence across Ubuntu, Debian,
+and Arch. The latter enumerates effective Git attributes for every tracked file,
+requires each git-crypt file to be ciphertext, ignores its exact target, and must
+never deploy ciphertext. It tests committed HEAD and rejects dirty deployable
+source paths instead of silently testing stale code.
+
 ## Submodules
 
 See `.gitmodules`. After cloning: `git submodule update --init`. Known
