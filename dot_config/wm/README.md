@@ -42,3 +42,25 @@ While comparing, AeroSpace keeps `start-at-login = false`. Selecting yabai
 installs/enables its launchd services; selecting AeroSpace or `off` stops and
 uninstalls the yabai/skhd services so they cannot both start at the next login.
 After choosing a winner, its login behavior can be made permanent.
+
+## Pause SketchyBar
+
+To park the bar while keeping the configuration (e.g. while comparing the
+window managers without it):
+
+```sh
+touch ~/.config/wm/bar.disabled
+brew services stop sketchybar
+```
+
+`bar.disabled` is host-local state like `active`, not part of the repository.
+While it exists, `use` never auto-starts the bar, and the yabai layout tiles
+windows 8px below the menu bar (`external_bar off`, `top_padding 1`).
+AeroSpace's `gaps.outer.top` is static — `~/.aerospace.toml` documents the
+value to restore when the bar returns. To bring the bar back:
+
+```sh
+rm ~/.config/wm/bar.disabled
+brew services start sketchybar
+yabai --restart-service   # re-reads yabairc layout for the bar
+```

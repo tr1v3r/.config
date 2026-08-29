@@ -3,11 +3,21 @@
 set -eu
 export PATH="/opt/homebrew/bin:/usr/local/bin:$PATH"
 
-external_bar='off:0:0'
-# sketchybar occupies y 24..56 (y_offset 24 + height 32, margin 0). Verified
-# empirically: window top = menu bar (~23) + external_bar + top_padding + window_gap.
-# 25 puts tiled windows at y=64, i.e. bar bottom (56) + window_gap (8).
-[ -x /opt/homebrew/bin/sketchybar ] && external_bar='all:25:0'
+# SketchyBar toggle: touch ~/.config/wm/bar.disabled to park the bar and tile
+# windows up against the menu bar; delete the file to restore bar-aware layout
+# (see also wm/README.md).
+if [ -x /opt/homebrew/bin/sketchybar ] && [ ! -e "$HOME/.config/wm/bar.disabled" ]; then
+  # Bar occupies y 24..56 (y_offset 24 + height 32, margin 0). Verified
+  # empirically: window top = menu bar (~23) + external_bar + top_padding + window_gap.
+  # 25 + 8 puts tiled windows at y=64, i.e. bar bottom (56) + window_gap (8).
+  external_bar='all:25:0'
+  top_padding=8
+else
+  # No bar: window top = menu bar (~23) + top_padding + window_gap (8).
+  # top_padding 1 puts tiled windows at y=32, i.e. menu bar bottom (24) + 8.
+  external_bar='off:0:0'
+  top_padding=1
+fi
 
 yabai -m config \
   external_bar "$external_bar" \
@@ -30,7 +40,7 @@ yabai -m config \
   split_ratio 0.50 \
   split_type auto \
   auto_balance off \
-  top_padding 8 \
+  top_padding "$top_padding" \
   bottom_padding 8 \
   left_padding 8 \
   right_padding 8 \

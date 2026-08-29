@@ -30,12 +30,16 @@ focus-follows-mouse.enabled = false
 # Let AeroSpace translate logical bindings for the active Colemak layout.
 key-mapping.preset = 'colemak'
 
-# Catppuccin-friendly breathing room. SketchyBar occupies the menu-bar area.
+# Catppuccin-friendly breathing room.
+# outer.top: AeroSpace does not account for the macOS menu bar, so reserve it
+# manually: 24 (menu bar) + 8 (gap) = 32. While SketchyBar is parked (see
+# ~/.config/wm/bar.disabled) this is the right value; when the bar returns,
+# use 64 (bar bottom y=56 + gap 8) here and update yabairc alongside.
 gaps.inner.horizontal = 8
 gaps.inner.vertical = 8
 gaps.outer.left = 8
 gaps.outer.bottom = 8
-gaps.outer.top = 8
+gaps.outer.top = 32
 gaps.outer.right = 8
 
 [mode.main.binding]
