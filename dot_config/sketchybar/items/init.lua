@@ -9,4 +9,5 @@ return function(opts)
   require("items.calendar")
   require("items.widgets")
   require("items.media")
+  require("items.zen")
 end

@@ -10,7 +10,7 @@ local whitelist = {
   ["Music"] = true,
 }
 
-local media_cover = sbar.add("item", {
+local media_cover = sbar.add("item", "media.cover", {
   position = "right",
   background = {
     image = {
@@ -29,7 +29,7 @@ local media_cover = sbar.add("item", {
   },
 })
 
-local media_artist = sbar.add("item", {
+local media_artist = sbar.add("item", "media.artist", {
   position = "right",
   drawing = false,
   padding_left = 3,
@@ -45,7 +45,7 @@ local media_artist = sbar.add("item", {
   },
 })
 
-local media_title = sbar.add("item", {
+local media_title = sbar.add("item", "media.title", {
   position = "right",
   drawing = false,
   padding_left = 3,

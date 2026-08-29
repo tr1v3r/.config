@@ -26,5 +26,8 @@ return {
     pmset = "/usr/bin/pmset",
     switch_audio = "/opt/homebrew/bin/SwitchAudioSource",
     nowplaying = "/opt/homebrew/bin/nowplaying-cli",
+    gh = "/opt/homebrew/bin/gh",
+    jq = "/opt/homebrew/bin/jq",
+    brew = "/opt/homebrew/bin/brew",
   },
 }

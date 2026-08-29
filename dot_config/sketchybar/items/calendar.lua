@@ -5,7 +5,7 @@ local icons = require("icons")
 -- Padding item required because of bracket
 sbar.add("item", { position = "right", width = settings.group_paddings })
 
-local cal = sbar.add("item", {
+local cal = sbar.add("item", "calendar", {
   icon = {
     string = icons.clock,
     color = colors.white,

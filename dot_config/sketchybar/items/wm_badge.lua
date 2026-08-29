@@ -19,6 +19,11 @@ return function(wmo)
     },
   })
 
+  -- Clicking the badge toggles zen mode (hide noisy widgets).
+  badge:subscribe("mouse.clicked", function()
+    sbar.trigger("zen_toggle")
+  end)
+
   sbar.add("bracket", { badge.name }, {
     background = { color = colors.bg1 },
   })

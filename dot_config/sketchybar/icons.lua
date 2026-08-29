@@ -26,6 +26,10 @@ local icons = {
     play_pause = "󰐊",
     forward = "󰒬",
   },
+
+  github = "󰊤",
+  brew = "󰂼",
+  check = "󰄬",
 }
 
 return icons
