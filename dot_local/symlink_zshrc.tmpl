@@ -1,0 +1,8 @@
+{{- $profile := .hostProfile | default "work" -}}
+{{- if and (eq $profile "work") (eq .chezmoi.os "darwin") -}}
+{{ .chezmoi.homeDir }}/.config/zsh/work.mac.zsh
+{{- else if and (eq $profile "work") (eq .chezmoi.os "linux") -}}
+{{ .chezmoi.homeDir }}/.config/zsh/work.linux.zsh
+{{- else if and (eq $profile "personal") (eq .chezmoi.os "darwin") -}}
+{{ .chezmoi.homeDir }}/.config/zsh/air.mac.zsh
+{{- end -}}

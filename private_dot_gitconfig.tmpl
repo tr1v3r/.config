@@ -1,0 +1,9 @@
+# Managed by chezmoi. Put identity and machine-specific settings in ~/.gitconfig.local.
+[include]
+    path = ~/.config/git/config
+{{ if eq (.hostProfile | default "work") "work" -}}
+[include]
+    path = ~/.config/git/work.config
+{{ end -}}
+[include]
+    path = ~/.gitconfig.local

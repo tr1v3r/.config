@@ -2,6 +2,12 @@ README.md
 AGENTS.md
 CLAUDE.md
 scripts
+{{ if ne (.hostProfile | default "work") "work" }}
+.config/git/work.config
+{{ end }}
+{{ if and (eq (.hostProfile | default "work") "personal") (ne .chezmoi.os "darwin") }}
+.local/zshrc
+{{ end }}
 {{ if ne (.machineRole | default "workstation") "home-server" }}
 .config/adguard-home
 .config/bt

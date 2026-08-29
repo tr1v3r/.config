@@ -89,7 +89,7 @@ Linux, use `./scripts/init.sh --help` for optional groups, dry-run, and retry co
 ## Notes
 
 - **Encrypted paths**: see `.gitattributes` (`secrets/**`, `dot_config/ssh/config`,
-  `dot_config/aerc/accounts.conf`, various `*.env`).
+  `dot_config/git/work.config`, `dot_config/aerc/accounts.conf`, various `*.env`).
 - **Editing**: non-template targets are symlinks — edit in place. Templates
   (`*.tmpl`) are rendered copies; edit them with `chezmoi edit <target>`.
 - **Submodules**: `.zsh/` and `.nvim/` are separate repos
@@ -97,6 +97,11 @@ Linux, use `./scripts/init.sh --help` for optional groups, dry-run, and retry co
 - **SSH layering**: chezmoi renders `~/.ssh/config`; machine-local overrides live in
   unmanaged `~/.ssh/config.local`, macOS also includes OrbStack, and shared hosts
   remain in the encrypted `~/.config/ssh/config`.
+- **Git layering**: shared URL rewrites and the global ignore live under
+  `~/.config/git/`; identity, trust, and machine hooks stay in unmanaged
+  `~/.gitconfig.local`, included last so they can override shared defaults.
+- **Zsh machine profile**: chezmoi maps `hostProfile` plus the operating system to
+  `~/.local/zshrc` (`work.mac`, `work.linux`, or personal macOS `air.mac`).
 - **Service stacks** deploy only with `machineRole = "home-server"`.
 
 ## License

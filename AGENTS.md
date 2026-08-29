@@ -27,7 +27,7 @@ the repo.
 This repo uses **git-crypt**. Paths in `.gitattributes` (all under `dot_config/`) are encrypted at rest in git:
 
 `dot_config/secrets/**`, `dot_config/age/keys.txt`, `dot_config/age/keys-pq.txt`, `dot_config/ssh/config`,
-`dot_config/aerc/accounts.conf`,
+`dot_config/aerc/accounts.conf`, `dot_config/git/work.config`,
 `dot_config/deploy/k8s/mysql/deploy-mysql-singleton.yaml`,
 `dot_config/deploy/k8s/redis/redis-config.yaml`,
 `dot_config/iterm2/com.googlecode.iterm2.plist`,
@@ -52,6 +52,8 @@ what is tracked:
 ├── .zsh/ .nvim/        # submodules, hidden from chezmoi (dot-prefix), dir-symlinked
 ├── dot_config/          # → ~/.config/ (all XDG configs, service stacks, deploy/)
 ├── dot_zshenv.tmpl      # → ~/.zshenv (renders HOST_PROFILE from chezmoi data)
+├── private_dot_gitconfig.tmpl # → ~/.gitconfig loader; .gitconfig.local stays local
+├── dot_local/           # → ~/.local/ (machine-profile Zsh link)
 ├── dot_condarc          # → ~/.condarc
 ├── dot_cargo/           # → ~/.cargo/
 ├── dot_gnupg/           # → ~/.gnupg/ (gpg-agent.conf is a darwin/linux template)
@@ -104,7 +106,8 @@ machines whose `machineRole` is `home-server` (see `.chezmoiignore`).
 Two independent axes, both answered at `chezmoi init`:
 
 - `hostProfile` (`work` | `personal`) — rendered into `~/.zshenv` as
-  `HOST_PROFILE`, consumed at runtime by `zsh/.zshrc` (sources `work.zsh`).
+  `HOST_PROFILE`, selects work-only Git config, and maps `~/.local/zshrc` to the
+  matching OS/profile file (`work.mac`, `work.linux`, or personal `air.mac`).
 - `machineRole` (`workstation` | `home-server`) — gates service-stack
   deployment via `.chezmoiignore`.
 
