@@ -58,20 +58,21 @@ what is tracked:
 ├── scripts/             # bootstrap scripts — NOT deployed (see .chezmoiignore)
 ├── .chezmoi.toml.tmpl   # init questionnaire → hostProfile / machineRole / firefoxProfile
 ├── .chezmoiignore       # per-machine exclusions (template)
-└── .chezmoiscripts/     # run_once_install-packages, run_onchange_after_darwin-links
+└── .chezmoiscripts/     # post-apply platform hooks (package bootstrap is explicit)
 ```
 
 ## Bootstrap (new machine)
 
 ```bash
 chezmoi init git@github.com:tr1v3r/dotfiles.git   # clone + answer the questionnaire
-cd ~/.local/share/chezmoi && git-crypt unlock     # decrypt secrets (needs the GPG key)
-chezmoi apply                                     # deploy everything
-sudo dot_config/scripts/init.sh                   # optional: system packages
+cd ~/.local/share/chezmoi
+./scripts/init.sh                                  # explicit system packages; self-elevates on Linux
+git-crypt unlock                                  # decrypt secrets (needs the GPG key)
+chezmoi apply                                     # deploy config; never installs packages
 ```
 
-`chezmoi apply --exclude scripts` skips the `.chezmoiscripts/` hooks (useful
-when you don't want package installs to fire).
+Package installation is deliberately explicit: `chezmoi apply` must remain usable
+without root, a TTY, or package-manager network access.
 
 ## Submodules
 
@@ -95,7 +96,7 @@ CLAUDE.md/AGENTS.md), `nvim/` (submodule at `.nvim/`), `aerc/`, `himalaya/`,
 machines whose `machineRole` is `home-server` (see `.chezmoiignore`).
 
 **Infra / secrets**: `deploy/`, `secrets/`, `age/` (git-crypt-protected, under `dot_config/`),
-`scripts/` (root-only bootstrap dispatchers, NOT deployed).
+`scripts/` (self-elevating package bootstrap and container tests, NOT deployed).
 
 ## Multi-machine model
 

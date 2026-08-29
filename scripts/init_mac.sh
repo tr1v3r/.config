@@ -1,4 +1,5 @@
-#!/bin/bash
+#!/usr/bin/env bash
+set -Eeuo pipefail
 
 # macOS bootstrap — installs packages only.
 # Config deployment is handled by chezmoi (chezmoi init + git-crypt unlock + chezmoi apply).
@@ -12,6 +13,22 @@ abort() {
 
 have() { command -v "$1" >/dev/null 2>&1; }
 
+usage() {
+	cat <<'EOF'
+Usage: ./scripts/init.sh
+
+Install the complete macOS package set. Linux-only package-group options are not
+supported on macOS. Configuration deployment is handled separately by chezmoi.
+EOF
+}
+
+if (($#)); then
+	case "$1" in
+		-h|--help) usage; exit 0 ;;
+		*) printf 'ERROR: Unknown macOS option: %s (use --help)\n' "$1" >&2; exit 2 ;;
+	esac
+fi
+
 echo "Initializing macOS setup..."
 
 # Homebrew (https://brew.sh/) — skipped when already installed
@@ -22,6 +39,17 @@ else
 	echo "Installing Homebrew..."
 	/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)" || abort "Failed to install Homebrew"
 fi
+
+# A fresh Apple Silicon install is not on PATH in the current process yet.
+if ! have brew; then
+	for brew_path in /opt/homebrew/bin/brew /usr/local/bin/brew; do
+		if [[ -x "$brew_path" ]]; then
+			eval "$("$brew_path" shellenv)"
+			break
+		fi
+	done
+fi
+have brew || abort "Homebrew was installed but could not be added to PATH"
 
 # Formulae (brew itself skips the ones already installed; go included)
 # NOTE: per-package loop so one bad/renamed formula doesn't kill the rest.
@@ -57,8 +85,11 @@ if ! have cargo; then
 	echo "Installing Rust..."
 	curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y || abort "Failed to install Rust"
 fi
+if [[ -f "$HOME/.cargo/env" ]]; then
+	# shellcheck source=/dev/null
+	. "$HOME/.cargo/env"
+fi
 if have cargo; then
-	[ -f "$HOME/.cargo/env" ] && . "$HOME/.cargo/env"
 	echo "Installing Rust tools..."
 	have ripgrep || cargo install ripgrep || abort "Failed to install ripgrep"
 	have zoxide || cargo install zoxide || abort "Failed to install zoxide"
