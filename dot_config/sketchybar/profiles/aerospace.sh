@@ -15,8 +15,9 @@ BLUE=0xff89b4fa
 GREEN=0xffa6e3a1
 YELLOW=0xfff9e2af
 
+# y_offset=24: sit below the macOS menu bar (non-notch displays).
 sketchybar --bar position=top height=32 color=$BASE border_width=0 \
-  padding_left=6 padding_right=6 margin=0 y_offset=0 blur_radius=20 sticky=on topmost=on
+  padding_left=6 padding_right=6 margin=0 y_offset=24 blur_radius=20 sticky=on topmost=on
 sketchybar --default updates=when_shown \
   icon.font="Hack Nerd Font:Bold:14.0" label.font="Hack Nerd Font:Semibold:13.0" \
   icon.color=$TEXT label.color=$TEXT icon.padding_left=7 icon.padding_right=7 \
