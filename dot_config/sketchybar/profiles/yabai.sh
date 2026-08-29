@@ -15,8 +15,9 @@ BLUE=0xff89b4fa
 GREEN=0xffa6e3a1
 YELLOW=0xfff9e2af
 
-# y_offset=24: sit below the macOS menu bar (non-notch displays), matching
-# yabai's external_bar reservation, which starts under the menu bar.
+# y_offset=24: sit below the macOS menu bar (non-notch displays). The bar then
+# occupies y 24..56; yabairc sets external_bar all:25:0 so tiled windows start
+# at y=64, keeping the bar-to-window gap equal to yabai's window_gap (8).
 sketchybar --bar position=top height=32 color=$BASE border_width=0 \
   padding_left=6 padding_right=6 margin=0 y_offset=24 blur_radius=20 sticky=on topmost=on
 sketchybar --default updates=when_shown \

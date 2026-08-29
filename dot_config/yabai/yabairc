@@ -4,7 +4,10 @@ set -eu
 export PATH="/opt/homebrew/bin:/usr/local/bin:$PATH"
 
 external_bar='off:0:0'
-[ -x /opt/homebrew/bin/sketchybar ] && external_bar='all:32:0'
+# sketchybar occupies y 24..56 (y_offset 24 + height 32, margin 0). Verified
+# empirically: window top = menu bar (~23) + external_bar + top_padding + window_gap.
+# 25 puts tiled windows at y=64, i.e. bar bottom (56) + window_gap (8).
+[ -x /opt/homebrew/bin/sketchybar ] && external_bar='all:25:0'
 
 yabai -m config \
   external_bar "$external_bar" \
