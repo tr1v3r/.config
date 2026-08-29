@@ -54,7 +54,7 @@ have brew || abort "Homebrew was installed but could not be added to PATH"
 # Formulae (brew itself skips the ones already installed; go included)
 # NOTE: per-package loop so one bad/renamed formula doesn't kill the rest.
 echo "Installing packages via Homebrew..."
-brew_packages=("python3" "neovim" "gpg" "paperkey" "zoxide" "tldr" "mpv" "autojump" "tmux" "wget" "lua" "tree" "git-delta" "git-crypt" "fzf" "neofetch" "cmake" "highlight" "graphviz" "ffmpeg" "openssl" "sops" "figlet" "go" "switchaudio-osx" "nowplaying-cli")
+brew_packages=("python3" "neovim" "gpg" "paperkey" "zoxide" "tldr" "mpv" "autojump" "tmux" "wget" "lua" "tree" "git-delta" "git-crypt" "fzf" "neofetch" "cmake" "highlight" "graphviz" "ffmpeg" "openssl" "sops" "figlet" "go" "switchaudio-osx" "nowplaying-cli" "uv")
 for pkg in "${brew_packages[@]}"; do
 	brew install "$pkg" || echo "WARN: brew install $pkg failed (continuing)"
 done
@@ -65,6 +65,26 @@ brew_casks=("font-hack-nerd-font" "font-sketchybar-app-font" "skim" "sioyek")
 for cask in "${brew_casks[@]}"; do
 	brew install --cask "$cask" || echo "WARN: brew install --cask $cask failed (continuing)"
 done
+
+# Neovim LSP servers & formatter binaries — mason.nvim only manages DAP adapters,
+# so the servers it used to install became system packages (see .nvim settings.lua
+# lsp_deps note; clangd ships with Xcode CLT, gopls via `go install`).
+echo "Installing nvim LSP servers & formatters..."
+nvim_lsp_brews=("bash-language-server" "lua-language-server" "prettier" "shfmt" "stylua" "vint" "vscode-langservers-extracted")
+for pkg in "${nvim_lsp_brews[@]}"; do
+	brew install "$pkg" || echo "WARN: brew install $pkg failed (continuing)"
+done
+
+# pylsp deliberately does NOT come from brew: its plugins (black/ruff/rope) must
+# share the server's environment, so it lives in an isolated uv tool venv.
+# --system-certs keeps it working behind corporate MITM proxies.
+if have uv; then
+	echo "Installing pylsp (with black/ruff/rope) via uv tool..."
+	uv tool install --system-certs --with python-lsp-black --with python-lsp-ruff --with pylsp-rope python-lsp-server \
+		|| echo "WARN: uv tool install python-lsp-server failed (continuing)"
+else
+	echo "WARN: uv not found, skipping pylsp (run: uv tool install --system-certs --with python-lsp-black --with python-lsp-ruff --with pylsp-rope python-lsp-server)"
+fi
 
 # SBarLua — the Lua host sketchybar configs run on (installs ~/.local/share/sketchybar_lua/sketchybar.so)
 if [ ! -e "$HOME/.local/share/sketchybar_lua/sketchybar.so" ] && have clang && have git; then
