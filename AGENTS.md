@@ -13,10 +13,14 @@ most files there are symlinks into the source repo, so editing a target file
 edits the repo directly. Only `.tmpl` templates are rendered copies — edit
 those with `chezmoi edit <target>`.
 
-`~/.config/.git.retired` is the frozen `.git` of the pre-chezmoi era (kept
-temporarily as a rollback hatch; safe to delete once stable). `~/.config` also
-contains plenty of host-local, untracked state (caches, app data) — that is
-normal and not part of the repo.
+`~/.config/.git.retired` is the frozen `gitdir` of the old in-place checkout
+(renamed 2026-08-29 during cleanup; its `dev` history matches `dotfiles.git`
+at `ca94b4f` — nothing unique). It is a rollback hatch only; safe to delete
+once stable. `~/.config/CLAUDE.md → AGENTS.md` is a local pair, deliberately
+NOT chezmoi-managed (see `.chezmoiignore`) — keep it in sync manually with the
+source-root `AGENTS.md`. Everything else in `~/.config` is deployed symlinks
+plus host-local, untracked state (caches, app data) — normal and not part of
+the repo.
 
 ## Critical: git-crypt encrypted files
 
