@@ -47,24 +47,30 @@ installs/enables its launchd services; selecting AeroSpace or `off` stops and
 uninstalls the yabai/skhd services so they cannot both start at the next login.
 After choosing a winner, its login behavior can be made permanent.
 
-## Pause SketchyBar
+## SketchyBar is opt-in
 
-To park the bar while keeping the configuration (e.g. while comparing the
-window managers without it):
-
-```sh
-touch ~/.config/wm/bar.disabled
-brew services stop sketchybar
-```
-
-`bar.disabled` is host-local state like `active`, not part of the repository.
-While it exists, `use` never auto-starts the bar, and the yabai layout tiles
-windows 8px below the menu bar (`external_bar off`, `top_padding 1`).
-AeroSpace's `gaps.outer.top` is static — `~/.aerospace.toml` documents the
-value to restore when the bar returns. To bring the bar back:
+The bar only runs when `~/.config/wm/bar.enable` exists. Without the file
+`use` never auto-starts it, and the yabai layout tiles windows 8px below the
+menu bar (`external_bar off`, `top_padding 1`). To show the bar:
 
 ```sh
-rm ~/.config/wm/bar.disabled
+touch ~/.config/wm/bar.enable
 brew services start sketchybar
 yabai --restart-service   # re-reads yabairc layout for the bar
 ```
+
+Already-running windows can stay at the old coordinates until they are
+re-laid-out — switching spaces or toggling a window's float
+(`alt+space/d` in skhd) snaps it back.
+
+To hide it again:
+
+```sh
+rm ~/.config/wm/bar.enable
+brew services stop sketchybar
+yabai --restart-service
+```
+
+`bar.enable` is host-local state like `active`, not part of the repository.
+AeroSpace's `gaps.outer.top` is static — `~/.aerospace.toml` documents the
+value to use with and without the bar.

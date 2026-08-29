@@ -30,8 +30,8 @@ stop_yabai() {
 }
 reload_bar() {
   have sketchybar || return 0
-  if [ -e "$HOME/.config/wm/bar.disabled" ]; then
-    # SketchyBar is parked (see wm/README.md); keep it stopped.
+  if [ ! -e "$HOME/.config/wm/bar.enable" ]; then
+    # SketchyBar is opt-in (see wm/README.md); without bar.enable keep it stopped.
     brew services stop sketchybar >/dev/null 2>&1 || pkill -x sketchybar || true
     return 0
   fi
@@ -88,12 +88,12 @@ case "${1:-}" in
     pgrep -x AeroSpace >/dev/null 2>&1 && echo 'AeroSpace: running' || echo 'AeroSpace: stopped'
     if have yabai && yabai -m query --spaces >/dev/null 2>&1; then echo 'yabai: running'; else echo 'yabai: stopped'; fi
     pgrep -x skhd >/dev/null 2>&1 && echo 'skhd: running' || echo 'skhd: stopped'
-    if [ -e "$HOME/.config/wm/bar.disabled" ]; then
-      echo 'SketchyBar: parked (bar.disabled)'
+    if [ ! -e "$HOME/.config/wm/bar.enable" ]; then
+      echo 'SketchyBar: disabled (no bar.enable)'
     elif pgrep -x sketchybar >/dev/null 2>&1; then
       echo 'SketchyBar: running'
     else
-      echo 'SketchyBar: stopped'
+      echo 'SketchyBar: stopped (bar.enable present)'
     fi
     ;;
   *) usage ;;
