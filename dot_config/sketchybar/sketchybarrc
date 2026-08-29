@@ -1,24 +1,35 @@
-#!/bin/sh
-# Thin dispatcher: AeroSpace and yabai keep independent SketchyBar profiles.
-set -eu
+#!/usr/bin/env lua
+-- SketchyBar entry point (SbarLua). The AeroSpace / yabai / off profiles stay
+-- independent modules under profiles/, selected by ~/.config/wm/active — the
+-- same semantics as the previous shell dispatcher.
+require("helpers")
 
-export PATH="/opt/homebrew/bin:/usr/local/bin:$PATH"
-CONFIG_DIR="${CONFIG_DIR:-$HOME/.config/sketchybar}"
-active="$(cat "$HOME/.config/wm/active" 2>/dev/null || true)"
+local home = os.getenv("HOME") or ""
+local active = nil
 
-case "$active" in
-  aerospace|yabai|off) ;;
-  *)
-    if pgrep -x AeroSpace >/dev/null 2>&1; then
-      active=aerospace
-    elif command -v yabai >/dev/null 2>&1 && yabai -m query --spaces >/dev/null 2>&1; then
-      active=yabai
-    else
-      active=off
-    fi
-    ;;
-esac
+local file = io.open(home .. "/.config/wm/active", "r")
+if file then
+  active = file:read("*l")
+  file:close()
+end
 
-profile="$CONFIG_DIR/profiles/$active.sh"
-[ -x "$profile" ] || profile="$CONFIG_DIR/profiles/off.sh"
-exec "$profile"
+if active ~= "aerospace" and active ~= "yabai" and active ~= "off" then
+  local probe = io.popen(
+    "pgrep -x AeroSpace >/dev/null 2>&1 && echo aerospace" ..
+    " || { yabai -m query --spaces >/dev/null 2>&1 && echo yabai || echo off; }"
+  )
+  active = (probe:read("*l") or "off"):gsub("%s+", "")
+  probe:close()
+end
+
+sbar = require("sketchybar")
+
+sbar.begin_config()
+local ok, err = pcall(require, "profiles." .. active)
+if not ok then
+  print("sketchybar: profile '" .. active .. "' failed: " .. tostring(err))
+  require("profiles.off")
+end
+sbar.end_config()
+
+sbar.event_loop()

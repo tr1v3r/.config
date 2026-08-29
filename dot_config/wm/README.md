@@ -6,11 +6,13 @@ SketchyBar profile.
 
 The two bars are intentionally independent:
 
-- `~/.config/sketchybar/profiles/aerospace.sh`
-- `~/.config/sketchybar/profiles/yabai.sh`
+- `~/.config/sketchybar/profiles/aerospace.lua`
+- `~/.config/sketchybar/profiles/yabai.lua`
 
-The root `sketchybarrc` is only a dispatcher. The runtime selection is stored
-in `~/.config/wm/active` (host-local state, not part of the repository).
+The root `sketchybarrc` is only a dispatcher (SbarLua; see
+`dot_config/sketchybar/README.md` for its dependencies). The runtime selection
+is stored in `~/.config/wm/active` (host-local state, not part of the
+repository).
 
 ## Install
 
@@ -18,6 +20,8 @@ in `~/.config/wm/active` (host-local state, not part of the repository).
 brew install --cask nikitabobko/tap/aerospace
 brew install asmvik/formulae/yabai asmvik/formulae/skhd jq
 brew install FelixKratz/formulae/sketchybar FelixKratz/formulae/borders
+brew install lua switchaudio-osx nowplaying-cli
+brew install --cask font-sketchybar-app-font
 ```
 
 Grant Accessibility permission to AeroSpace, yabai, and skhd when macOS

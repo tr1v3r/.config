@@ -54,17 +54,31 @@ have brew || abort "Homebrew was installed but could not be added to PATH"
 # Formulae (brew itself skips the ones already installed; go included)
 # NOTE: per-package loop so one bad/renamed formula doesn't kill the rest.
 echo "Installing packages via Homebrew..."
-brew_packages=("python3" "neovim" "gpg" "paperkey" "zoxide" "tldr" "mpv" "autojump" "tmux" "wget" "lua" "tree" "git-delta" "git-crypt" "fzf" "neofetch" "cmake" "highlight" "graphviz" "ffmpeg" "openssl" "sops" "figlet" "go")
+brew_packages=("python3" "neovim" "gpg" "paperkey" "zoxide" "tldr" "mpv" "autojump" "tmux" "wget" "lua" "tree" "git-delta" "git-crypt" "fzf" "neofetch" "cmake" "highlight" "graphviz" "ffmpeg" "openssl" "sops" "figlet" "go" "switchaudio-osx" "nowplaying-cli")
 for pkg in "${brew_packages[@]}"; do
 	brew install "$pkg" || echo "WARN: brew install $pkg failed (continuing)"
 done
 
 # Casks — the homebrew/cask-fonts tap is deprecated; fonts live in homebrew/cask now
 echo "Installing casks via Homebrew..."
-brew_casks=("font-hack-nerd-font" "skim" "sioyek")
+brew_casks=("font-hack-nerd-font" "font-sketchybar-app-font" "skim" "sioyek")
 for cask in "${brew_casks[@]}"; do
 	brew install --cask "$cask" || echo "WARN: brew install --cask $cask failed (continuing)"
 done
+
+# SBarLua — the Lua host sketchybar configs run on (installs ~/.local/share/sketchybar_lua/sketchybar.so)
+if [ ! -e "$HOME/.local/share/sketchybar_lua/sketchybar.so" ] && have clang && have git; then
+	echo "Building SBarLua..."
+	sbarlua_dir="${TMPDIR:-/tmp}/SbarLua"
+	rm -rf "$sbarlua_dir"
+	if git clone --depth 1 https://github.com/FelixKratz/SbarLua "$sbarlua_dir"; then
+		(cd "$sbarlua_dir" && make install) \
+			|| echo "WARN: SBarLua build failed (sketchybar Lua config won't run)"
+		rm -rf "$sbarlua_dir"
+	else
+		echo "WARN: failed to clone SBarLua (continuing)"
+	fi
+fi
 
 # Go tools (go itself comes from brew above; no more legacy multi-version tarball zoo)
 if have go; then

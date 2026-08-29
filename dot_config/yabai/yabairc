@@ -56,14 +56,15 @@ yabai -m rule --add app='^Calculator$' manage=off
 yabai -m rule --add app='^Activity Monitor$' manage=off
 
 if [ -x /opt/homebrew/bin/sketchybar ]; then
-  for label in sketchybar_space_changed sketchybar_space_created \
-    sketchybar_space_destroyed sketchybar_display_added sketchybar_display_removed
+  for label in sketchybar_space_created sketchybar_space_destroyed \
+    sketchybar_display_added sketchybar_display_removed
   do
     yabai -m signal --remove "$label" >/dev/null 2>&1 || true
   done
 
-  yabai -m signal --add label=sketchybar_space_changed \
-    event=space_changed action='/opt/homebrew/bin/sketchybar --trigger yabai_space_change'
+  # Space highlight is driven by sketchybar's native space_change event, so no
+  # space_changed trigger is needed; reload keeps native space items in sync
+  # when spaces or displays are added/removed.
   yabai -m signal --add label=sketchybar_space_created \
     event=space_created action='/opt/homebrew/bin/sketchybar --reload'
   yabai -m signal --add label=sketchybar_space_destroyed \
