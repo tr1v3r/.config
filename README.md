@@ -94,6 +94,9 @@ Linux, use `./scripts/init.sh --help` for optional groups, dry-run, and retry co
   (`*.tmpl`) are rendered copies; edit them with `chezmoi edit <target>`.
 - **Submodules**: `.zsh/` and `.nvim/` are separate repos
   with their own docs — edit and commit there, then bump the pointer here.
+- **SSH layering**: chezmoi renders `~/.ssh/config`; machine-local overrides live in
+  unmanaged `~/.ssh/config.local`, macOS also includes OrbStack, and shared hosts
+  remain in the encrypted `~/.config/ssh/config`.
 - **Service stacks** deploy only with `machineRole = "home-server"`.
 
 ## License

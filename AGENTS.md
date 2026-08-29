@@ -55,6 +55,7 @@ what is tracked:
 ├── dot_condarc          # → ~/.condarc
 ├── dot_cargo/           # → ~/.cargo/
 ├── dot_gnupg/           # → ~/.gnupg/ (gpg-agent.conf is a darwin/linux template)
+├── private_dot_ssh/     # → ~/.ssh/ loader; config.local remains host-local
 ├── scripts/             # bootstrap scripts — NOT deployed (see .chezmoiignore)
 ├── .chezmoi.toml.tmpl   # init questionnaire → hostProfile / machineRole / firefoxProfile
 ├── .chezmoiignore       # per-machine exclusions (template)
