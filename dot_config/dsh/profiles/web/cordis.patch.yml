@@ -11,3 +11,5 @@
   config:
     providers:
       openai-codex: {}
+- id: modsearch
+  disabled: true
