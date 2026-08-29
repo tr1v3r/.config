@@ -33,12 +33,5 @@
         "@liustack/modsearch"
       ]
     }
-  },
-  "pnpm": {
-    "onlyBuiltDependencies": [
-      "node-pty",
-      "ssh2",
-      "electron"
-    ]
   }
 }
