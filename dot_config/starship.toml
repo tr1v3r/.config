@@ -1,7 +1,7 @@
 # ───────────────────────────────────────────────────────────────────────
 # 🌟 Starship Prompt Configuration 🚀
 # 📌 Official Guide: https://starship.rs/guide/
-# 🎨 Theme: A modern, lightweight, and highly customizable shell prompt
+# 🎨 Theme: Cryo Ops — arctic cyberdeck palette
 # 💻 Supported Shells: Bash, Zsh, Fish, PowerShell, Nushell, Ion, Xonsh, Elvish
 #
 # 🔧 Description:
@@ -32,6 +32,10 @@ add_newline = false
 # cold cache or slow repo can't stall the first prompt for seconds.
 command_timeout = 300
 
+# Cryo Ops stays inside an ice-blue spectrum; alert magenta is the only
+# deliberately warm signal, reserved for failures and dirty state.
+palette = "cryo_ops"
+
 format = """
 $os\
 $username\
@@ -53,18 +57,36 @@ $python\
 $time\
 """
 
+[palettes.cryo_ops]
+cryo_steel = "#7487aa"
+cryo_blue = "#6aa9ff"
+cryo_cyan = "#39e7ff"
+cryo_path = "#28bfd3"
+cryo_ice = "#b7e6ff"
+cryo_mint = "#64f4d2"
+cryo_prompt = "#47cdb2"
+cryo_violet = "#a995ff"
+cryo_alert = "#ff5c8a"
+
 [os]
 disabled = false
-format = "[$symbol](bold #0a84ff) "
+format = "[$symbol](bold cryo_blue) "
 
 [os.symbols]
 Macos = ""
 Linux = ""
 
+[username]
+style_user = "bold cryo_blue"
+style_root = "bold cryo_alert"
+
+[hostname]
+style = "cryo_steel dimmed bold"
+
 [directory]
 truncation_length = 6
 truncation_symbol = "…/"
-format = "[ $path](#1187B0) "
+format = "[$path](cryo_path) "
 
 # git_state — 当前 Git 操作状态（rebase/merge/cherry-pick 等）
 #   REBASE
@@ -86,46 +108,49 @@ format = "[ $path](#1187B0) "
 #   ✚  未暂存删除
 
 [git_branch]
-format = "[ $branch](bold #00C957) "
-# format = "[ $branch](bold #f34b7d) "
+format = "[ $branch](bold cryo_violet) "
 # truncation_length = 12
 # ignore_branches = ['master', 'main']
 
+[git_state]
+style = "bold cryo_ice"
+
 [git_status]
+style = "bold cryo_alert"
 # Skip the untracked-files walk (starship 1.25+ gitoxide native): an empty
 # `untracked` format disables the dirwalk entirely. Trade-off: no "?"
 # untracked marker in the prompt.
 untracked = ""
 
 [golang]
-format = '[ $version](bold #00d7ff) '
+format = '[ $version](bold cryo_cyan) '
 
 [rust]
-format = '[ $version](bold #ff6b35) '
+format = '[ $version](bold cryo_ice) '
 
 [nodejs]
-format = '[ $version](bold #3fbf3f) '
+format = '[ $version](bold cryo_mint) '
 
 [python]
-format = '[ $version](bold #ffd43b) '
+format = '[ $version](bold cryo_blue) '
 
 [character] # The name of the module we are configuring is 'character' ❯
-success_symbol = '[➜](bold #00C957)' # The 'success_symbol' segment is being set to '➜' with the color 'bold green'
-error_symbol = '[✗](bold #dc2626) '
-vimcmd_symbol = '[V](bold #00C957)'
-vimcmd_replace_one_symbol = '[V](bold #a855f7)'
-vimcmd_replace_symbol = '[V](bold #a855f7)'
-vimcmd_visual_symbol = '[V](bold #eab308)'
+success_symbol = '[➜](bold cryo_prompt)'
+error_symbol = '[✗](bold cryo_alert) '
+vimcmd_symbol = '[V](bold cryo_cyan)'
+vimcmd_replace_one_symbol = '[V](bold cryo_alert)'
+vimcmd_replace_symbol = '[V](bold cryo_alert)'
+vimcmd_visual_symbol = '[V](bold cryo_violet)'
 
 [cmd_duration]
 min_time = 2000  # 超过 2 秒才显示
-format = "[ $duration](bold #87875e) "
+format = "[ $duration](bold cryo_steel) "
 
 [time]
 disabled = false
 time_format = "%T" # 24小时制
-format = "[$time](bold #1187B0) "
+format = "[$time](bold cryo_blue) "
 
 [status]
 disabled = false
-format = '[$status](bold #dc2626) '
+format = '[$status](bold cryo_alert) '
