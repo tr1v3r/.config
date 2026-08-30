@@ -32,6 +32,11 @@ local get_config_file = ya.sync(function(st)
     return st.config_file
 end)
 
+-- Resolve the active directory for manual refreshes (`plugin starship`) that do not pass arguments.
+local get_active_cwd = ya.sync(function()
+    return tostring(cx.active.current.cwd)
+end)
+
 --- Helper function for accessing `show_right_prompt` state variable
 ---@return boolean
 local should_show_right_prompt = ya.sync(function(st)
@@ -188,39 +193,57 @@ return {
             end
         end
 
-        -- Pass current working directory and custom config path (if specified) to the plugin's entry point
-        ---Callback for subscribers to update the prompt
-        local callback = function()
-            local cwd = cx.active.current.cwd
-            if st.cwd ~= cwd then
-                st.cwd = cwd
-
-                -- `ya.emit` as of 25.5.28
-                local emit = ya.emit or ya.manager_emit
-
-                emit("plugin", {
-                    st._id,
-                    ya.quote(tostring(cwd), true),
-                })
+        -- Event-driven live refresh without a permanent polling task. Bursts from the same
+        -- directory are coalesced, while hover events provide a low-cost fallback for external
+        -- Git changes that do not produce a directory load event (for example `.git/index`).
+        local refresh = function(force)
+            local cwd = tostring(cx.active.current.cwd)
+            local now = ya.time()
+            local interval = force and 0.15 or 1.0
+            if st.requested_cwd == cwd and now - (st.requested_at or 0) < interval then
+                return
             end
+
+            st.requested_cwd = cwd
+            st.requested_at = now
+
+            -- `ya.emit` as of 25.5.28
+            local emit = ya.emit or ya.manager_emit
+            emit("plugin", {
+                st._id,
+                ya.quote(cwd, true),
+            })
         end
 
-        -- Subscribe to events
-        ps.sub("cd", callback)
-        ps.sub("tab", callback)
+        ps.sub("cd", function()
+            refresh(true)
+        end)
+        ps.sub("tab", function()
+            refresh(true)
+        end)
+        ps.sub("load", function(event)
+            local done = event.stage()
+            if done and tostring(event.url) == tostring(cx.active.current.cwd) then
+                refresh(true)
+            end
+        end)
+        ps.sub("hover", function()
+            refresh(false)
+        end)
     end,
 
     entry = function(_, job)
         local args = job.args
+        local cwd = args[1] or get_active_cwd()
 
         -- Setup commands for left and right prompts
         local function base_command()
             return Command("starship")
                 :arg("prompt")
                 :stdin(Command.INHERIT)
-                :cwd(args[1])
+                :cwd(cwd)
                 :env("STARSHIP_SHELL", "")
-                :env("PWD", args[1])
+                :env("PWD", cwd)
         end
         local command_left = base_command()
         local command_right = base_command():arg("--right")

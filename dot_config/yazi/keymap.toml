@@ -78,9 +78,9 @@ keymap = [
 	{ on = ".", run = "find_arrow --previous", desc = "Go to the previous found" },
 
 	# Shell
-	{ on = "<C-g>", run = "shell --confirm --block lazygit", desc = "Lazygit" },
+	{ on = "<C-g>", run = ["shell --confirm --block lazygit", "plugin starship"], desc = "Lazygit" },
 	{ on = ";", run = "shell --interactive", desc = "Run a shell command" },
-	{ on = ":", run = "shell --block --interactive", desc = "Run a shell command (block until finishes)" },
+	{ on = ":", run = ["shell --block --interactive", "plugin starship"], desc = "Run a shell command (block until finishes)" },
 
 	# Hidden files
 	{ on = ["z", "h"], run = "hidden toggle", desc = "Toggle the visibility of hidden files" },
