@@ -100,7 +100,7 @@ submodules: `.zsh`, `.nvim` (whole-dir-symlinked to `~/.config/zsh`,
 CLAUDE.md/AGENTS.md), `nvim/` (submodule at `.nvim/`), `aerc/`, `himalaya/`,
 `kitty/`, `iterm2/`, `tmux/`, `tmux-powerline/`, `ranger/`, `yazi/`,
 `lazygit/`, `gnupg/`→promoted, `ssh/`, `git/`, `raycast/`, `neofetch/`,
-`snipaste/`, `bashtop/`, `herdr/`, `dsh/`, `skills/`, `ai/`, `ortie/` (ortie contains credentials — git-crypt encrypted).
+`snipaste/`, `btop/` (replaced deprecated `bashtop/` 2026-08), `herdr/`, `dsh/`, `skills/`, `ai/`, `ortie/` (ortie contains credentials — git-crypt encrypted).
 
 **Self-hosted service stacks** (under `dot_config/`, each with a README):
 `adguard-home/`, `pihole/`, `emby/`, `karakeep/`, `bt/`. Applied **only** on
