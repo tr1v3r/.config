@@ -12,7 +12,6 @@
 require("starship"):setup({
 	config_file = "~/.config/yazi/starship.toml",
 })
-require("git"):setup({})
 require("full-border"):setup({ type = ui.Border.ROUNDED })
 
 -- CLI Pointer：绕过内建 indicator 的 reversed 背景和两侧 powerline padding，
