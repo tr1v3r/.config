@@ -39,7 +39,7 @@ light = "tokyo-night"
 
 # hovered 文件高亮：无背景 badge；CLI Pointer 由 init.lua 的 Entity child 渲染。
 [indicator]
-parent  = { fg = "#565f89", bold = true, reversed = false }
+parent  = { fg = "#89b4fa", bold = true, reversed = false }
 current = { fg = "#7dcfff", bold = true, underline = true, reversed = false }
 preview = { fg = "#7dcfff", underline = true, reversed = false }
 
