@@ -34,9 +34,43 @@
 #   lain                — identityapproved/lain                   赛博朋克风
 #   obsidian-glow       — ZimCodes/yazi-flavors                   深色 + 柔光
 #   modus               — 社区                                   Emacs modus 风格
-dark  = "catppuccin-mocha"
-light = "catppuccin-mocha"
+dark  = "tokyo-night"
+light = "tokyo-night"
 
+# hovered 文件高亮：无背景 badge；CLI Pointer 由 init.lua 的 Entity child 渲染。
+[indicator]
+parent  = { fg = "#565f89", bold = true, reversed = false }
+current = { fg = "#7dcfff", bold = true, underline = true, reversed = false }
+preview = { fg = "#7dcfff", underline = true, reversed = false }
 
-[mgr]
-border_symbol = " "
+# 图标增量：append_*/prepend_* 叠加在内置默认图标上，不覆盖默认规则。
+# 缺口按本仓库实际文件补：chezmoi / git-crypt / age / gpg / yazi / macOS zsh。
+# glyph 全部取自内置默认主题（渲染有保障），色板对齐 Tokyo Night：
+#   blue #7aa2f7 / cyan #7dcfff / yellow #e0af68 / purple #bb9af7 / gray #565f89
+[icon]
+prepend_globs = [
+	{ url = "**/.chezmoi*", text = "", fg = "#7dcfff" },
+]
+append_dirs = [
+	{ name = ".cache",    text = "", fg = "#565f89" },
+	{ name = ".gnupg",    text = "󰯄", fg = "#bb9af7" },
+	{ name = ".local",    text = "", fg = "#7dcfff" },
+	{ name = ".ssh",      text = "", fg = "#e0af68" },
+	{ name = "Github",    text = "", fg = "#7aa2f7" },
+	{ name = "workspace", text = "", fg = "#7dcfff" },
+	# 上游 quirk：默认把 node_modules 放在 files 数组（只匹配非目录），目录反而无图标
+	{ name = "node_modules", text = "", fg = "#e8274b" },
+]
+append_files = [
+	{ name = ".zprofile", text = "", fg = "#89e051" },
+	{ name = ".zlogin",   text = "", fg = "#89e051" },
+	{ name = "yazi.toml",   text = "", fg = "#e0af68" },
+	{ name = "keymap.toml", text = "", fg = "#e0af68" },
+	{ name = "theme.toml",  text = "", fg = "#e0af68" },
+	{ name = "keys.txt",  text = "", fg = "#565f89" },
+]
+append_exts = [
+	{ name = "gpg",   text = "󰯄", fg = "#bb9af7" },
+	{ name = "age",   text = "", fg = "#565f89" },
+	{ name = "plist", text = "", fg = "#7aa2f7" },
+]

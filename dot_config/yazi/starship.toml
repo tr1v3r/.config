@@ -1,3 +1,45 @@
+# yazi 顶部 Header 专用 starship prompt（plugins/starship.yazi 渲染）。
+# 与终端 starship 互不影响。全宽 powerline 风格，色板对齐 Tokyo Night：
+#   night #1a1b26 / blue #7aa2f7 / green #9ece6a / cyan #7dcfff / red #f7768e
+# 只保留轻量模块：directory / git_*（版本号类模块每次渲染都要 fork，会拖慢 header）。
+add_newline = false
+
+format = """
+[](fg:#1a1b26 bg:#7aa2f7)\
+$directory\
+[](fg:#7aa2f7 bg:#9ece6a)\
+$git_branch\
+$git_status\
+[](fg:#9ece6a bg:#7dcfff)\
+$git_metrics\
+[](fg:#7dcfff bg:#1a1b26)\
+"""
+
+right_format = ""
+
+[directory]
+style = "bold bg:#7aa2f7 fg:#1a1b26"
+truncation_length = 4
+truncate_to_repo = false
+home_symbol = "󰋞 ~"
+format = "[ $path ]($style)[ $read_only ](bg:#7aa2f7 fg:#f7768e)"
+
+[git_branch]
+symbol = "󰊢"
+style = "bg:#9ece6a fg:#1a1b26"
+format = "[ $symbol $branch ]($style)"
+
+[git_status]
+style = "bg:#9ece6a fg:#1a1b26"
+format = "([$all_status$ahead_behind]($style))[ ](bg:#9ece6a fg:#1a1b26)"
+
+[git_metrics]
+added_style = "bg:#7dcfff fg:#1a1b26"
+deleted_style = "bg:#7dcfff fg:#f7768e"
+format = "[ +$added](added_style)[ -$deleted ](deleted_style)"
+disabled = false
+
+# 以下为终端 starship 的模块屏蔽（此文件历史上沿用自全局配置）
 [aws]
 disabled = true
 
