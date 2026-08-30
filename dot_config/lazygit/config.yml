@@ -8,45 +8,42 @@ git:
   diffRenderers:
     - colorArg: always
       # for lazygit-edit: in many cases lazygit will be able to guess the right preset from your $(git config core.editor), or an environment variable such as $VISUAL or $EDITOR.
-      command: delta --dark --paging=never --24-bit-color=never --syntax-theme="OneHalfDark" --line-numbers --hyperlinks --hyperlinks-file-link-format="lazygit-edit://{path}:{line}"
+      command: delta --dark --paging=never --24-bit-color=always --features=tokyonight-night --line-numbers --hyperlinks --hyperlinks-file-link-format="lazygit-edit://{path}:{line}"
 gui:
   commitlength:
     show: true
   mouseevents: false
   scrollheight: 2
   scrollpastbottom: true
+  # Tokyo Night (night variant)
   theme:
     lightTheme: false
-    # raw colorscheme
-    # activeBorderColor:
-    #   - cyan
-    #   - bold
-    # inactiveBorderColor:
-    #   - white
-    # optionsTextColor:
-    #   - blue
-    # selectedLineBgColor:
-    #   - default
-    # selectedRangeBgColor:
-    #   - blue
-    # colorscheme theme: catppuccin mocha
     activeBorderColor:
-      - "#a6e3a1" # Green
+      - "#7aa2f7"
       - bold
     inactiveBorderColor:
-      - "#cdd6f4" # Text
+      - "#27a1b9"
+    searchingActiveBorderColor:
+      - "#7aa2f7"
+      - bold
     optionsTextColor:
-      - "#89b4fa" # Blue
+      - "#7aa2f7"
     selectedLineBgColor:
-      - "#313244" # Surface0
+      - "#283457"
     selectedRangeBgColor:
-      - "#313244" # Surface0
-    cherryPickedCommitBgColor:
-      - "#94e2d5" # Teal
+      - "#283457"
     cherryPickedCommitFgColor:
-      - "#89b4fa" # Blue
+      - "#7aa2f7"
+    cherryPickedCommitBgColor:
+      - "#bb9af7"
+    markedBaseCommitFgColor:
+      - "#7aa2f7"
+    markedBaseCommitBgColor:
+      - "#e0af68"
     unstagedChangesColor:
-      - red # Red
+      - "#db4b4b"
+    defaultFgColor:
+      - "#c0caf5"
 reporting: "off"
 splashupdatesindex: 0
 startuppopupversion: 1
