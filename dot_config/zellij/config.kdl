@@ -1,0 +1,113 @@
+// Zellij configuration — Colemak-friendly.
+//
+// Layout follows the same Colemak navigation diamond used by Herdr and
+// Neovim in this dotfiles repo:
+//
+//         u  (up)
+//      n  e  i   (left / down / right)
+//
+// Default Zellij keybinds are kept and only *added to* — hjkl still work,
+// so muscle memory from tutorials keeps functioning. Mode prefixes
+// (Ctrl+p pane, Ctrl+t tab, ...) are unchanged; they don't collide with
+// the Herdr Ctrl+Space prefix.
+
+// --- Shell -----------------------------------------------------------------
+
+// Start zsh as a login shell so Homebrew / login-only PATH setup works
+// (mirrors herdr's shell_mode = "auto" on macOS).
+default_shell "zsh"
+default_layout "compact"
+
+// --- Behaviour -------------------------------------------------------------
+
+copy_command "pbcopy" // macOS
+copy_clipboard "system"
+copy_on_select true
+
+mouse_mode true
+pane_frames false // cleaner look; Herdr uses pane_gaps = false for the same reason
+simplified_ui false
+
+scroll_buffer_size 50000
+
+// Auto-close the pane when its shell exits (tmux-like).
+on_force_close "detach"
+
+// --- Theme: Catppuccin Macchiato (matches the rest of the stack) -----------
+
+themes {
+    catppuccin-macchiato {
+        bg "#24273a"
+        fg "#cad3f5"
+        red "#ed8796"
+        green "#a6da95"
+        yellow "#eed49f"
+        blue "#8aadf4"
+        magenta "#f5bde6"
+        orange "#f5a97f"
+        cyan "#91d7e3"
+        black "#494d64"
+        white "#f4dbd6"
+    }
+}
+theme "catppuccin-macchiato"
+
+ui {
+    pane_frames {
+        rounded_corners true
+        hide_session_name true
+    }
+}
+
+// --- Keybinds --------------------------------------------------------------
+//
+// Strategy: keep every Zellij default, and add Colemak navigation next to
+// hjkl in each relevant mode. One exception: in `pane` mode the default
+// Alt+hjkl/maximize toggles are re-declared so the Colemak variants read
+// coherently as a group.
+
+keybinds {
+    normal {
+        // Keep defaults (Ctrl+g lock, Ctrl+p pane, ...). Nothing extra:
+        // Ctrl+Space is reserved for Herdr's prefix, never touch it.
+    }
+
+    pane {
+        bind "n" "MoveFocus" "Left"
+        bind "e" "MoveFocus" "Down"
+        bind "u" "MoveFocus" "Up"
+        bind "i" "MoveFocus" "Right"
+    }
+
+    tmux {
+        // Ctrl+w window/pane navigation helper mode: Colemak directions too.
+        bind "n" "MoveFocus" "Left"
+        bind "e" "MoveFocus" "Down"
+        bind "u" "MoveFocus" "Up"
+        bind "i" "MoveFocus" "Right"
+    }
+
+    resize {
+        bind "n" "Resize" "Increase Left"
+        bind "e" "Resize" "Increase Down"
+        bind "u" "Resize" "Increase Up"
+        bind "i" "Resize" "Increase Right"
+    }
+
+    move {
+        bind "n" "MovePane" "Left"
+        bind "e" "MovePane" "Down"
+        bind "u" "MovePane" "Up"
+        bind "i" "MovePane" "Right"
+    }
+
+    search {
+        bind "e" "ScrollDown"
+        bind "u" "ScrollUp"
+    }
+
+    shared_except "locked" {
+        // Session quick-save / quick-restore helpers (session resurrection).
+        bind "Ctrl o" { WriteChars "session-manager\n"; }
+    }
+}
