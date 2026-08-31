@@ -1,0 +1,35 @@
+#!/usr/bin/env lua
+-- SketchyBar entry point (SbarLua). The AeroSpace / yabai / off profiles stay
+-- independent modules under profiles/, selected by ~/.config/wm/active — the
+-- same semantics as the previous shell dispatcher.
+require("helpers")
+
+local home = os.getenv("HOME") or ""
+local active = nil
+
+local file = io.open(home .. "/.config/wm/active", "r")
+if file then
+  active = file:read("*l")
+  file:close()
+end
+
+if active ~= "aerospace" and active ~= "yabai" and active ~= "off" then
+  local probe = io.popen(
+    "pgrep -x AeroSpace >/dev/null 2>&1 && echo aerospace" ..
+    " || { yabai -m query --spaces >/dev/null 2>&1 && echo yabai || echo off; }"
+  )
+  active = (probe:read("*l") or "off"):gsub("%s+", "")
+  probe:close()
+end
+
+sbar = require("sketchybar")
+
+sbar.begin_config()
+local ok, err = pcall(require, "profiles." .. active)
+if not ok then
+  print("sketchybar: profile '" .. active .. "' failed: " .. tostring(err))
+  require("profiles.off")
+end
+sbar.end_config()
+
+sbar.event_loop()

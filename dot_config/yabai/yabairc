@@ -1,0 +1,80 @@
+#!/bin/sh
+# yabai BSP profile. Core tiling works with SIP enabled; no scripting-addition-only features.
+set -eu
+export PATH="/opt/homebrew/bin:/usr/local/bin:$PATH"
+
+# SketchyBar is opt-in: touch ~/.config/wm/bar.enable to reserve space for the
+# bar (windows start below it); without the file, windows tile up against the
+# menu bar (see also wm/README.md).
+if [ -x /opt/homebrew/bin/sketchybar ] && [ -e "$HOME/.config/wm/bar.enable" ]; then
+  # Bar occupies y 24..56 (y_offset 24 + height 32, margin 0). Verified
+  # empirically: window top = menu bar (~23) + external_bar + top_padding + window_gap.
+  # 25 + 8 puts tiled windows at y=64, i.e. bar bottom (56) + window_gap (8).
+  external_bar='all:25:0'
+  top_padding=8
+else
+  # No bar: window top = menu bar (~23) + top_padding + window_gap (8).
+  # top_padding 1 puts tiled windows at y=32, i.e. menu bar bottom (24) + 8.
+  external_bar='off:0:0'
+  top_padding=1
+fi
+
+yabai -m config \
+  external_bar "$external_bar" \
+  menubar_opacity 1.0 \
+  mouse_follows_focus off \
+  focus_follows_mouse off \
+  display_arrangement_order default \
+  window_origin_display default \
+  window_placement second_child \
+  window_insertion_point focused \
+  window_zoom_persist on \
+  window_shadow on \
+  skip_window_focus_animation off \
+  window_animation_duration 0.0 \
+  window_opacity_duration 0.0 \
+  active_window_opacity 1.0 \
+  normal_window_opacity 1.0 \
+  window_opacity off \
+  insert_feedback_color 0xffcba6f7 \
+  split_ratio 0.50 \
+  split_type auto \
+  auto_balance off \
+  top_padding "$top_padding" \
+  bottom_padding 8 \
+  left_padding 8 \
+  right_padding 8 \
+  window_gap 8 \
+  layout bsp \
+  mouse_modifier fn \
+  mouse_action1 move \
+  mouse_action2 resize \
+  mouse_drop_action swap
+
+yabai -m rule --add app='^System Settings$' manage=off
+yabai -m rule --add app='^Calculator$' manage=off
+yabai -m rule --add app='^Activity Monitor$' manage=off
+
+if [ -x /opt/homebrew/bin/sketchybar ]; then
+  for label in sketchybar_space_created sketchybar_space_destroyed \
+    sketchybar_display_added sketchybar_display_removed
+  do
+    yabai -m signal --remove "$label" >/dev/null 2>&1 || true
+  done
+
+  # Space highlight is driven by sketchybar's native space_change event, so no
+  # space_changed trigger is needed; reload keeps native space items in sync
+  # when spaces or displays are added/removed.
+  yabai -m signal --add label=sketchybar_space_created \
+    event=space_created action='/opt/homebrew/bin/sketchybar --reload'
+  yabai -m signal --add label=sketchybar_space_destroyed \
+    event=space_destroyed action='/opt/homebrew/bin/sketchybar --reload'
+  yabai -m signal --add label=sketchybar_display_added \
+    event=display_added action='/opt/homebrew/bin/sketchybar --reload'
+  yabai -m signal --add label=sketchybar_display_removed \
+    event=display_removed action='/opt/homebrew/bin/sketchybar --reload'
+
+  /opt/homebrew/bin/sketchybar --reload >/dev/null 2>&1 || true
+fi
+
+echo 'yabai configuration loaded'

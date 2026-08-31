@@ -1,0 +1,46 @@
+# Yazi 顶部 Header 专用 Starship prompt（plugins/starship.yazi 渲染）。
+# 与终端的全局 Starship 配置互不影响。延续无背景 badge、│ 模块分隔的 CLI HUD 语言，
+# 颜色只表达语义，不照搬文件列表的当前项指针。
+# 只保留轻量模块：directory / git_*（版本模块每次渲染都要 fork，会拖慢 Header）。
+add_newline = false
+
+format = """
+$directory\
+$git_branch\
+$git_status\
+$git_metrics\
+"""
+
+right_format = ""
+
+[directory]
+style = "bold fg:#7aa2f7"
+truncation_length = 4
+truncate_to_repo = false
+home_symbol = "󰋞 ~"
+format = "[$path]($style)[$read_only](bold fg:#f7768e)"
+
+[git_branch]
+symbol = "󰊢"
+style = "bold fg:#9ece6a"
+format = "[  │  ](fg:#565f89)[$symbol $branch]($style)"
+
+[git_status]
+style = "fg:#e0af68"
+format = "([ $all_status$ahead_behind]($style))"
+
+[git_metrics]
+added_style = "fg:#9ece6a"
+deleted_style = "fg:#f7768e"
+format = "([  │  ](fg:#565f89)[+$added]($added_style)[ -$deleted]($deleted_style))"
+disabled = false
+
+# 以下模块对 Yazi Header 没有信息增益，保持禁用。
+[aws]
+disabled = true
+
+[gcloud]
+disabled = true
+
+[lua]
+disabled = true

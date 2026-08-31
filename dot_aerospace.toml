@@ -1,0 +1,109 @@
+# AeroSpace: SIP-free i3-like tiling for macOS.
+# This profile intentionally does not start at login. Select it with:
+#   ~/.config/wm/use aerospace
+# Colemak navigation: n/e/u/i = left/down/up/right.
+
+config-version = 2
+start-at-login = false
+auto-reload-config = true
+
+# SketchyBar is optional; this follows AeroSpace's official integration.
+after-startup-command = ['exec-and-forget /opt/homebrew/bin/sketchybar --reload']
+exec-on-workspace-change = [
+  '/bin/sh', '-c',
+  'export PATH=/opt/homebrew/bin:/usr/local/bin:$PATH; /bin/sleep 0.1; sketchybar --trigger aerospace_workspace_change FOCUSED_WORKSPACE=$AEROSPACE_FOCUSED_WORKSPACE',
+]
+
+# Keep workspace indicators stable in SketchyBar even while empty.
+persistent-workspaces = ['1', '2', '3', '4', '5', '6', '7', '8', '9']
+
+# Preserve useful tree normalization and follow focus across monitors.
+enable-normalization-flatten-containers = true
+enable-normalization-opposite-orientation-for-nested-containers = true
+default-root-container-layout = 'tiles'
+default-root-container-orientation = 'auto'
+accordion-padding = 28
+on-focused-monitor-changed = ['move-mouse monitor-lazy-center']
+automatically-unhide-macos-hidden-apps = true
+focus-follows-mouse.enabled = false
+
+# Let AeroSpace translate logical bindings for the active Colemak layout.
+key-mapping.preset = 'colemak'
+
+# Catppuccin-friendly breathing room.
+# outer.top: AeroSpace does not account for the macOS menu bar, so reserve it
+# manually: 24 (menu bar) + 8 (gap) = 32. This is the default while SketchyBar
+# is off (no ~/.config/wm/bar.enable); when the bar is enabled, use 64 (bar
+# bottom y=56 + gap 8) here and update yabairc alongside.
+gaps.inner.horizontal = 8
+gaps.inner.vertical = 8
+gaps.outer.left = 8
+gaps.outer.bottom = 8
+gaps.outer.top = 32
+gaps.outer.right = 8
+
+[mode.main.binding]
+# Focus and move: n/e/u/i = left/down/up/right.
+alt-n = 'focus left'
+alt-e = 'focus down'
+alt-u = 'focus up'
+alt-i = 'focus right'
+alt-shift-n = 'move left'
+alt-shift-e = 'move down'
+alt-shift-u = 'move up'
+alt-shift-i = 'move right'
+
+# Layout and lifecycle.
+alt-slash = 'layout tiles horizontal vertical'
+alt-comma = 'layout accordion horizontal vertical'
+alt-f = 'fullscreen'
+alt-shift-space = 'layout floating tiling'
+alt-b = 'balance-sizes'
+alt-shift-q = 'close'
+alt-r = 'mode resize'
+alt-shift-r = 'reload-config'
+
+# Workspaces.
+alt-1 = 'workspace 1'
+alt-2 = 'workspace 2'
+alt-3 = 'workspace 3'
+alt-4 = 'workspace 4'
+alt-5 = 'workspace 5'
+alt-6 = 'workspace 6'
+alt-7 = 'workspace 7'
+alt-8 = 'workspace 8'
+alt-9 = 'workspace 9'
+alt-shift-1 = 'move-node-to-workspace 1; workspace 1'
+alt-shift-2 = 'move-node-to-workspace 2; workspace 2'
+alt-shift-3 = 'move-node-to-workspace 3; workspace 3'
+alt-shift-4 = 'move-node-to-workspace 4; workspace 4'
+alt-shift-5 = 'move-node-to-workspace 5; workspace 5'
+alt-shift-6 = 'move-node-to-workspace 6; workspace 6'
+alt-shift-7 = 'move-node-to-workspace 7; workspace 7'
+alt-shift-8 = 'move-node-to-workspace 8; workspace 8'
+alt-shift-9 = 'move-node-to-workspace 9; workspace 9'
+alt-tab = 'workspace-back-and-forth'
+alt-shift-tab = 'move-workspace-to-monitor --wrap-around next'
+
+[mode.resize.binding]
+n = 'resize width -50'
+e = 'resize height +50'
+u = 'resize height -50'
+i = 'resize width +50'
+minus = 'resize smart -50'
+equal = 'resize smart +50'
+enter = 'mode main'
+esc = 'mode main'
+
+# Keep utility windows floating; ordinary app windows remain tiled.
+[[on-window-detected]]
+if.app-id = 'com.apple.systempreferences'
+run = 'layout floating'
+
+[[on-window-detected]]
+if.app-id = 'com.apple.calculator'
+run = 'layout floating'
+
+[[on-window-detected]]
+if.app-id = 'com.apple.ActivityMonitor'
+run = 'layout floating'

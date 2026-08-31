@@ -1,0 +1,16 @@
+packages:
+  - .
+
+nodeLinker: hoisted
+autoInstallPeers: false
+minimumReleaseAgeExclude:
+  - '@liustack/modlens@3.25.2'
+  - '@liustack/modsearch@5.10.0'
+  - dsh-builtin-browser@0.1.20
+  - dshmarket@1.35.0
+allowBuilds:
+  electron: true
+  node-pty: true
+  ssh2: true
+  cloudflared: true
+  cpu-features: true

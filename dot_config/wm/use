@@ -1,0 +1,100 @@
+#!/bin/sh
+# Select one window-manager profile at a time.
+set -eu
+export PATH="/opt/homebrew/bin:/usr/local/bin:$PATH"
+
+state_file="$HOME/.config/wm/active"
+usage() {
+  echo 'usage: ~/.config/wm/use aerospace|yabai|off|status' >&2
+  exit 2
+}
+have() { command -v "$1" >/dev/null 2>&1; }
+select_profile() {
+  mkdir -p "$(dirname "$state_file")"
+  printf '%s\n' "$1" > "$state_file"
+}
+stop_aerospace() {
+  if pgrep -x AeroSpace >/dev/null 2>&1; then
+    osascript -e 'tell application "AeroSpace" to quit' >/dev/null 2>&1 || pkill -x AeroSpace || true
+  fi
+}
+stop_yabai() {
+  if have skhd; then
+    skhd --stop-service >/dev/null 2>&1 || true
+    skhd --uninstall-service >/dev/null 2>&1 || true
+  fi
+  if have yabai; then
+    yabai --stop-service >/dev/null 2>&1 || true
+    yabai --uninstall-service >/dev/null 2>&1 || true
+  fi
+}
+reload_bar() {
+  have sketchybar || return 0
+  if [ ! -e "$HOME/.config/wm/bar.enable" ]; then
+    # SketchyBar is opt-in (see wm/README.md); without bar.enable keep it stopped.
+    brew services stop sketchybar >/dev/null 2>&1 || pkill -x sketchybar || true
+    return 0
+  fi
+  if pgrep -x sketchybar >/dev/null 2>&1; then
+    /opt/homebrew/bin/sketchybar --reload >/dev/null 2>&1 || true
+  elif have brew; then
+    brew services start sketchybar >/dev/null 2>&1 || true
+  fi
+  sleep 1
+}
+
+case "${1:-}" in
+  aerospace)
+    have aerospace || {
+      echo 'AeroSpace is not installed: brew install --cask nikitabobko/tap/aerospace' >&2
+      exit 1
+    }
+    stop_yabai
+    select_profile aerospace
+    open -a AeroSpace
+    i=0
+    until pgrep -x AeroSpace >/dev/null 2>&1 || [ "$i" -ge 30 ]; do i=$((i + 1)); sleep 0.1; done
+    reload_bar
+    echo 'window manager: AeroSpace'
+    ;;
+  yabai)
+    have yabai || {
+      echo 'yabai is not installed: brew install asmvik/formulae/yabai' >&2
+      exit 1
+    }
+    have skhd || {
+      echo 'skhd is not installed: brew install asmvik/formulae/skhd' >&2
+      exit 1
+    }
+    stop_aerospace
+    select_profile yabai
+    yabai --start-service >/dev/null 2>&1 || true
+    skhd --start-service >/dev/null 2>&1 || true
+    i=0
+    until yabai -m query --spaces >/dev/null 2>&1 || [ "$i" -ge 50 ]; do i=$((i + 1)); sleep 0.1; done
+    reload_bar
+    echo 'window manager: yabai + skhd'
+    ;;
+  off)
+    stop_aerospace
+    stop_yabai
+    select_profile off
+    reload_bar
+    echo 'window manager: off'
+    ;;
+  status)
+    selected="$(cat "$state_file" 2>/dev/null || echo auto)"
+    echo "selected profile: $selected"
+    pgrep -x AeroSpace >/dev/null 2>&1 && echo 'AeroSpace: running' || echo 'AeroSpace: stopped'
+    if have yabai && yabai -m query --spaces >/dev/null 2>&1; then echo 'yabai: running'; else echo 'yabai: stopped'; fi
+    pgrep -x skhd >/dev/null 2>&1 && echo 'skhd: running' || echo 'skhd: stopped'
+    if [ ! -e "$HOME/.config/wm/bar.enable" ]; then
+      echo 'SketchyBar: disabled (no bar.enable)'
+    elif pgrep -x sketchybar >/dev/null 2>&1; then
+      echo 'SketchyBar: running'
+    else
+      echo 'SketchyBar: stopped (bar.enable present)'
+    fi
+    ;;
+  *) usage ;;
+esac

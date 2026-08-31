@@ -1,0 +1,34 @@
+# Atuin — SQLite shell history with fuzzy search (https://docs.atuin.sh)
+# Deployed by chezmoi; shared across machines. Sync deliberately OFF:
+# pure-local usage, register later with `atuin register` + `atuin sync` if needed.
+
+## Search
+search_mode = "fuzzy"          # fuzzy match over the whole command line
+filter_mode = "global"         # ^R searches history from all machines/sessions
+filter_mode_shell_up_key_binding = "directory"  # (unused: up-arrow not bound)
+inline_height = 20             # inline UI, no fullscreen takeover
+show_preview = true            # preview the full command (long ones wrap)
+show_help = true
+exit_mode = "return-query"     # other keys fill the line instead of dismissing
+keymap_mode = "auto"           # follows $EDITOR / vi-mode
+style = "compact"
+enter_accept = true            # Enter executes immediately
+
+## History
+# Don't record trivial navigation commands
+history_filter = [
+    "^ls",
+    "^cd",
+    "^pwd",
+    "^exit",
+    "^clear",
+]
+# secrets_filter = true        # default: mask commands containing known secret env names
+
+## Stats
+stats = { common_subcommands = ["git", "cargo", "go", "npm", "pnpm", "brew"], common_prefix = ["sudo"] }
+
+## Sync (opt-in)
+sync_address = "https://api.atuin.sh"
+sync_frequency = "10m"
+auto_sync = false

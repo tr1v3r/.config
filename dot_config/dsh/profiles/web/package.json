@@ -1,0 +1,37 @@
+{
+  "name": "dsh-profile-web",
+  "private": true,
+  "dependencies": {
+    "@linxin666/dsh-web-ui-all": "^0.3.6",
+    "@liustack/modlens": "3.25.2",
+    "@liustack/modsearch": "5.10.0",
+    "@tt-a1i/archify-dsh": "^0.1.0",
+    "@wxg-prc-cpg/browser-skill-dsh-plugin": "0.1.1",
+    "dsh-at-file": "^0.6.3",
+    "dsh-builtin-browser": "^0.1.20",
+    "dsh-fetch-file": "^0.1.2",
+    "dsh-holdem": "^0.3.0",
+    "dsh-memory": "^0.1.0",
+    "dshmarket": "1.35.0",
+    "electron": "^44.0.0"
+  },
+  "dsh": {
+    "profile": {
+      "bundles": [
+        "@deepseek-ai/dsh-base",
+        "@deepseek-ai/dsh-web-app",
+        "@liustack/modlens",
+        "@linxin666/dsh-web-ui-all",
+        "dsh-memory",
+        "@tt-a1i/archify-dsh",
+        "dsh-at-file",
+        "dsh-builtin-browser",
+        "dsh-fetch-file",
+        "dsh-holdem",
+        "dshmarket",
+        "@wxg-prc-cpg/browser-skill-dsh-plugin",
+        "@liustack/modsearch"
+      ]
+    }
+  }
+}

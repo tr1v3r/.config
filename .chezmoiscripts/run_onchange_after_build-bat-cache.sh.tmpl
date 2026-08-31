@@ -1,0 +1,13 @@
+#!/bin/sh
+# Rebuild bat's cache when the managed Tokyo Night theme changes.
+# bat ignores symlinked theme files, so compile from a temporary regular copy.
+# theme-sha256: {{ include "dot_config/bat/themes/tokyonight_night.tmTheme" | sha256sum }}
+set -eu
+
+command -v bat >/dev/null 2>&1 || exit 0
+
+tmpdir="$(mktemp -d)"
+trap 'rm -rf "$tmpdir"' EXIT HUP INT TERM
+mkdir -p "$tmpdir/bat/themes"
+cp -L "$HOME/.config/bat/themes/tokyonight_night.tmTheme" "$tmpdir/bat/themes/"
+XDG_CONFIG_HOME="$tmpdir" bat cache --build

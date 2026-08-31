@@ -1,23 +1,17 @@
-#!/bin/bash
+#!/usr/bin/env bash
+set -Eeuo pipefail
 
-# 需要 root 权限执行此脚本
-if [[ $EUID -ne 0 ]]; then
-    echo "Please run this script as root"
-    exit 1
-fi
+SCRIPT_DIR="$(CDPATH='' cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd -P)"
 
-DIR="$(dirname "$(readlink -f "$0")")"
-
-SYS_TYPE=$(uname -s)
-
-case $SYS_TYPE in
-    "Darwin")
-        source $DIR/init_mac.sh
-        ;;
-    "Linux")
-        source $DIR/init_linux.sh
-        ;;
-    *)
-        echo "Unknown SYS type: $SYS_TYPE"
-        ;;
+case "$(uname -s)" in
+	Darwin)
+		exec "$SCRIPT_DIR/init_mac.sh" "$@"
+		;;
+	Linux)
+		exec "$SCRIPT_DIR/init_linux.sh" "$@"
+		;;
+	*)
+		printf 'Unsupported operating system: %s\n' "$(uname -s)" >&2
+		exit 1
+		;;
 esac

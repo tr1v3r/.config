@@ -1,0 +1,39 @@
+[[plugin.deps]]
+use = "yazi-rs/plugins:smart-enter"
+rev = "9a52857"
+hash = "56fdabc96fc1f4d53c96eb884b02a5be"
+
+[[plugin.deps]]
+use = "Rolv-Apneseth/starship"
+rev = "ea92cf4"
+hash = "9776f378459072b6c2875eae5addc49d"
+
+[[plugin.deps]]
+use = "h-hg/yamb"
+rev = "971b858"
+hash = "da4534745930e827a44d4585bbd965eb"
+
+[[plugin.deps]]
+use = "KKV9/compress"
+rev = "c264639"
+hash = "e17c11b605d989568a1d1741ca17c584"
+
+[[plugin.deps]]
+use = "yazi-rs/plugins:piper"
+rev = "9a52857"
+hash = "a20327710c3a8d37ee0972128dcb6a31"
+
+[[plugin.deps]]
+use = "yazi-rs/plugins:full-border"
+rev = "c591a36"
+hash = "f281261ff04ad7ec867c3f802a50835f"
+
+[[flavor.deps]]
+use = "yazi-rs/flavors:catppuccin-mocha"
+rev = "0f9204b"
+hash = "7dfe41c9c3d9be76da8a844263d0bbed"
+
+[[flavor.deps]]
+use = "BennyOe/tokyo-night"
+rev = "8e6296f"
+hash = "d9da921c3bd37ba32ee27a8a7a40461f"

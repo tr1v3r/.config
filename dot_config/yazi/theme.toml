@@ -1,0 +1,76 @@
+# vim:fileencoding=utf-8:foldmethod=marker
+
+[flavor]
+# Available flavors (install with `ya pkg add <source>`):
+#   catppuccin-mocha    — yazi-rs/flavors:catppuccin-mocha       暖灰底 + 柔和 pastel
+#   catppuccin-macchiato— yazi-rs/flavors:catppuccin-macchiato   深暖灰底 + 浓郁 pastel
+#   catppuccin-frappe   — yazi-rs/flavors:catppuccin-frappe      中暖灰底 + 柔和 pastel
+#   catppuccin-latte    — yazi-rs/flavors:catppuccin-latte       浅色底 + 柔和 pastel
+#   tokyo-night         — BennyOe/tokyo-night                    深蓝黑底 + 冷色蓝系
+#   kanagawa            — dangooddd/kanagawa                      深蓝紫底 + 金色/青色
+#   kanagawa-dragon     — marcosvnmelo/kanagawa-dragon            深色暖调 + 红/金
+#   kanagawa-lotus      — muratoffalex/kanagawa-lotus             浅色日式
+#   kanagawa-paper      — melindachang/kanagawa-paper             纸白底 + 墨色
+#   gruvbox-dark        — bennyyip/gruvbox-dark                   深暖色 + 橙/黄/绿
+#   gruvbox-material    — matt-dong-123/gruvbox-material          深暖色 + 材质感
+#   dracula             — yazi-rs/flavors:dracula                 深紫底 + 绿/紫/橙
+#   rose-pine           — Mintass/rose-pine                       深色底 + 玫瑰/松木色
+#   rose-pine-moon      — Mintass/rose-pine                       月光暗色版
+#   rose-pine-dawn      — Mintass/rose-pine                       浅色版
+#   nord                — AdithyanA2005/nord                      极深蓝底 + 冰蓝/霜白
+#   everforest-medium   — Chromium-3-Oxide/everforest-medium      深绿灰底 + 自然色系
+#   ayu-dark            — kmlupreti/ayu-dark                      深灰底 + 橙色高亮
+#   ashen               — ashen-org/ashen                         灰调暗色
+#   flexoki-dark        — gosxrgxx/flexoki-dark                   暖白纸底 + 墨色系
+#   flexoki-light       — gosxrgxx/flexoki-light                  浅色版 flexoki
+#   neon                — tomer-ben-david/neon                    霓虹荧光色
+#   synthwave84         — CFY98/synthwave84                       合成波复古风
+#   bluloco-dark        — hankertrix/bluloco-yazi                 深色蓝调
+#   bluloco-light       — hankertrix/bluloco-yazi                 浅色蓝调
+#   monokai             — Malick-Tammal/monokai                   经典 Monokai
+#   eldritch            — 6ruby1/eldritch                         暗色 + 绿/紫
+#   base16              — 使用终端配色，适配任何主题
+#   claude-inspired     — rapidrabbit76/claude-inspired           Claude 配色风格
+#   lain                — identityapproved/lain                   赛博朋克风
+#   obsidian-glow       — ZimCodes/yazi-flavors                   深色 + 柔光
+#   modus               — 社区                                   Emacs modus 风格
+dark  = "tokyo-night"
+light = "tokyo-night"
+
+# hovered 文件高亮：无背景 badge；CLI Pointer 由 init.lua 的 Entity child 渲染。
+[indicator]
+parent  = { fg = "#89b4fa", bold = true, reversed = false }
+current = { fg = "#7dcfff", bold = true, underline = true, reversed = false }
+preview = { fg = "#7dcfff", underline = true, reversed = false }
+
+# 图标增量：append_*/prepend_* 叠加在内置默认图标上，不覆盖默认规则。
+# 缺口按本仓库实际文件补：chezmoi / git-crypt / age / gpg / yazi / macOS zsh。
+# glyph 全部取自内置默认主题（渲染有保障），色板对齐 Tokyo Night：
+#   blue #7aa2f7 / cyan #7dcfff / yellow #e0af68 / purple #bb9af7 / gray #565f89
+[icon]
+prepend_globs = [
+	{ url = "**/.chezmoi*", text = "", fg = "#7dcfff" },
+]
+append_dirs = [
+	{ name = ".cache",    text = "", fg = "#565f89" },
+	{ name = ".gnupg",    text = "󰯄", fg = "#bb9af7" },
+	{ name = ".local",    text = "", fg = "#7dcfff" },
+	{ name = ".ssh",      text = "", fg = "#e0af68" },
+	{ name = "Github",    text = "", fg = "#7aa2f7" },
+	{ name = "workspace", text = "", fg = "#7dcfff" },
+	# 上游 quirk：默认把 node_modules 放在 files 数组（只匹配非目录），目录反而无图标
+	{ name = "node_modules", text = "", fg = "#e8274b" },
+]
+append_files = [
+	{ name = ".zprofile", text = "", fg = "#89e051" },
+	{ name = ".zlogin",   text = "", fg = "#89e051" },
+	{ name = "yazi.toml",   text = "", fg = "#e0af68" },
+	{ name = "keymap.toml", text = "", fg = "#e0af68" },
+	{ name = "theme.toml",  text = "", fg = "#e0af68" },
+	{ name = "keys.txt",  text = "", fg = "#565f89" },
+]
+append_exts = [
+	{ name = "gpg",   text = "󰯄", fg = "#bb9af7" },
+	{ name = "age",   text = "", fg = "#565f89" },
+	{ name = "plist", text = "", fg = "#7aa2f7" },
+]

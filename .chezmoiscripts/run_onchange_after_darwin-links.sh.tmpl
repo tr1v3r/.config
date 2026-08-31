@@ -1,0 +1,34 @@
+#!/bin/bash
+# Re-create macOS app-support symlinks when this script's content changes.
+# Runs on every `chezmoi apply`; exits early off macOS.
+set -euo pipefail
+[[ "$(uname -s)" == "Darwin" ]] || exit 0
+
+link() {
+	local src="$1" dst="$2"
+	if [[ ! -e "$src" ]]; then
+		echo "skip: missing $src"
+		return 0
+	fi
+	if [[ -L "$dst" && "$(readlink "$dst")" == "$src" ]]; then
+		return 0
+	fi
+	if [[ -e "$dst" || -L "$dst" ]]; then
+		mv "$dst" "$dst.bak.$(date +%Y%m%d%H%M%S)"
+		echo "backed up $dst"
+	fi
+	mkdir -p "$(dirname "$dst")"
+	ln -s "$src" "$dst"
+	echo "linked $dst -> $src"
+}
+
+# lazygit reads ~/Library/Application Support/lazygit on macOS
+link "$HOME/.config/lazygit" "$HOME/Library/Application Support/lazygit"
+
+# Firefox userChrome.js theme
+FIREFOX_PROFILE="$HOME/Library/Application Support/Firefox/Profiles/{{ .firefoxProfile | default "wwg09b6h.default-release" }}"
+link "$HOME/.config/firefox" "$FIREFOX_PROFILE/chrome"
+
+# iTerm2 settings dir (needs sudo; warn instead of failing)
+sudo ln -sfn "$HOME/.config/iterm2" /etc/iterm2 2>/dev/null \
+	|| echo "WARN: create manually: sudo ln -sfn $HOME/.config/iterm2 /etc/iterm2"

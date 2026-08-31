@@ -1,0 +1,32 @@
+README.md
+AGENTS.md
+CLAUDE.md
+scripts
+{{ if ne (.hostProfile | default "work") "work" }}
+.config/git/work.config
+{{ end }}
+{{ if and (eq (.hostProfile | default "work") "personal") (ne .chezmoi.os "darwin") }}
+.local/zshrc
+{{ end }}
+{{ if ne (.machineRole | default "workstation") "home-server" }}
+.config/adguard-home
+.config/bt
+.config/emby
+.config/karakeep
+.config/pihole
+{{ end }}
+{{ if ne .chezmoi.os "darwin" }}
+.aerospace.toml
+.config/aerospace
+.config/iterm2
+.config/kitty
+.config/sioyek
+.config/sketchybar
+.config/skhd
+.config/wm
+.config/yabai
+.gnupg/gpg-agent.conf
+{{ end }}
+{{ if ne .chezmoi.os "linux" }}
+.config/picom.conf
+{{ end }}

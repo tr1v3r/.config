@@ -1,0 +1,156 @@
+# ───────────────────────────────────────────────────────────────────────
+# 🌟 Starship Prompt Configuration 🚀
+# 📌 Official Guide: https://starship.rs/guide/
+# 🎨 Theme: Cryo Ops — arctic cyberdeck palette
+# 💻 Supported Shells: Bash, Zsh, Fish, PowerShell, Nushell, Ion, Xonsh, Elvish
+#
+# 🔧 Description:
+#   - Starship is a fast and customizable shell prompt.
+#   - Run `starship print-config` to see the current configuration.
+#   - Use `starship explain` to analyze your active prompt modules.
+#   - Run `starship module --list` to see all available modules.
+#
+# 🚀 Recommended Setup:
+#   1️⃣ Place this file in `~/.config/starship.toml`
+#   2️⃣ Add the following line to your shell config (`~/.bashrc`, `~/.zshrc`):
+#       eval "$(starship init zsh)"
+#   3️⃣ Reload your shell:
+#       source ~/.zshrc  or  source ~/.bashrc
+#
+# 🛠 Key Customizations:
+#   - `format` defines the overall prompt layout.
+#   - `right_format` positions information on the right.
+#   - `directory` controls how the current directory is displayed.
+#   - `git_branch` and `git_status` show Git repository details.
+#   - `time` displays the current system time.
+#   - `cmd_duration` shows execution time for commands.
+#
+# ───────────────────────────────────────────────────────────────────────
+
+add_newline = false
+# Cap worst-case wait per prompt module (git/version commands) at 300ms so a
+# cold cache or slow repo can't stall the first prompt for seconds.
+command_timeout = 300
+
+# Cryo Ops stays inside an ice-blue spectrum; alert magenta is the only
+# deliberately warm signal, reserved for failures and dirty state.
+palette = "cryo_ops"
+
+format = """
+$os\
+$username\
+$hostname\
+$directory\
+$git_branch\
+$git_state\
+$git_status\
+$status\
+$character\
+"""
+
+right_format = """
+$cmd_duration\
+$golang\
+$rust\
+$nodejs\
+$python\
+$time\
+"""
+
+[palettes.cryo_ops]
+cryo_steel = "#7487aa"
+cryo_blue = "#6aa9ff"
+cryo_cyan = "#39e7ff"
+cryo_path = "#28bfd3"
+cryo_ice = "#b7e6ff"
+cryo_mint = "#64f4d2"
+cryo_prompt = "#47cdb2"
+cryo_violet = "#a995ff"
+cryo_alert = "#ff5c8a"
+
+[os]
+disabled = false
+format = "[$symbol](bold cryo_blue) "
+
+[os.symbols]
+Macos = ""
+Linux = ""
+
+[username]
+style_user = "bold cryo_blue"
+style_root = "bold cryo_alert"
+
+[hostname]
+style = "cryo_steel dimmed bold"
+
+[directory]
+truncation_length = 6
+truncation_symbol = "…/"
+format = "[$path](cryo_path) "
+
+# git_state — 当前 Git 操作状态（rebase/merge/cherry-pick 等）
+#   REBASE
+#   REBASE-i
+#   MERGE
+#   CHERRY_PICK
+#   BISECT
+#   REVERT
+# git_status — 工作区文件变更状态符号
+#   +  已暂存修改
+#   !  未暂存修改
+#   ?  未跟踪文件
+#   »  已暂存改名
+#   ✘  已暂存删除
+#   ⇡  领先远程
+#   ⇣  落后远程
+#   ⇕  有分歧
+#   =  未暂存改名
+#   ✚  未暂存删除
+
+[git_branch]
+format = "[ $branch](bold cryo_violet) "
+# truncation_length = 12
+# ignore_branches = ['master', 'main']
+
+[git_state]
+style = "bold cryo_ice"
+
+[git_status]
+style = "bold cryo_alert"
+# Skip the untracked-files walk (starship 1.25+ gitoxide native): an empty
+# `untracked` format disables the dirwalk entirely. Trade-off: no "?"
+# untracked marker in the prompt.
+untracked = ""
+
+[golang]
+format = '[ $version](bold cryo_cyan) '
+
+[rust]
+format = '[ $version](bold cryo_ice) '
+
+[nodejs]
+format = '[ $version](bold cryo_mint) '
+
+[python]
+format = '[ $version](bold cryo_blue) '
+
+[character] # The name of the module we are configuring is 'character' ❯
+success_symbol = '[➜](bold cryo_prompt)'
+error_symbol = '[✗](bold cryo_alert) '
+vimcmd_symbol = '[V](bold cryo_cyan)'
+vimcmd_replace_one_symbol = '[V](bold cryo_alert)'
+vimcmd_replace_symbol = '[V](bold cryo_alert)'
+vimcmd_visual_symbol = '[V](bold cryo_violet)'
+
+[cmd_duration]
+min_time = 2000  # 超过 2 秒才显示
+format = "[ $duration](bold cryo_steel) "
+
+[time]
+disabled = false
+time_format = "%T" # 24小时制
+format = "[$time](bold cryo_blue) "
+
+[status]
+disabled = false
+format = '[$status](bold cryo_alert) '

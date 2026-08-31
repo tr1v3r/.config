@@ -1,0 +1,9 @@
+{{- $hostProfile := promptStringOnce . "hostProfile" "Host profile (work|personal)" "work" -}}
+{{- $machineRole := promptStringOnce . "machineRole" "Machine role (workstation|home-server)" "workstation" -}}
+{{- $firefoxProfile := promptStringOnce . "firefoxProfile" "Firefox profile dir name (macOS)" "wwg09b6h.default-release" -}}
+mode = "symlink"
+
+[data]
+    hostProfile = {{ $hostProfile | quote }}
+    machineRole = {{ $machineRole | quote }}
+    firefoxProfile = {{ $firefoxProfile | quote }}

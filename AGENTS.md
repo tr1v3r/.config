@@ -5,62 +5,125 @@ to this file, so Claude Code and other tools share this single copy.
 
 ## Repository Overview
 
-Personal dotfiles + self-hosting monorepo at `~/.config` (git user: `tr1v3r`; main branch `master`, active work on `dev`). Three groups: **dev/editor/shell configs**, **self-hosted service stacks** (Docker Compose), and **bootstrap/deploy scripts + secrets**. macOS-first, with Linux home-server support.
+Personal dotfiles monorepo (git user: `tr1v3r`; main branch `master`, active
+work on `dev`), **managed by chezmoi**. The git checkout lives at
+`~/.local/share/chezmoi` — this is the only source of truth. `~/.config` and
+the home-level dotfiles it deploys are **targets**: with `mode = "symlink"`
+most files there are symlinks into the source repo, so editing a target file
+edits the repo directly. Only `.tmpl` templates are rendered copies — edit
+those with `chezmoi edit <target>`.
 
-Some subdirectories are **git submodules that are separate repos** with their own context — most notably `zsh/` (has its own `zsh/CLAUDE.md` / `zsh/AGENTS.md`; read it for shell module architecture) and `nvim/`. Always check for a nested `CLAUDE.md` or `AGENTS.md` before assuming.
+`~/.config/.git.retired` is the frozen `gitdir` of the old in-place checkout
+(renamed 2026-08-29 during cleanup; its `dev` history matches `dotfiles.git`
+at `ca94b4f` — nothing unique). It is a rollback hatch only; safe to delete
+once stable. `~/.config/CLAUDE.md → AGENTS.md` is a local pair, deliberately
+NOT chezmoi-managed (see `.chezmoiignore`) — keep it in sync manually with the
+source-root `AGENTS.md`. Everything else in `~/.config` is deployed symlinks
+plus host-local, untracked state (caches, app data) — normal and not part of
+the repo.
 
 ## Critical: git-crypt encrypted files
 
-This repo uses **git-crypt**. Files matching `.gitattributes` (`secrets/**`, `age/keys.txt`, `age/keys-pq.txt`, `ssh/config`, `aerc/accounts.conf`, `deploy/k8s/mysql/deploy-mysql-singleton.yaml`, `deploy/k8s/redis/redis-config.yaml`, `iterm2/com.googlecode.iterm2.plist`, `adguard-home/conf/**`, `pihole/.pihole.env`, `emby/.env`, `karakeep/.env`, `himalaya/config.toml`, `ortie/config.toml`) are encrypted at rest in git.
+This repo uses **git-crypt**. Paths in `.gitattributes` (all under `dot_config/`) are encrypted at rest in git:
 
-- The GPG-wrapped key lives in `.git-crypt/`; run `git-crypt unlock` (once per clone) to read/edit encrypted paths.
-- Never paste secret values into plaintext. New secrets go under `secrets/**` (already encrypted) or a git-crypt-encrypted `.env`.
-- If a file shows as binary/ciphertext, it's locked — don't "fix" it by overwriting with plaintext.
+`dot_config/secrets/**`, `dot_config/age/keys.txt`, `dot_config/age/keys-pq.txt`, `dot_config/ssh/config`,
+`dot_config/aerc/accounts.conf`, `dot_config/git/work.config`,
+`dot_config/deploy/k8s/mysql/deploy-mysql-singleton.yaml`,
+`dot_config/deploy/k8s/redis/redis-config.yaml`,
+`dot_config/iterm2/com.googlecode.iterm2.plist`,
+`dot_config/adguard-home/conf/**`, `dot_config/pihole/.pihole.env`,
+`dot_config/emby/.env`, `dot_config/karakeep/.env`,
+`dot_config/himalaya/config.toml`, `dot_config/ortie/config.toml`.
 
-## Critical: whitelist `.gitignore`
+- After a fresh clone: `git-crypt unlock` (once per clone) before any
+  `chezmoi apply`, otherwise chezmoi would deploy ciphertext.
+- Never paste secret values into plaintext. New secrets go under `dot_config/secrets/**`
+  or become git-crypt-encrypted paths.
+- If a file shows as binary/ciphertext, the clone is locked — unlock it, don't
+  overwrite with plaintext.
 
-The root `.gitignore` uses a `/*` whitelist: **everything top-level is ignored by default**, then specific entries are re-included with `!/path/`. Consequence: **a new top-level directory is NOT tracked until you add a `!/newdir/` line to `.gitignore`**. Runtime state (caches, container data) is pruned at the root so git never descends into it.
+## Source layout (curated root)
+
+There is **no whitelist `.gitignore` anymore** — the root contains exactly
+what is tracked:
+
+```
+~/.local/share/chezmoi/
+├── .zsh/ .nvim/        # submodules, hidden from chezmoi (dot-prefix), dir-symlinked
+├── dot_config/          # → ~/.config/ (all XDG configs, service stacks, deploy/)
+├── dot_zshenv.tmpl      # → ~/.zshenv (renders HOST_PROFILE from chezmoi data)
+├── private_dot_gitconfig.tmpl # → ~/.gitconfig loader; .gitconfig.local stays local
+├── dot_local/           # → ~/.local/ (machine-profile Zsh link)
+├── dot_condarc          # → ~/.condarc
+├── dot_cargo/           # → ~/.cargo/
+├── dot_gnupg/           # → ~/.gnupg/ (gpg-agent.conf is a darwin/linux template)
+├── private_dot_ssh/     # → ~/.ssh/ loader; config.local remains host-local
+├── scripts/             # bootstrap scripts — NOT deployed (see .chezmoiignore)
+├── .chezmoi.toml.tmpl   # init questionnaire → hostProfile / machineRole / firefoxProfile
+├── .chezmoiignore       # per-machine exclusions (template)
+└── .chezmoiscripts/     # post-apply platform hooks (package bootstrap is explicit)
+```
+
+## Bootstrap (new machine)
+
+```bash
+chezmoi init git@github.com:tr1v3r/dotfiles.git   # clone + answer the questionnaire
+cd ~/.local/share/chezmoi
+./scripts/init.sh                                  # explicit system packages; self-elevates on Linux
+git-crypt unlock                                  # decrypt secrets (needs the GPG key)
+chezmoi apply                                     # deploy config; never installs packages
+```
+
+Package installation is deliberately explicit: `chezmoi apply` must remain usable
+without root, a TTY, or package-manager network access.
+
+Linux validation is split by responsibility: `scripts/test_linux_containers.sh`
+tests real package bootstrap, while `scripts/test_chezmoi_containers.sh` clones a
+locked repository and tests init/apply/verify/idempotence across Ubuntu, Debian,
+and Arch. The latter enumerates effective Git attributes for every tracked file,
+requires each git-crypt file to be ciphertext, ignores its exact target, and must
+never deploy ciphertext. It tests committed HEAD and rejects dirty deployable
+source paths instead of silently testing stale code.
 
 ## Submodules
 
-See `.gitmodules`. After cloning: `git submodule update --init --recursive`. Known submodules: `zsh`, `nvim`, `firefox` (tracks a `custom` branch), `ai/llm-wiki` (a gist fork), and two `ranger/plugins/*`.
-
-## Bootstrap
-
-- `scripts/init.sh` — root-only, OS-dispatches to `init_mac.sh` / `init_linux.sh` → `init_debian.sh`. Installs system packages.
-- `scripts/deploy_config.sh` — root-only, clones this repo to `~/.config` and symlinks configs into place (lazygit, Firefox `chrome/`, `~/.cargo/config`, `~/.zshrc.local`).
-- `zsh/init_new_device.sh` — non-root, appends `ZDOTDIR` + `HOST_PROFILE` to `~/.zshenv` for a new shell host.
+See `.gitmodules`. After cloning: `git submodule update --init`. Known
+submodules: `.zsh`, `.nvim` (whole-dir-symlinked to `~/.config/zsh`,
+`~/.config/nvim` via `dot_config/symlink_*.tmpl`), `dot_config/firefox`
+(custom branch), `dot_config/ai/llm-wiki`. The old
+`ranger/plugins/{ranger_devicons,ranger-gpg}` submodules are **vendored**
+(pinned commits, plain files now).
 
 ## Directory Map
 
-**Shells / editors / CLI tools** (mostly symlinked from `$HOME`): `zsh/`, `nvim/`, `aerc/` (email), `himalaya/` (terminal email client; `config.toml` encrypted), `kitty/`, `iterm2/`, `tmux/`, `tmux-powerline/`, `ranger/`, `yazi/`, `lazygit/`, `gnupg/`, `ssh/`, `cargo/`, `conda/`, `git/` (global ignore), `raycast/` (only `diy_plugins/` + `scripts/` tracked), `neofetch/`, `snipaste/`, `bashtop/`.
+**Shells / editors / CLI tools**: `zsh/` (submodule at `.zsh/`, has its own
+CLAUDE.md/AGENTS.md), `nvim/` (submodule at `.nvim/`), `aerc/`, `himalaya/`,
+`kitty/`, `iterm2/`, `tmux/`, `tmux-powerline/`, `ranger/`, `yazi/`,
+`lazygit/`, `gnupg/`→promoted, `ssh/`, `git/`, `raycast/`, `neofetch/`,
+`snipaste/`, `btop/` (replaced deprecated `bashtop/` 2026-08), `herdr/`, `dsh/`, `skills/`, `ai/`, `ortie/` (ortie contains credentials — git-crypt encrypted).
 
-**AI agent harnesses**: `dsh/` (agent harness: `settings.yaml` default model/provider + per-profile packages under `dsh/profiles/`), `herdr/` (persistent terminal workspace manager config), `skills/` (self-built skills, symlinked into `~/.claude/skills/`).
+**Self-hosted service stacks** (under `dot_config/`, each with a README):
+`adguard-home/`, `pihole/`, `emby/`, `karakeep/`, `bt/`. Applied **only** on
+machines whose `machineRole` is `home-server` (see `.chezmoiignore`).
 
-**Self-hosted service stacks** (each has a `README.md`): `adguard-home/`, `pihole/` (DNS), `emby/` (media), `karakeep/` (bookmarks), `bt/` (qBittorrent-Enhanced, PT/BT). See compose pattern below.
+**Infra / secrets**: `deploy/`, `secrets/`, `age/` (git-crypt-protected, under `dot_config/`),
+`scripts/` (self-elevating package bootstrap and container tests, NOT deployed).
 
-**Infra / scripts / secrets**: `scripts/`, `deploy/` (`deploy/k8s/` manifests: redis, nginx, mysql, demo, dev), `secrets/` (git-crypt; e.g. `bd_router.yaml`, `bookmarks/` JSON snapshots), `age/` (`age(1)` key material, git-crypt'd), `ai/` (`SKILL_INVENTORY.md`, `skill-lock.json`, `llm-wiki` submodule).
+## Multi-machine model
 
-Some top-level dirs seen on disk are deliberately **not tracked** — they are host-local app state not re-included by the `.gitignore` whitelist (e.g. `bytesec/`, `gh/`, `homebrew/`, `karabiner/`, `notion/`, `opencode/`, `sara/`, `soc-cli/`, `ssl/`). Never add a `!/dir/` line for them casually.
+Two independent axes, both answered at `chezmoi init`:
 
-**Root files**: tracked — `starship.toml`, `picom.conf`. Present locally but deliberately untracked — `reasonix.toml` (tool config; secrets via `api_key_env`, never inline) and `data.yaml` (contains internal endpoints); do not whitelist these.
+- `hostProfile` (`work` | `personal`) — rendered into `~/.zshenv` as
+  `HOST_PROFILE`, selects work-only Git config, and maps `~/.local/zshrc` to the
+  matching OS/profile file (`work.mac`, `work.linux`, or personal `air.mac`).
+- `machineRole` (`workstation` | `home-server`) — gates service-stack
+  deployment via `.chezmoiignore`.
 
-## Service stack compose pattern
-
-Each service dir ships a **base** `docker-compose.yml` (macOS-local default) plus an optional `docker-compose.home.yml` override for a Linux home host that serves the whole LAN (e.g. `network_mode: host`). Runtime state is gitignored per-dir; `*.env` files are git-crypt encrypted.
-
-Multi-container stacks that resolve siblings by Docker service-name DNS (e.g. `karakeep/`'s web + chrome + meilisearch) deliberately ship **no** home override — `network_mode: host` would break that DNS resolution; their published ports already reach Tailscale. See `karakeep/README.md`.
-
-```bash
-# macOS local
-docker compose -f docker-compose.yml up -d
-# Linux home host (LAN-facing)
-docker compose -f docker-compose.yml -f docker-compose.home.yml up -d
-```
+Do not invent a third mechanism; extend these.
 
 ## Conventions
 
-- Secrets via 1Password CLI (`op item get`) or git-crypt — never hardcoded.
-- Configs are symlinked into `$HOME` by `deploy_config.sh`, not copied.
-- Prefer editing the submodule repo in place (`zsh/`, `nvim/`) and committing there, then bumping the submodule pointer in this repo.
-- Rust-modern CLI tools are the default (`bat`, `rg`, `eza`, `fd`, `zoxide`) — see `zsh/CLAUDE.md`.
+- Secrets via git-crypt (or 1Password CLI `op item get`) — never hardcoded.
+- Prefer editing the submodule repos in place (`.zsh/`, `.nvim/`) and committing there, then bumping the pointer here.
+- Rust-modern CLI tools are the default (`bat`, `rg`, `eza`, `fd`, `zoxide`).
+- Dependabot alerts on the stale `master` default branch (default-branch switch pending).
