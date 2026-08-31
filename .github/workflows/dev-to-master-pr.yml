@@ -13,7 +13,7 @@ name: dev-to-master-pr
 
 on:
   schedule:
-    - cron: "0 2 * * 1" # every Monday 02:00 UTC (10:00 Beijing)
+    - cron: "17 2 * * 1" # every Monday 02:17 UTC (10:17 Beijing); off the hour to avoid GitHub's scheduled-run delay/drop window
   workflow_dispatch: {}
 
 permissions:
