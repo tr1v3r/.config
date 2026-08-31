@@ -3,16 +3,16 @@
   "private": true,
   "dependencies": {
     "@linxin666/dsh-web-ui-all": "^0.3.6",
-    "@liustack/modlens": "3.25.2",
+    "@liustack/modlens": "3.25.3",
     "@liustack/modsearch": "5.10.0",
     "@tt-a1i/archify-dsh": "^0.1.0",
-    "@wxg-prc-cpg/browser-skill-dsh-plugin": "0.1.1",
+    "@wxg-prc-cpg/browser-skill-dsh-plugin": "0.1.2",
     "dsh-at-file": "^0.6.3",
     "dsh-builtin-browser": "^0.1.20",
     "dsh-fetch-file": "^0.1.2",
     "dsh-holdem": "^0.3.0",
     "dsh-memory": "^0.1.0",
-    "dshmarket": "1.35.0",
+    "dshmarket": "1.38.1",
     "electron": "^44.0.0"
   },
   "dsh": {
