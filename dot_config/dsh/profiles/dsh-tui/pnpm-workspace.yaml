@@ -11,5 +11,4 @@ allowBuilds:
   protobufjs: false
 
 minimumReleaseAgeExclude:
-  - '@deepseek-harness-tui/dsh-tui@0.10.0-beta.3'
-
+  - '@deepseek-harness-tui/dsh-tui@0.10.0-beta.4'

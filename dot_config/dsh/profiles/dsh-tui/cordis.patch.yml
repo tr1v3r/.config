@@ -1,4 +1,14 @@
 # Your patch layer for this dsh profile, applied after every bundle layer:
 # a top-level YAML array of loader patch entries (id-targeted config
 # overrides, disables, and insert lists; `!!js` expressions allowed).
-[]
+- id: dsh-tui-auth
+  config:
+    providers:
+      - openai-codex
+      - anthropic
+      - xai
+    modelOverrides:
+      openai-codex:
+        gpt-5.6-sol:
+          contextWindow: 512000
+          maxTokens: 128000
