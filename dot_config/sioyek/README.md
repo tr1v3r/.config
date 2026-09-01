@@ -15,6 +15,8 @@ the app is damaged, apply the same narrow workaround explicitly:
 xattr -dr com.apple.quarantine /Applications/sioyek.app
 ```
 
-Bindings add a Colemak navigation layer (`n/e/u/i`) while retaining Sioyek's
-defaults. Press `F8` to toggle Catppuccin paper colors rather than forcing
-figure inversion for every document.
+Bindings add a Colemak navigation layer (`n/e/u/i`) plus uppercase quick
+movement (`N/E/U/I`: smart left, screen down, screen up, smart right). Search
+results use `,`/`.` for previous/next. Display controls use a mnemonic `z`
+prefix: `zc` toggles Tokyo Night paper colors and `zp` toggles the portal
+helper window.
