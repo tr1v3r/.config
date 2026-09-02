@@ -22,8 +22,9 @@ xattr -dr com.apple.quarantine /Applications/Sioyek.app
 hdiutil detach /tmp/sioyek3/mnt
 ```
 
-`scripts/init_mac.sh` does the same on a fresh machine. There is no CLI
-wrapper — launch with `open -a Sioyek`. The build is adhoc-signed and
+`scripts/init_mac.sh` does the same on a fresh machine. The CLI wrapper is
+chezmoi-managed at `dot_local/bin/sioyek` → `~/.local/bin/sioyek` (already on
+PATH; ignored on non-darwin hosts). The build is adhoc-signed and
 curl-downloaded files carry no quarantine attribute, so the `xattr` line is a
 safety net; global Gatekeeper and SIP stay enabled. Databases (highlights,
 bookmarks) live in `~/Library/Application Support/sioyek` and survive app
