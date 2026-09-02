@@ -71,6 +71,7 @@ chezmoi init git@github.com:tr1v3r/dotfiles.git   # clone + answer the questionn
 cd ~/.local/share/chezmoi
 ./scripts/init.sh                                  # explicit system packages; self-elevates on Linux
 git-crypt unlock                                  # decrypt secrets (needs the GPG key)
+(cd .hermes && git-crypt unlock)                  # submodule credentials, same GPG key
 chezmoi apply                                     # deploy config; never installs packages
 ```
 
@@ -93,7 +94,9 @@ submodules: `.zsh`, `.nvim` (whole-dir-symlinked to `~/.config/zsh` and
 (whole-dir-symlinked to `~/.hermes` via `symlink_dot_hermes.tmpl`),
 `dot_config/firefox` (custom branch), `dot_config/ai/llm-wiki`. The old
 `ranger/plugins/{ranger_devicons,ranger-gpg}` submodules are **vendored**
-(pinned commits, plain files now).
+(pinned commits, plain files now). `.hermes` keeps its credentials
+(`.env`, `auth.json`) git-crypt-encrypted with the same GPG key — unlock it
+once after cloning (see Bootstrap).
 
 ## Directory Map
 
