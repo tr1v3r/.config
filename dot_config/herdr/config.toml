@@ -16,8 +16,9 @@
 onboarding = false
 
 [theme]
-# Follow the outer terminal's ANSI palette across different hosts and terminals.
-name = "terminal"
+# Pin a consistent Tokyo Night palette across hosts and terminals.
+name = "tokyo-night"
+auto_switch = false
 
 [terminal]
 # Leave default_shell unset so each host uses its own $SHELL.
