@@ -63,6 +63,21 @@ navigate_pane_down = "e"
 navigate_pane_up = "u"
 navigate_pane_right = "i"
 
+# Equalize pane sizes in the focused tab. --axis down evens the heights of
+# vertical stacks; --axis right evens the widths of horizontal rows; mixed
+# layouts only touch their uniform sub-stacks. Runs detached; the layout
+# change itself is the feedback.
+# https://gist.github.com/tr1v3r/3b9337f9f28f75f5456498abd85f5e99
+[[keys.command]]
+key = "prefix+alt+v"
+type = "shell"
+command = "$HOME/.local/bin/herdr-even --apply --axis down"
+
+[[keys.command]]
+key = "prefix+alt+h"
+type = "shell"
+command = "$HOME/.local/bin/herdr-even --apply --axis right"
+
 [ui]
 # Pack split panes tighter: share divider borders instead of keeping a
 # visible gap between adjacent panes (tmux-style internal splitters).
