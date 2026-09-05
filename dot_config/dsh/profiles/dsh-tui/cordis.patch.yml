@@ -12,3 +12,19 @@
         gpt-5.6-sol:
           contextWindow: 512000
           maxTokens: 128000
+
+- insert:
+    - id: mcp-firecrawl
+      name: '@deepseek-ai/dsh-mcp-client'
+      config:
+        serverName: firecrawl
+        transport: stdio
+        command: npx
+        args:
+          - -y
+          - firecrawl-mcp@3.24.0
+        env:
+          FIRECRAWL_API_URL: http://127.0.0.1:3002
+          NPM_CONFIG_CACHE: !!js process.env.HOME + '/.cache/dsh-npm'
+        toolCallTimeoutMs: 180000
+        failOnStartupError: false
