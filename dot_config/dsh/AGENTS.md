@@ -23,6 +23,7 @@ dsh plugin --profile <name> <pnpm args> # 管理 profile 的插件（pnpm 转发
 
 ```
 dsh/
+├── FIRECRAWL.md           # 本地部署、MCP 接入、使用与排障
 ├── settings.yaml          # 全局设置文档（热加载，见下）
 ├── cordis.patch.yml       # home 级 patch 层（本机当前为空）
 ├── .gitignore             # 秘密/运行时状态忽略规则（见「git 约定」）
@@ -35,6 +36,8 @@ dsh/
 ├── dsh-auth/              # ⚠️ OAuth 令牌存储（已忽略，见下）
 └── skills/                # 外部 skill（从上游仓库克隆，已忽略）
 ```
+
+本地 Firecrawl 的部署、MCP 配置、验证与排障见 [`FIRECRAWL.md`](FIRECRAWL.md)。
 
 ## Profile 机制
 
