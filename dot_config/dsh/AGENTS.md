@@ -1,6 +1,6 @@
 # dsh/ — DeepSeek Harness 配置
 
-本目录是 **DeepSeek Harness（dsh）** 的机器配置（`DSH_HOME=/Users/bytedance/.config/dsh`），
+本目录是 **DeepSeek Harness（dsh）** 的机器配置（`DSH_HOME=~/.config/dsh`），
 属于 dotfiles 仓库（`tr1v3r/dotfiles`，主分支 `master`，活跃分支 `dev`）的一部分。
 根目录 `AGENTS.md` 描述整个仓库；本文件描述 dsh 特有机制、坑与维护约定。
 
