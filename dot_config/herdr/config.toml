@@ -83,9 +83,12 @@ command = "$HOME/.local/bin/herdr-even --apply --axis right"
 # visible gap between adjacent panes (tmux-style internal splitters).
 pane_gaps = false
 
+[experimental]
+# Let pane applications such as Yazi render images through Herdr.
+kitty_graphics = true
+
 # Optional macOS/CJK compatibility. Enable only if an agent TUI hides the cursor
 # or a non-ASCII input source makes prefix shortcuts inconvenient.
-# [experimental]
 # reveal_hidden_cursor_for_cjk_ime = true
 # cjk_ime_agents = ["claude", "codex"]
 # switch_ascii_input_source_in_prefix = true
